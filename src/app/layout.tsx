@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+/* import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -31,4 +31,55 @@ export default function RootLayout({
       </body>
     </html>
   );
+} */
+
+
+'use client';
+
+import "./globals.css";
+import React, { useState } from 'react';
+import Sidebar from '@/components/ui/Sidebar';
+import MenuIcon from '@mui/icons-material/Menu';
+import { IconButton } from '@mui/material';
+import { Toaster } from "react-hot-toast";
+
+interface LayoutProps {
+  children: React.ReactNode;
 }
+
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(prev => !prev);
+  };
+
+  return (
+    <html lang='es'>
+      <body>
+        <div className="flex w-full h-screen">
+          {/* Sidebar */}
+          <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+
+          {/* Botón toggle para móvil */}
+          <div className="absolute top-4 left-4 md:hidden z-30">
+            <IconButton onClick={toggleSidebar} sx={{ bgcolor: 'white' }}>
+              <MenuIcon />
+            </IconButton>
+          </div>
+
+          {/* Contenido principal */}
+          <main
+            className="flex-1 overflow-y-auto bg-gray-800 p-5 pt-10 w-full"
+          >
+            {children}
+            <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+
+          </main>
+        </div>
+      </body>
+    </html>
+  );
+};
+
+export default Layout;
