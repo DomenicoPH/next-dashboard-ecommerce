@@ -13,7 +13,9 @@ import {
   Divider,
   useTheme
 } from '@mui/material';
-import { EcommerceWidgetSummary } from '@/sections/overview/e-commerce/ecommerce-widget-summary';
+import { EcommerceWidgetSummary } from '@/widgets/overview/e-commerce/ecommerce-widget-summary';
+import { EcommerceYearlySales } from '@/widgets/overview/e-commerce/ecommerce-yearly-sales';
+import { EcommerceSaleByGender } from '@/widgets/overview/e-commerce/ecommerce-sale-by-gender';
 
 const salesData = {
   today: 1500,
@@ -38,6 +40,7 @@ const AdminOverviewPage: React.FC = () => {
     const theme = useTheme();
   return (
     <Box sx={{ px: { xs: 2, md: 4 }, py: 4, width: '100%' }}>
+
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         Resumen General
       </Typography>
@@ -45,7 +48,7 @@ const AdminOverviewPage: React.FC = () => {
         <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 4 }}>
               <EcommerceWidgetSummary
-                title="Product sold"
+                title="Productos vendidos"
                 percent={2.6}
                 total={765}
                 chart={{
@@ -57,7 +60,7 @@ const AdminOverviewPage: React.FC = () => {
 
             <Grid size={{ xs: 12, md: 4 }}>
               <EcommerceWidgetSummary
-                title="Total balance"
+                title="Balance total"
                 percent={-0.1}
                 total={18765}
                 chart={{
@@ -70,7 +73,7 @@ const AdminOverviewPage: React.FC = () => {
 
             <Grid size={{ xs: 12, md: 4 }}>
               <EcommerceWidgetSummary
-                title="Sales profit"
+                title="Ganancia de ventas"
                 percent={0.6}
                 total={4876}
                 chart={{
@@ -80,6 +83,74 @@ const AdminOverviewPage: React.FC = () => {
                 }}
               />
             </Grid>
+
+        </Grid>
+
+        <Grid container spacing={3} sx={{ mt: 4 }}>
+          
+          <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+            <EcommerceSaleByGender
+              title="Ventas por Género"
+              total={2324}
+              chart={{
+                series: [
+                  { label: 'Hombres', value: 25 },
+                  { label: 'Mujeres', value: 50 },
+                ],
+              }}
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6, lg: 8 }} >
+            <EcommerceYearlySales
+              title="Ventas Anuales"
+              subheader="(+43%) que el año pasado"
+              chart={{
+                categories: [
+                  'Ene',
+                  'Feb',
+                  'Mar',
+                  'Abr',
+                  'May',
+                  'Jun',
+                  'Jul',
+                  'Ago',
+                  'Sep',
+                  'Oct',
+                  'Nov',
+                  'Dic',
+                ],
+                series: [
+                  {
+                    name: '2024',
+                    data: [
+                      {
+                        name: 'Ingresos Totales',
+                        data: [10, 41, 35, 51, 49, 62, 69, 91, 148, 35, 51, 49],
+                      },
+                      {
+                        name: 'Gastos Totales',
+                        data: [10, 34, 13, 56, 77, 88, 99, 77, 45, 13, 56, 77],
+                      },
+                    ],
+                  },
+                  {
+                    name: '2025',
+                    data: [
+                      {
+                        name: 'Ingresos Totales',
+                        data: [51, 35, 41, 10, 91, 69, 62, 148, 91, 69, 62, 49],
+                      },
+                      {
+                        name: 'Gastos Totales',
+                        data: [56, 13, 34, 10, 77, 99, 88, 45, 77, 99, 88, 77],
+                      },
+                    ],
+                  },
+                ],
+              }}
+            />
+          </Grid>
 
         </Grid>
 
