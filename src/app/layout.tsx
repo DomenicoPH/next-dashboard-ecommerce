@@ -73,7 +73,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             className="flex-1 overflow-y-auto bg-gray-800 p-5 pt-10 w-full"
           >
             {children}
-            <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+            <Toaster position="top-center" toastOptions={{ duration: 4000 }} />
 
           </main>
         </div>
