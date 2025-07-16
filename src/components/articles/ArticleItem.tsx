@@ -178,40 +178,37 @@ const ArticleItem: React.FC<ArticleItemProps> = ({
             sx={{
               display: 'flex',
               flexDirection: { xs: 'column', sm: 'row' }, // vertical en móvil, horizontal en desktop
-              backgroundColor: 'rgb(245,245,245)',
-              borderRadius: 2,
               width: 'auto',
               alignSelf: 'flex-end',
               gap: 1,
-              py: 2,
               px: 2,
             }}
           >
             {onView && (
               <Tooltip title="Ver">
-                <IconButton color="primary" onClick={onView}>
+                <IconButton onClick={onView} sx={{ '&:hover': {color: 'primary.main'} }}>
                   <VisibilityIcon />
                 </IconButton>
               </Tooltip>
             )}
             {onEdit && (
               <Tooltip title="Editar">
-                <IconButton color="success" onClick={onEdit}>
+                <IconButton onClick={onEdit} sx={{ '&:hover': {color: 'primary.main'} }}>
                   <EditIcon />
                 </IconButton>
               </Tooltip>
             )}
             {onDelete && (
               <Tooltip title="Eliminar">
-                <IconButton color="error" onClick={onDelete}>
+                <IconButton onClick={onDelete} sx={{ '&:hover': {color: 'error.main'} }}>
                   <DeleteIcon />
                 </IconButton>
               </Tooltip>
             )}
           </Box>
           {/* Precio solo en desktop */}
-          <Box sx={{ display: { xs: 'none', sm: 'block' }, width: '100%', pt: 2 }}>
-            <Typography variant="h6" color="text.primary">
+          <Box sx={{ display: { xs: 'none', sm: 'block' }, width: '100%', pt: 4 }}>
+            <Typography variant="h5" color="text.primary">
               S/ {article.discountPrice.toFixed(2)}
             </Typography>
           </Box>

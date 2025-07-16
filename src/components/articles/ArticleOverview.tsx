@@ -48,13 +48,13 @@ const ArticleOverview: React.FC<ArticleOverviewProps> = ({ article, fetchArticle
   } = article;
 
   return (
+    
     <Paper elevation={0} sx={{ p: 5, pt: 10 }}>
       <Grid container spacing={{ xs: 2, md: 4 }}> {/* Adjust spacing for mobile */}
 
         {/* Imagen */}
         <Grid  
-          xs={12} 
-          md={4}
+          size={{ xs: 12, md: 4 }}
           sx={{
             maxWidth: 500,
             marginX: 'auto'
@@ -101,10 +101,8 @@ const ArticleOverview: React.FC<ArticleOverviewProps> = ({ article, fetchArticle
         </Grid>
 
         {/* Información */}
-        <Grid 
-          item 
-          xs={12} 
-          md={8}
+        <Grid  
+          size={{ xs: 12, md: 8 }}
           sx={{
             maxWidth: 500,
             marginX: 'auto'
