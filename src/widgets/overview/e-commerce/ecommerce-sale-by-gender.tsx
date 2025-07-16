@@ -1,7 +1,8 @@
 'use client';
 
-import { Card, Divider, CardHeader, useTheme, Box, Typography } from '@mui/material';
 import dynamic from 'next/dynamic';
+import { Card, Divider, CardHeader, useTheme, Box, Typography } from '@mui/material';
+import type { SxProps } from '@mui/system';
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -16,6 +17,7 @@ type Props = {
       value: number;
     }[];
   };
+  sx?: SxProps;
 };
 
 export function EcommerceSaleByGender({ title, subheader, total, chart }: Props) {
@@ -29,7 +31,7 @@ export function EcommerceSaleByGender({ title, subheader, total, chart }: Props)
     [
       [theme.palette.primary.light, theme.palette.primary.main],
       [theme.palette.error.light, theme.palette.error.main],
-      [theme.palette.warning.light, theme.palette.warning.main],
+      //[theme.palette.warning.light, theme.palette.warning.main],
     ];
 
   const chartOptions = {
@@ -70,7 +72,7 @@ export function EcommerceSaleByGender({ title, subheader, total, chart }: Props)
   };
 
   return (
-    <Card>
+    <Card sx={{height: '100%'}}>
       <CardHeader title={title} subheader={subheader} />
 
       <Box sx={{ my: 2, mx: 'auto', width: { xs: 300, xl: 320 }, height: { xs: 300, xl: 320 } }}>

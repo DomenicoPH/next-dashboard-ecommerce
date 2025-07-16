@@ -22,7 +22,6 @@ import {
   Box
 } from '@mui/material';
 
-
 const AdminArticlesPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [products, setProducts] = useState<Article[]>([]);
@@ -41,11 +40,9 @@ const AdminArticlesPage: React.FC = () => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles`);
     const data: Article[] = await res.json();
     setArticles(data);
-    setSelectedArticle(
-      data.find(a => a.id === selectedArticle?.id) ?? null
-    );
+    setSelectedArticle(data.find(a => a.id === selectedArticle?.id) ?? null);
   };
-  
+
   const fetchCategories = async () => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories`);
     const data: Category[] = await res.json();
@@ -79,7 +76,6 @@ const AdminArticlesPage: React.FC = () => {
       const matchesService = selectedService === '' || (article.type.name === 'service' && article.name === selectedService);
       const matchesProduct = selectedProduct === '' || (article.type.name === 'product' && article.name === selectedProduct);
       const matchesType = selectedType === '' || article.type.name === selectedType;
-      console.log(articles)
       return matchesSearch && matchesService && matchesProduct && matchesType;
     });
 
@@ -93,7 +89,6 @@ const AdminArticlesPage: React.FC = () => {
         <h1 className="text-2xl font-bold mb-6 text-white">Artículos</h1>
 
         <div className="flex flex-col items-center justify-between gap-4 mb-6">
-
           {/* Filtro de texto y botón */}
           <div className="flex items-center gap-2 w-full">
             <TextField
@@ -201,12 +196,12 @@ const AdminArticlesPage: React.FC = () => {
             )}
           </div>
 
-          {/* Artículos con layout dinámico */}
-          <div className="flex w-full gap-4">
+          {/* Artículos con layout responsive */}
+          <div className="flex flex-col lg:flex-row w-full gap-6 mt-8">
             {(selectedType === '' || selectedType === 'product') && (
-              <div className={`flex flex-col ${selectedType === '' ? 'w-1/2' : 'w-full'}`}>
-                <h2 className="text-xl font-bold mt-8 text-white">Productos</h2>
-                <div className="mt-8 space-y-4">
+              <div className={`flex flex-col ${selectedType === '' ? 'w-full lg:w-1/2' : 'w-full'}`}>
+                <h2 className="text-xl font-bold text-white">Productos</h2>
+                <div className="mt-6 space-y-4">
                   {products.map(article => (
                     <ArticleItem
                       key={article.id}
@@ -232,9 +227,9 @@ const AdminArticlesPage: React.FC = () => {
             )}
 
             {(selectedType === '' || selectedType === 'service') && (
-              <div className={`flex flex-col ${selectedType === '' ? 'w-1/2' : 'w-full'}`}>
-                <h2 className="text-xl font-bold mt-8 text-white">Servicios</h2>
-                <div className="mt-8 space-y-4">
+              <div className={`flex flex-col ${selectedType === '' ? 'w-full lg:w-1/2' : 'w-full'}`}>
+                <h2 className="text-xl font-bold text-white">Servicios</h2>
+                <div className="mt-6 space-y-4">
                   {services.map(article => (
                     <ArticleItem
                       key={article.id}
@@ -277,13 +272,10 @@ const AdminArticlesPage: React.FC = () => {
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: { xs: 'auto' },
-            //minWidth: '90%',
             maxHeight: '90vh',
             overflowY: 'auto',
             bgcolor: 'background.paper',
-            //bgcolor: '#00b0ff',
             boxShadow: 24,
-            //p: 2,
             borderRadius: 4,
           }}
         >

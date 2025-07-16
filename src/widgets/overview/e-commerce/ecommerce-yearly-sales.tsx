@@ -11,6 +11,8 @@ import {
   MenuItem,
   Select,
 } from '@mui/material';
+import type { SxProps } from '@mui/system';
+import { ApexOptions } from 'apexcharts';
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -28,6 +30,7 @@ type Props = {
       }[];
     }[];
   };
+  sx?: SxProps;
 };
 
 export function EcommerceYearlySales({ title, subheader, chart }: Props) {
@@ -41,7 +44,7 @@ export function EcommerceYearlySales({ title, subheader, chart }: Props) {
     setSelectedSeries(event.target.value);
   }, []);
 
-  const chartOptions = {
+  const chartOptions: ApexOptions = {
     chart: {
       type: 'area',
       toolbar: { show: false },
@@ -61,7 +64,7 @@ export function EcommerceYearlySales({ title, subheader, chart }: Props) {
   };
 
   return (
-    <Card>
+    <Card sx={{height: '100%'}}>
       <CardHeader
         title={title}
         subheader={subheader}
