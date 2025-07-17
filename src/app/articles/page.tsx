@@ -274,7 +274,7 @@ const AdminArticlesPage: React.FC = () => {
             width: { xs: 'auto' },
             maxHeight: '90vh',
             overflowY: 'auto',
-            bgcolor: 'background.paper',
+            bgcolor: 'white',
             boxShadow: 24,
             borderRadius: 4,
           }}
