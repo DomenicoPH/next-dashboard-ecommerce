@@ -80,6 +80,7 @@ const ArticleItem: React.FC<ArticleItemProps> = ({
                 alt={article.name}
                 width={200}
                 height={200}
+                priority
                 style={{
                   objectFit: 'cover',
                   borderRadius: '8px',
@@ -180,7 +181,7 @@ const ArticleItem: React.FC<ArticleItemProps> = ({
               flexDirection: { xs: 'column', sm: 'row' }, // vertical en móvil, horizontal en desktop
               width: 'auto',
               alignSelf: 'flex-end',
-              gap: 1,
+              gap: 0,
               px: 2,
             }}
           >
@@ -208,7 +209,7 @@ const ArticleItem: React.FC<ArticleItemProps> = ({
           </Box>
           {/* Precio solo en desktop */}
           <Box sx={{ display: { xs: 'none', sm: 'block' }, width: '100%', pt: 4 }}>
-            <Typography variant="h5" color="text.primary">
+            <Typography variant="h5" color="text.primary" fontWeight={600}>
               S/ {article.discountPrice.toFixed(2)}
             </Typography>
           </Box>
