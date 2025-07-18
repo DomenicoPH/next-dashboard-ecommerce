@@ -48,7 +48,7 @@ const ArticleItem: React.FC<ArticleItemProps> = ({
   const displayImageUrl = article.mainImage?.imgUrl || article.images[0]?.imgUrl || null;
 
   return (
-    <HoverCard sx={{ borderRadius: 2, boxShadow: 3, pt: 2, px: 2, pb: 2 }}>
+    <HoverCard sx={{ borderRadius: 4, boxShadow: 3, pt: 2, px: 2, pb: 2 }}>
       <Box
         sx={{
           display: 'flex',

@@ -59,11 +59,16 @@ export function EcommerceSaleByGender({ title, subheader, total, chart }: Props)
         },
         dataLabels: {
           name: { fontSize: '14px' },
-          value: { fontSize: '18px', offsetY: 4 },
+          value: { 
+            fontSize: '18px', 
+            offsetY: 4,
+            color: theme.palette.text.primary,
+          },
           total: {
             show: true,
             label: 'Total',
             formatter: () => total.toLocaleString(),
+            color: theme.palette.text.primary,
           },
         },
       },
@@ -72,7 +77,7 @@ export function EcommerceSaleByGender({ title, subheader, total, chart }: Props)
   };
 
   return (
-    <Card sx={{height: '100%'}}>
+    <Card sx={{height: '100%', borderRadius: 4}}>
       <CardHeader title={title} subheader={subheader} />
 
       <Box sx={{ my: 2, mx: 'auto', width: { xs: 300, xl: 320 }, height: { xs: 300, xl: 320 } }}>

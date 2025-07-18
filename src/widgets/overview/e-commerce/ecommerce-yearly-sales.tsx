@@ -59,12 +59,13 @@ export function EcommerceYearlySales({ title, subheader, chart }: Props) {
     tooltip: {
       shared: true,
       intersect: false,
+      theme: theme.palette.mode === 'dark' ? 'dark' : 'light'
     },
     legend: { show: false },
   };
 
   return (
-    <Card sx={{height: '100%'}}>
+    <Card sx={{height: '100%', borderRadius: 4}}>
       <CardHeader
         title={title}
         subheader={subheader}

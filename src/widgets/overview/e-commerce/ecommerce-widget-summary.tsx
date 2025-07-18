@@ -40,6 +40,7 @@ export function EcommerceWidgetSummary({ title, total, percent, chart }: WidgetP
     },
     tooltip: {
       enabled: true,
+      theme: theme.palette.mode === 'dark' ? 'dark' : 'light'
     },
     colors: [theme.palette.primary.main],
   };
@@ -48,7 +49,7 @@ export function EcommerceWidgetSummary({ title, total, percent, chart }: WidgetP
   const trendColor = percent >= 0 ? 'success.main' : 'error.main';
 
   return (
-    <Card sx={{ p: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Card sx={{ p: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 4 }}>
       <Box>
         <Typography variant="subtitle2">{title}</Typography>
         <Typography variant="h3" sx={{ my: 1.5 }}>
