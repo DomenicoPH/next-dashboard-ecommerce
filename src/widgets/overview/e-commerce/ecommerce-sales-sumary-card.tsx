@@ -18,6 +18,7 @@ const formatCurrency = (value: number) => `S/. ${value.toLocaleString('es-PE', {
 export function SalesSummaryCard({ title, item }: Props) {
 
     const valueColor = item.value >= 0 ? 'primary.main' : 'error.main';
+
     return (
       <Box sx={{ width: '100%' }}>
         {title && (
@@ -25,7 +26,7 @@ export function SalesSummaryCard({ title, item }: Props) {
             {title}
           </Typography>
         )}
-        <Card elevation={2} sx={{ height: '100%' }}>
+        <Card elevation={2} sx={{ height: '100%', borderRadius: 4 }}>
           <CardContent>
             <Typography color="textSecondary" gutterBottom>
               <span className='text-blue-500'>Ventas:</span> {item.label}

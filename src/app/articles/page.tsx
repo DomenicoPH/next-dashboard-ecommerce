@@ -86,7 +86,7 @@ const AdminArticlesPage: React.FC = () => {
   return (
     <>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6 text-white">Artículos</h1>
+        <h1 className="text-2xl font-bold mb-6">Artículos</h1>
 
         <div className="flex flex-col items-center justify-between gap-4 mb-6">
           {/* Filtro de texto y botón */}
@@ -97,43 +97,28 @@ const AdminArticlesPage: React.FC = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               fullWidth
-              sx={{
-                input: { color: 'white' },
-                label: { color: 'white' },
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: 'white',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#60a5fa',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#3b82f6',
-                  },
-                }
-              }}
             />
 
             <Button
               onClick={() => setIsModalOpen(true)}
               variant="contained"
               color="primary"
-              sx={{ minWidth: '150px', paddingY: 1.5 }}
+              sx={{ minWidth: '200px', padding: 1.8 }}
             >
               Crear Artículo
             </Button>
           </div>
 
           {/* Radio buttons */}
-          <div className="flex gap-6 mt-2 w-full text-white">
+          <div className="flex gap-6 mt-2 w-full">
             <RadioGroup
               row
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
             >
-              <FormControlLabel value="" control={<Radio sx={{ color: 'white' }} />} label="Todos" sx={{ color: 'white' }} />
-              <FormControlLabel value="product" control={<Radio sx={{ color: 'white' }} />} label="Productos" sx={{ color: 'white' }} />
-              <FormControlLabel value="service" control={<Radio sx={{ color: 'white' }} />} label="Servicios" sx={{ color: 'white' }} />
+              <FormControlLabel value="" control={<Radio />} label="Todos" />
+              <FormControlLabel value="product" control={<Radio />} label="Productos" />
+              <FormControlLabel value="service" control={<Radio />} label="Servicios" />
             </RadioGroup>
           </div>
 
@@ -141,23 +126,11 @@ const AdminArticlesPage: React.FC = () => {
           <div className="flex items-center gap-4 w-full mt-2">
             {(selectedType === '' || selectedType === 'product') && (
               <FormControl fullWidth size="small">
-                <InputLabel sx={{ color: 'white' }}>Filtrar por producto</InputLabel>
+                <InputLabel>Filtrar por producto</InputLabel>
                 <Select
                   value={selectedProduct}
                   onChange={(e) => setSelectedProduct(e.target.value)}
                   label="Filtrar por producto"
-                  sx={{
-                    color: 'white',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'white',
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#60a5fa',
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#3b82f6',
-                    }
-                  }}
                 >
                   <MenuItem value="">Todos</MenuItem>
                   {allProductNames.map(name => (
@@ -169,23 +142,11 @@ const AdminArticlesPage: React.FC = () => {
 
             {(selectedType === '' || selectedType === 'service') && (
               <FormControl fullWidth size="small">
-                <InputLabel sx={{ color: 'white' }}>Filtrar por servicio</InputLabel>
+                <InputLabel>Filtrar por servicio</InputLabel>
                 <Select
                   value={selectedService}
                   onChange={(e) => setSelectedService(e.target.value)}
                   label="Filtrar por servicio"
-                  sx={{
-                    color: 'white',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'white',
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#60a5fa',
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#3b82f6',
-                    }
-                  }}
                 >
                   <MenuItem value="">Todos</MenuItem>
                   {allServiceNames.map(name => (
@@ -200,7 +161,7 @@ const AdminArticlesPage: React.FC = () => {
           <div className="flex flex-col lg:flex-row w-full gap-6 mt-8">
             {(selectedType === '' || selectedType === 'product') && (
               <div className={`flex flex-col ${selectedType === '' ? 'w-full lg:w-1/2' : 'w-full'}`}>
-                <h2 className="text-xl font-bold text-white">Productos</h2>
+                <h2 className="text-xl font-bold">Productos</h2>
                 <div className="mt-6 space-y-4">
                   {products.map(article => (
                     <ArticleItem
@@ -220,7 +181,7 @@ const AdminArticlesPage: React.FC = () => {
                     />
                   ))}
                   {products.length === 0 && (
-                    <p className="text-gray-400">No se encontraron productos.</p>
+                    <p>No se encontraron productos.</p>
                   )}
                 </div>
               </div>
@@ -228,7 +189,7 @@ const AdminArticlesPage: React.FC = () => {
 
             {(selectedType === '' || selectedType === 'service') && (
               <div className={`flex flex-col ${selectedType === '' ? 'w-full lg:w-1/2' : 'w-full'}`}>
-                <h2 className="text-xl font-bold text-white">Servicios</h2>
+                <h2 className="text-xl font-bold">Servicios</h2>
                 <div className="mt-6 space-y-4">
                   {services.map(article => (
                     <ArticleItem
@@ -274,7 +235,7 @@ const AdminArticlesPage: React.FC = () => {
             width: { xs: 'auto' },
             maxHeight: '90vh',
             overflowY: 'auto',
-            bgcolor: 'white',
+            bgcolor: 'background.paper',
             boxShadow: 24,
             borderRadius: 4,
           }}

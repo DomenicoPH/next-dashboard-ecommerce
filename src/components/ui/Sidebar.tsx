@@ -2,14 +2,19 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Dashboard,
   ShoppingCart,
   Inventory2,
   LocalOffer,
   People,
+  Campaign,
   Close,
 } from '@mui/icons-material';
+import { useTheme } from '@mui/material/styles';
+import { useThemeContext } from '@/context/ThemeContext';
+import ThemeToggleSwitch from './ThemeToggleSwitch';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -17,7 +22,11 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const linkClass = 'flex items-center gap-2 text-white hover:bg-blue-600 transition-colors duration-200 py-4 px-4 text-lg';
+
+  const { mode } = useThemeContext();
+  const theme = useTheme();
+
+  const linkClass = `flex items-center gap-2 hover:bg-sky-300 transition-colors duration-200 py-4 px-4 text-lg pl-6 tracking-wider ${mode === 'light' ? 'hover:bg-sky-300' : 'hover:bg-slate-900'}`;
 
   // cierra el sidebar solo en modo móvil
   const handleLinkClick = () => {
@@ -29,14 +38,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       {/* Overlay en modo celular */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-40 z-40 block md:hidden"
           onClick={onClose}
+          className="fixed inset-0 z-40 block md:hidden transition-colors duration-300"
+          style={{
+            backgroundColor: theme.palette.mode === 'light'
+              ? theme.palette.background.default + 'CC' // CC ≈ 80% opacity
+              : theme.palette.background.default + 'CC',
+            backdropFilter: 'blur(10px)', // efecto glass opcional
+          }}
         />
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-50 h-screen w-screen md:w-[250px] bg-gray-900 text-white transform transition-transform duration-300 ease-in-out
-          ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static`}
+        className={`fixed top-0 left-0 z-50 h-screen w-screen md:w-[250px] transform transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static flex flex-col`}
       >
         {/* Botón cerrar en móvil */}
         <div className="flex justify-end md:hidden p-2 pr-4">
@@ -45,12 +60,25 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </button>
         </div>
 
+        {/* Logo */}
+        <div className={`flex flex-col items-center justify-center py-6`}>
+          <Image
+            src={mode === 'light' ? '/logo_light.png' : '/logo_dark.png'}
+            alt="Logo"
+            width={200}
+            height={40}
+            priority
+            style={{ objectFit: 'contain', height: 'auto' }}
+          />
+          <p className='opacity-40 font-extralight tracking-[6px] mt-2'>Administración</p>
+        </div>
+
         <nav>
           <ul>
             <li>
               <Link href="/" onClick={handleLinkClick} className={linkClass}>
                 <Dashboard fontSize="small" />
-                Resumen General
+                General
               </Link>
             </li>
             <li>
@@ -79,12 +107,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             </li>
             <li>
               <Link href="/ads" onClick={handleLinkClick} className={linkClass}>
-                <People fontSize="small" />
+                <Campaign  fontSize="small" />
                 Anuncios
               </Link>
             </li>
           </ul>
         </nav>
+
+        {/* Botón cambiar tema */}
+        <div className="mt-auto p-4">
+          <ThemeToggleSwitch />
+        </div>
+
+
       </aside>
     </>
   );

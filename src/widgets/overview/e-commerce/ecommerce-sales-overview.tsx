@@ -29,7 +29,7 @@ const formatPercent = (value: number) => `${value.toFixed(1)}%`;
 
 export function EcommerceSalesOverview({ title, subheader, data, sx }: Props) {
   return (
-    <Card sx={{ ...sx }}>
+    <Card sx={{ ...sx, borderRadius: 4 }}>
       <CardHeader title={title} subheader={subheader} />
 
       <Box

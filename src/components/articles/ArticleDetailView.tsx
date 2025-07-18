@@ -11,6 +11,7 @@ import {
   Typography,
   Box,
   IconButton,
+  useTheme
 } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 import { styled } from '@mui/material/styles';
@@ -21,6 +22,7 @@ import 'swiper/css';
 import 'swiper/css/thumbs';
 import 'swiper/css/navigation';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import NoPhotographyIcon from '@mui/icons-material/NoPhotography';
 import { ArticleImageAction, UpdateArticleImage } from '@/interfaces/UpdateArticleImage';
 
@@ -85,9 +87,9 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
     const index = images.findIndex((img) => img.name === mainImageName);
 
     if (index >= 0) {
-      mainSwiper.slideToLoop(index); // ✅ Muestra la imagen marcada
+      mainSwiper.slideToLoop(index); // muestra la imagen marcada
     } else {
-      mainSwiper.slideToLoop(0); // ✅ Fallback: primera imagen
+      mainSwiper.slideToLoop(0); // fallback: primera imagen
     }
   }, [mainImageName, images, mainSwiper]);
 
@@ -179,7 +181,6 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
     setImages((prevImages) => {
       const updatedImages = [...prevImages, newImage];
 
-      // ✅ Si no hay mainImageName, asigna la primera imagen disponible
       if (!mainImageName && updatedImages.length > 0) {
         setMainImageName(updatedImages[0].name);
       }
@@ -213,7 +214,6 @@ const handleImageDelete = async (img: ImageProps) => {
     setImages((prevImages) => {
       const updatedImages = prevImages.filter((image) => image.name !== img.name);
 
-      // ✅ Si eliminaste la imagen principal, reasigna la primera imagen disponible
       if (img.name === mainImageName) {
         setMainImageName(updatedImages[0]?.name || '');
       }
@@ -227,59 +227,68 @@ const handleImageDelete = async (img: ImageProps) => {
 
 
   const handlePinImage = async (img: ImageProps) => {
-  if (img.name === mainImageName) return; // Si ya es la principal, no hacer nada
+    if (img.name === mainImageName) return;
 
-  if (img.isNew) {
-    alert('Primero guarda la imagen antes de marcarla como principal.');
-    return;
-  }
+    if (img.isNew) {
+      alert('Primero guarda la imagen antes de marcarla como principal.');
+      return;
+    }
 
-  setIsLoading(true);
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles/${article.type.name}s/${article.id}`,
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          images: [
-            {
-              name: img.name,
-              action: 'pin',
-            },
-          ],
-        }),
-      }
-    );
+    setIsLoading(true);
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles/${article.type.name}s/${article.id}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            images: [
+              {
+                name: img.name,
+                action: 'pin',
+              },
+            ],
+          }),
+        }
+      );
 
-    if (!res.ok) throw new Error('Error al marcar imagen como principal');
+      if (!res.ok) throw new Error('Error al marcar imagen como principal');
 
-    setMainImageName(img.name);
+      setMainImageName(img.name);
 
-    article.mainImage = {
-      id: img.name,
-      name: img.name,
-      imgUrl: img.url,
-    };
-  } finally {
-    setIsLoading(false);
-  }
-};
+      article.mainImage = {
+        id: img.name,
+        name: img.name,
+        imgUrl: img.url,
+      };
 
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const theme = useTheme();
 
   return (
-    <div>
+    <Grid
+      sx={{
+        p: 5,
+        width: '100%',
+        maxWidth: '100%',
+        mx: 'auto',
+        [theme.breakpoints.up('md')]: {
+          minWidth: '700px',
+        },
+      }}
+    >
       <Typography
-        variant="h5"
-        fontWeight="normal"
-        gutterBottom
-        sx={{ mb: 3, paddingX: '20px', paddingTop: '20px', color: 'primary.main' }}
+        variant='h6'
+        sx={{ pb: 4, opacity: 0.3, fontStyle: 'italic' }}
       >
-        Editar artículo
+        <EditIcon /> {`Editar ${article.type.name === 'product' ? 'Producto' : 'Servicio'}`}
       </Typography>
 
-      <Box className="bg-white px-10 py-5 rounded-lg shadow-md w-full flex justify-center items-center">
+      <Box className="px-10 py-5 w-full flex justify-center items-center">
         <Grid container spacing={4}>
 
           {/* IZQUIERDA: Galería Swiper */}
@@ -574,7 +583,7 @@ const handleImageDelete = async (img: ImageProps) => {
           </Grid>
         </Grid>
       </Box>
-    </div>
+    </Grid>
   );
 };
 

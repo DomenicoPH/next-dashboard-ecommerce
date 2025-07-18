@@ -7,12 +7,14 @@ import {
   Button,
   Grid,
   Paper,
+  useTheme
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import { Article } from '@/interfaces/Article';
 import ArticleDetailView from './ArticleDetailView';
 import Image from 'next/image';
 import NoPhotographyIcon from '@mui/icons-material/NoPhotography';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 interface ArticleOverviewProps {
   article: Article;
@@ -21,6 +23,7 @@ interface ArticleOverviewProps {
 
 const ArticleOverview: React.FC<ArticleOverviewProps> = ({ article, fetchArticle }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const theme = useTheme();
 
   if (isEditing) {
     return (
@@ -49,8 +52,27 @@ const ArticleOverview: React.FC<ArticleOverviewProps> = ({ article, fetchArticle
 
   return (
     
-    <Paper elevation={0} sx={{ p: 5, pt: 10 }}>
-      <Grid container spacing={{ xs: 2, md: 4 }}> {/* Adjust spacing for mobile */}
+    <Paper 
+      elevation={0}
+      sx={{
+        p: 5,
+        width: '100%',
+        maxWidth: '100%',
+        mx: 'auto',
+        [theme.breakpoints.up('md')]: {
+          minWidth: '700px',
+        },
+      }}
+    >
+
+      <Typography
+        variant='h6'
+        sx={{ pb: 4, opacity: 0.3, fontStyle: 'italic' }}
+      >
+        <VisibilityIcon /> {`Información de ${type.name === 'product' ? 'Producto' : 'Servicio'}`}
+      </Typography>
+      
+      <Grid container spacing={{ xs: 2, md: 4 }}>
 
         {/* Imagen */}
         <Grid  
@@ -66,18 +88,16 @@ const ArticleOverview: React.FC<ArticleOverviewProps> = ({ article, fetchArticle
               aspectRatio: '1 / 1',
               borderRadius: 2,
               overflow: 'hidden',
-              backgroundColor: '#f5f5f5',
+              position: 'relative'
             }}
           >
             {
               article.images.length ? (
                 <Image
-                  src={images[0].imgUrl}
+                  src={article.mainImage?.imgUrl || images[0].imgUrl}
                   alt={name}
-                  width={256}
-                  height={256}
-                  style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
-                  className="h-64 w-64"
+                  fill
+                  style={{ objectFit: 'cover' }}
                   priority
                 />
               ) : (

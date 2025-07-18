@@ -35,7 +35,14 @@ const AdminOverviewPage: React.FC = () => {
 
     <Box sx={{ px: { xs: 2, md: 4 }, py: 4, width: '100%' }}>
 
-      <Typography variant="h4" fontWeight="bold" gutterBottom>
+      <Typography 
+        variant="h4" 
+        fontWeight="bold" 
+        gutterBottom
+        sx={{
+          mb: 4
+        }}
+      >
         Resumen General
       </Typography>
     

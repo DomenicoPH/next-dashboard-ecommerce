@@ -84,7 +84,7 @@ export function EcommerceTopSellingList({
   }, [type]);
 
   return (
-    <Card sx={{ ...sx }}>
+    <Card sx={{ ...sx, borderRadius: 4 }}>
       <CardHeader title={title} subheader={subheader} />
       <List disablePadding>
         {data.map((item, index) => (
