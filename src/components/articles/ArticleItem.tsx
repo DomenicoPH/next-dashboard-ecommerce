@@ -44,8 +44,8 @@ const ArticleItem: React.FC<ArticleItemProps> = ({
   onDelete,
   onAddToCart,
 }) => {
-  const mainImageObj = article.images.find((img) => img.name === article.mainImage);
-  const displayImageUrl = mainImageObj?.imgUrl || article.images[0]?.imgUrl || null;
+
+  const displayImageUrl = article.mainImage?.imgUrl || article.images[0]?.imgUrl || null;
 
   return (
     <HoverCard sx={{ borderRadius: 2, boxShadow: 3, pt: 2, px: 2, pb: 2 }}>
@@ -53,7 +53,7 @@ const ArticleItem: React.FC<ArticleItemProps> = ({
         sx={{
           display: 'flex',
           alignItems: 'stretch',
-          minHeight: { xs: 160, sm: 120 }, // Aumenta el alto mínimo en móvil
+          minHeight: { xs: 160, sm: 120 },
           height: 'auto',
         }}
       >
@@ -106,6 +106,7 @@ const ArticleItem: React.FC<ArticleItemProps> = ({
                 <NoPhotographyIcon sx={{ fontSize: { xs: 32, sm: 48 }, color: 'grey.200' }} />
               </Box>
             )}
+            
             {/* Botón flotante para agregar al carrito */}
             {onAddToCart && (
               <Fab

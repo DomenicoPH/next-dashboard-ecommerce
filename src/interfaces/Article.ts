@@ -1,6 +1,7 @@
 export interface Article {
     id: string;
     images: { id: string; name: string; imgUrl: string }[];
+    mainImage?: { id: string; name: string; imgUrl: string };
     name: string;
     description: string;
     price: number;
@@ -19,5 +20,4 @@ export interface Article {
     size?: string;
     brand?: string;
     sessions?: number;
-    mainImage?: string;
   }

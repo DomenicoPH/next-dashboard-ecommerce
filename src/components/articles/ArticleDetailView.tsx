@@ -49,6 +49,7 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
   const [imageChanges, setImageChanges] = useState<UpdateArticleImage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isHovering, setIsHovering] = useState<number | null>(null);
+  const [mainSwiper, setMainSwiper] = useState<any>(null);
 
   const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
   const [images, setImages] = useState<ImageProps[]>([]);
@@ -62,7 +63,7 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
     setStock(article.stock || 0);
     setIsActive(article.isActive);
     setIsDiscountActive(article.onDiscount);
-    setMainImageName(article.images[0]?.name || '');
+    setMainImageName(article.mainImage?.name || '');
 
     setFormChanges({});
     setImageChanges([]);
@@ -73,7 +74,23 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
         isNew: false,
       }))
     );
+    const defaultMain = article.mainImage?.name || (article.images[0] ? article.images[0].name : '');
+    setMainImageName(defaultMain);
   };
+
+  useEffect(() => {
+  if (!mainSwiper || images.length === 0) return;
+
+    // Buscar índice de la imagen marcada como principal
+    const index = images.findIndex((img) => img.name === mainImageName);
+
+    if (index >= 0) {
+      mainSwiper.slideToLoop(index); // ✅ Muestra la imagen marcada
+    } else {
+      mainSwiper.slideToLoop(0); // ✅ Fallback: primera imagen
+    }
+  }, [mainImageName, images, mainSwiper]);
+
 
   const handleInputChange = (fieldName: string, value: any) => {
     setFormChanges((prev) => ({ ...prev, [fieldName]: value }));
@@ -123,72 +140,133 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.files) return;
+  if (!event.target.files) return;
 
-    const MAX_IMAGES = 4;
-    if (images.length >= MAX_IMAGES) {
-      alert(`Solo puedes subir un máximo de ${MAX_IMAGES} imágenes.`);
-      return;
+  const MAX_IMAGES = 4;
+  if (images.length >= MAX_IMAGES) {
+    alert(`Solo puedes subir un máximo de ${MAX_IMAGES} imágenes.`);
+    return;
+  }
+
+  setIsLoading(true);
+
+  const formData = new FormData();
+  formData.append('file', event.target.files[0]);
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/files/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+    if (!res.ok) throw new Error('Failed to upload image');
+
+    const data = await res.json();
+
+    const newImage = {
+      name: data.filename,
+      url: data.tempUrl,
+      isNew: true,
     };
 
-    setIsLoading(true);
+    setImageChanges((prev) =>
+      prev.concat({
+        name: data.filename,
+        url: data.tempUrl,
+        action: ArticleImageAction.ADD,
+      })
+    );
 
-    const formData = new FormData();
-    formData.append('file', event.target.files[0]);
+    setImages((prevImages) => {
+      const updatedImages = [...prevImages, newImage];
 
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/files/upload`, {
-        method: 'POST',
-        body: formData,
-      });
-      if (!res.ok) throw new Error('Failed to upload image');
-
-      const data = await res.json();
-
-      setImageChanges(
-        imageChanges.concat({
-          name: data.filename,
-          url: data.tempUrl,
-          action: ArticleImageAction.ADD,
-        })
-      );
-
-      setImages(
-        images.concat({
-          name: data.filename,
-          url: data.tempUrl,
-          isNew: true,
-        })
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleImageDelete = async (img: ImageProps) => {
-    if (img.isNew) {
-      setIsLoading(true);
-      try {
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/files/temp/${img.name}`, {
-          method: 'DELETE',
-        });
-
-        setImageChanges(imageChanges.filter((imgChange) => imgChange.name !== img.name));
-        setImages(images.filter((image) => image.name !== img.name));
-      } finally {
-        setIsLoading(false);
+      // ✅ Si no hay mainImageName, asigna la primera imagen disponible
+      if (!mainImageName && updatedImages.length > 0) {
+        setMainImageName(updatedImages[0].name);
       }
+
+      return updatedImages;
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+const handleImageDelete = async (img: ImageProps) => {
+  setIsLoading(true);
+  try {
+    if (img.isNew) {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/files/temp/${img.name}`, {
+        method: 'DELETE',
+      });
+
+      setImageChanges((prev) => prev.filter((imgChange) => imgChange.name !== img.name));
     } else {
-      setImageChanges(
-        imageChanges.concat({
+      setImageChanges((prev) =>
+        prev.concat({
           name: img.name,
           url: img.url,
           action: ArticleImageAction.REMOVE,
         })
       );
-      setImages(images.filter((image) => image.name !== img.name));
     }
-  };
+
+    setImages((prevImages) => {
+      const updatedImages = prevImages.filter((image) => image.name !== img.name);
+
+      // ✅ Si eliminaste la imagen principal, reasigna la primera imagen disponible
+      if (img.name === mainImageName) {
+        setMainImageName(updatedImages[0]?.name || '');
+      }
+
+      return updatedImages;
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
+  const handlePinImage = async (img: ImageProps) => {
+  if (img.name === mainImageName) return; // Si ya es la principal, no hacer nada
+
+  if (img.isNew) {
+    alert('Primero guarda la imagen antes de marcarla como principal.');
+    return;
+  }
+
+  setIsLoading(true);
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles/${article.type.name}s/${article.id}`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          images: [
+            {
+              name: img.name,
+              action: 'pin',
+            },
+          ],
+        }),
+      }
+    );
+
+    if (!res.ok) throw new Error('Error al marcar imagen como principal');
+
+    setMainImageName(img.name);
+
+    article.mainImage = {
+      id: img.name,
+      name: img.name,
+      imgUrl: img.url,
+    };
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
 
   return (
     <div>
@@ -209,6 +287,7 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
             <Box sx={{ width: '250px' }}>
               <Box sx={{ width: '100%', aspectRatio: '1 / 1', mb: 2 }}>
                 <Swiper
+                  onSwiper={setMainSwiper}
                   style={{ width: '100%', height: '100%', borderRadius: '8px' }}
                   loop={images.length > 1}
                   navigation
@@ -287,7 +366,7 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
 
                         {/* Botón para marcar como principal */}
                         <IconButton
-                          onClick={() => setMainImageName(img.name)}
+                          onClick={() => handlePinImage(img)}
                           aria-label="set-main"
                           sx={{
                             width: 18,
@@ -306,6 +385,7 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
                         >
                           {mainImageName === img.name ? '★' : '☆'}
                         </IconButton>
+
 
                         {/* Botón para eliminar imagen */}
                         {isHovering === i && (
