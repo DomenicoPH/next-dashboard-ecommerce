@@ -58,15 +58,14 @@ export function EcommerceTopSellingList({
           .sort(() => 0.5 - Math.random())
           .slice(0, 3)
           .map((article, index) => {
-            const mainImageObj = article.images.find((img) => img.name === article.mainImage);
-            const imageUrl = mainImageObj?.imgUrl || article.images[0]?.imgUrl;
-
+            const imageUrl = article.mainImage?.imgUrl || article.images[0]?.imgUrl;
+          
             // Usar el monto del mock correspondiente
             const mockValue =
               type === 'service'
                 ? mockDashboardData.bestSellingServices[index]?.value || 0
                 : mockDashboardData.bestSellingProducts[index]?.value || 0;
-
+          
             return {
               label: article.name,
               value: mockValue,
@@ -75,6 +74,7 @@ export function EcommerceTopSellingList({
           });
 
         setData(randomItems);
+        
       } catch (error) {
         console.error('Error fetching articles:', error);
       }

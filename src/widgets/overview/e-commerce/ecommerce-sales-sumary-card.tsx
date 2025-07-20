@@ -17,7 +17,7 @@ const formatCurrency = (value: number) => `S/. ${value.toLocaleString('es-PE', {
 
 export function SalesSummaryCard({ title, item }: Props) {
 
-    const valueColor = item.value >= 0 ? 'primary.main' : 'error.main';
+    const valueColor = item.value >= 0 ? 'text.primary' : 'error.main';
 
     return (
       <Box sx={{ width: '100%' }}>
@@ -28,14 +28,17 @@ export function SalesSummaryCard({ title, item }: Props) {
         )}
         <Card elevation={2} sx={{ height: '100%', borderRadius: 4 }}>
           <CardContent>
-            <Typography color="textSecondary" gutterBottom>
-              <span className='text-blue-500'>Ventas:</span> {item.label}
+            <Typography color="text.primary" gutterBottom>
+              <Box component="span" sx={{ color: 'text.secondary', fontWeight: 'light', opacity: 0.5 }}>
+                Ventas:
+              </Box>{' '}
+              {item.label}
             </Typography>
             <Typography 
                 variant="h5" 
                 color="success.main" 
                 fontWeight="bold"
-                sx={{ color: valueColor }}
+                sx={{ color: valueColor, mr: 5 }}
                 display="flex"
                 justifyContent="flex-end"
             >
