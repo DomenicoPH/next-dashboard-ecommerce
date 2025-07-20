@@ -1,106 +1,112 @@
 'use client';
 
-import React from 'react';
-import {
-  Box,
-  Card,
-  CardHeader,
-  LinearProgress,
-  useTheme,
-  alpha,
-  Typography,
-} from '@mui/material';
+import dynamic from 'next/dynamic';
+import { Card, CardHeader, Box } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import type { SxProps } from '@mui/system';
+
+const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 type Props = {
   title?: string;
   subheader?: string;
   data: {
     label: string;
-    value: number; // porcentaje
-    totalAmount: number;
+    value: number; // monto en soles
   }[];
-  sx?: object;
+  sx?: SxProps;
 };
 
 const formatCurrency = (value: number) =>
   `S/. ${value.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`;
 
-const formatPercent = (value: number) => `${value.toFixed(1)}%`;
-
 export function EcommerceSalesOverview({ title, subheader, data, sx }: Props) {
+  const theme = useTheme();
+
+  // Encontrar el valor máximo para escalar el eje
+  const maxValue = Math.max(...data.map((item) => item.value));
+
+  const series = [
+    {
+      data: data.map((item) => item.value),
+    },
+  ];
+
+  const options: ApexCharts.ApexOptions = {
+    chart: {
+      type: 'bar',
+      height: 350,
+      animations: {
+        enabled: true,
+        speed: 1000,
+      },
+      toolbar: { show: false },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        borderRadius: 4,
+        barHeight: '80%',
+      },
+    },
+    xaxis: {
+      categories: data.map((item) => item.label),
+      max: maxValue * 1, // margen extra para estética
+      labels: {
+        style: {
+          colors: theme.palette.text.secondary,
+          fontSize: '10px',
+        },
+      },
+    },
+    yaxis: {
+      labels: {
+        style: {
+          colors: theme.palette.text.primary, // Texto principal (tema claro/oscuro)
+          fontSize: '14px',
+          fontWeight: 500,
+        },
+      },
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shade: 'light',
+        type: 'horizontal',
+        gradientToColors: [theme.palette.primary.main],
+        stops: [0, 100],
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: (val: number) => formatCurrency(val),
+      style: {
+        colors: [theme.palette.background.default],
+        fontSize: '15px',
+      },
+    },
+    colors: [theme.palette.primary.light],
+    grid: {
+      borderColor: theme.palette.divider,
+    },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      theme: theme.palette.mode === 'dark' ? 'dark' : 'light'
+    },
+  };
+
   return (
     <Card sx={{ ...sx, borderRadius: 4 }}>
       <CardHeader title={title} subheader={subheader} />
-
-      <Box
-        sx={{
-          gap: 4,
-          px: 3,
-          py: 4,
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        {data.map((progress) => (
-          <Item key={progress.label} progress={progress} />
-        ))}
+      <Box sx={{ p: 3 }}>
+        <ReactApexChart
+          type="bar"
+          series={series}
+          options={options}
+          height={data.length * 50 + 50}
+        />
       </Box>
     </Card>
-  );
-}
-
-// ----------------------------------------------------------------------
-
-type ItemProps = {
-  progress: Props['data'][number];
-};
-
-function Item({ progress }: ItemProps) {
-  const theme = useTheme();
-
-  const color =
-    progress.label === 'Ganancia total'
-      ? 'info'
-      : progress.label === 'Gastos totales'
-      ? 'error'
-      : 'primary';
-
-  return (
-    <Box>
-      <Box
-        sx={{
-          mb: 1,
-          gap: 0.5,
-          display: 'flex',
-          alignItems: 'center',
-          typography: 'subtitle2',
-        }}
-      >
-        {/* Etiqueta */}
-        <Box component="span" sx={{ flexGrow: 1 }}>
-          {progress.label}
-        </Box>
-
-        {/* Valor total */}
-        <Box component="span">{formatCurrency(progress.totalAmount)}</Box>
-
-        {/* Porcentaje */}
-        <Box component="span" sx={{ typography: 'body2', color: 'text.secondary' }}>
-          ({formatPercent(progress.value)})
-        </Box>
-      </Box>
-
-      {/* Barra de progreso */}
-      <LinearProgress
-        color={color as any}
-        variant="determinate"
-        value={progress.value}
-        sx={{
-          height: 8,
-          bgcolor: alpha(theme.palette.grey[500], 0.16), // ✅ reemplazo de varAlpha
-          borderRadius: 4,
-        }}
-      />
-    </Box>
   );
 }

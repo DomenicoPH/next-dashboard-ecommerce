@@ -1,8 +1,8 @@
 export const mockDashboardData = {
   overviewStats: [
-    { label: 'Ganancia total', totalAmount: 75000, value: 60 },
-    { label: 'Ingresos totales', totalAmount: 120000, value: 80 },
-    { label: 'Gastos totales', totalAmount: 45000, value: 30 },
+    { label: 'Ganancia total', value: 75000 },
+    { label: 'Ingresos totales', value: 120000 },
+    { label: 'Gastos totales', value: 45000 },
   ],
   salesData: [
     { label: 'Hoy', value: -1500 },
