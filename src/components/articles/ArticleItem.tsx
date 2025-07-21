@@ -16,7 +16,6 @@ import NoPhotographyIcon from '@mui/icons-material/NoPhotography';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Image from 'next/image';
 
 // Estilos para hover en el botón flotante
@@ -34,7 +33,6 @@ interface ArticleItemProps {
   onView?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
-  onAddToCart?: () => void;
 }
 
 const ArticleItem: React.FC<ArticleItemProps> = ({
@@ -42,7 +40,6 @@ const ArticleItem: React.FC<ArticleItemProps> = ({
   onView,
   onEdit,
   onDelete,
-  onAddToCart,
 }) => {
 
   const displayImageUrl = article.mainImage?.imgUrl || article.images[0]?.imgUrl || null;
@@ -107,25 +104,6 @@ const ArticleItem: React.FC<ArticleItemProps> = ({
               </Box>
             )}
             
-            {/* Botón flotante para agregar al carrito */}
-            {onAddToCart && (
-              <Fab
-                color="warning"
-                size="small"
-                className="hoverFab"
-                sx={{
-                  position: 'absolute',
-                  bottom: 8,
-                  right: 8,
-                  opacity: 0,
-                  transform: 'scale(0)',
-                  transition: 'all 0.3s ease',
-                }}
-                onClick={onAddToCart}
-              >
-                <ShoppingCartIcon />
-              </Fab>
-            )}
           </Box>
           {/* Info: nombre, categoría, stock y precio (en móvil) */}
           <Stack
