@@ -6,12 +6,6 @@ import {
   Box,
   Typography,
   Grid,
-  Card,
-  CardContent,
-  List,
-  ListItem,
-  ListItemText,
-  Divider,
   useTheme
 } from '@mui/material';
 import { EcommerceWidgetSummary } from '@/widgets/overview/e-commerce/ecommerce-widget-summary';
