@@ -1,0 +1,114 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import {
+  Box,
+  Typography,
+  Paper,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  CircularProgress,
+  Alert,
+  TableContainer,
+} from '@mui/material';
+import { Customer } from '@/interfaces/Customer';
+import CustomerRow from '@/components/customers/CustomerRow';
+
+const AdminCustomersPage: React.FC = () => {
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // ✅ Fetch clientes
+  const fetchCustomers = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/customers`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
+      });
+
+      if (!res.ok) {
+        throw new Error(`Error al obtener clientes: ${res.status}`);
+      }
+
+      const data: Customer[] = await res.json();
+      setCustomers(data);
+    } catch (err) {
+      console.error(err);
+      setError('No se pudo cargar la lista de clientes.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
+  // ✅ Colores dinámicos para estado
+  const getStatusColor = (status: Customer['status']) => {
+    switch (status) {
+      case 'Frecuente':
+        return { bgColor: '#C8E6C9', textColor: '#256029' }; // Verde
+      case 'Nuevo':
+        return { bgColor: '#BBDEFB', textColor: '#0D47A1' }; // Azul
+      case 'Inactivo':
+        return { bgColor: '#FFCDD2', textColor: '#B71C1C' }; // Rojo
+      default:
+        return { bgColor: '#E0E0E0', textColor: '#424242' }; // Gris
+    }
+  };
+
+  return (
+    <Box sx={{ p: 4 }}>
+      <Typography variant="h4" fontWeight="bold" mb={4}>
+        Clientes
+      </Typography>
+
+      {loading ? (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+          <CircularProgress />
+        </Box>
+      ) : error ? (
+        <Alert severity="error">{error}</Alert>
+      ) : (
+        <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 3 }}>
+          <Table>
+            <TableHead>
+              <TableRow
+                sx={(theme) => ({
+                  backgroundColor: theme.palette.background.paper,
+                  color: theme.palette.text.primary,
+                })}
+              >
+                <TableCell sx={{ fontWeight: 'bold' }}>Nombre</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>DNI</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Email</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Teléfono</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Estado</TableCell>
+                <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                  Detalle
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {customers.map((customer) => (
+                <CustomerRow
+                  key={customer.id}
+                  customer={customer}
+                  getStatusColor={getStatusColor}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+    </Box>
+  );
+};
+
+export default AdminCustomersPage;

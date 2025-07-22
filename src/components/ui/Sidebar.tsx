@@ -22,13 +22,14 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-
   const { mode } = useThemeContext();
   const theme = useTheme();
 
-  const linkClass = `flex items-center gap-2 hover:bg-sky-300 transition-colors duration-200 py-4 px-4 text-lg pl-6 tracking-wider ${mode === 'light' ? 'hover:bg-sky-300' : 'hover:bg-slate-900'}`;
+  const linkClass = `flex items-center gap-2 hover:bg-sky-300 transition-colors duration-200 py-4 px-4 text-lg tracking-wider w-full md:w-auto justify-center md:justify-start ${
+    mode === 'light' ? 'hover:bg-sky-300' : 'hover:bg-slate-900'
+  }`;
 
-  // cierra el sidebar solo en modo móvil
+  // Cierra el sidebar solo en modo móvil
   const handleLinkClick = () => {
     if (window.innerWidth < 768) onClose();
   };
@@ -41,10 +42,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           onClick={onClose}
           className="fixed inset-0 z-40 block md:hidden transition-colors duration-300"
           style={{
-            backgroundColor: theme.palette.mode === 'light'
-              ? theme.palette.background.default + 'CC' // CC ≈ 80% opacity
-              : theme.palette.background.default + 'CC',
-            backdropFilter: 'blur(10px)', // efecto glass opcional
+            backgroundColor:
+              theme.palette.mode === 'light'
+                ? theme.palette.background.default + 'CC' // CC ≈ 80% opacity
+                : theme.palette.background.default + 'CC',
+            backdropFilter: 'blur(10px)', // efecto glass
           }}
         />
       )}
@@ -61,7 +63,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Logo */}
-        <div className={`flex flex-col items-center justify-center py-6`}>
+        <div className="flex flex-col items-center justify-center py-6">
           <Image
             src={mode === 'light' ? '/logo_light.png' : '/logo_dark.png'}
             alt="Logo"
@@ -70,11 +72,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             priority
             style={{ objectFit: 'contain', height: 'auto' }}
           />
-          <p className='opacity-40 font-extralight tracking-[6px] mt-2'>Administración</p>
+          <p className="opacity-40 font-extralight tracking-[6px] mt-2">
+            Administración
+          </p>
         </div>
 
-        <nav>
-          <ul>
+        {/* Navegación */}
+        <nav className="flex flex-col items-center md:items-start w-full">
+          <ul className="flex flex-col gap-2 w-full text-center md:text-left">
             <li>
               <Link href="/" onClick={handleLinkClick} className={linkClass}>
                 <Dashboard fontSize="small" />
@@ -107,7 +112,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             </li>
             <li>
               <Link href="/ads" onClick={handleLinkClick} className={linkClass}>
-                <Campaign  fontSize="small" />
+                <Campaign fontSize="small" />
                 Anuncios
               </Link>
             </li>
@@ -118,8 +123,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         <div className="mt-auto p-4">
           <ThemeToggleSwitch />
         </div>
-
-
       </aside>
     </>
   );
