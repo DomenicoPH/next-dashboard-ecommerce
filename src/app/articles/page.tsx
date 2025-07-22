@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import ArticleItem from '@/components/articles/ArticleItem';
 import CreateArticleModal from '@/components/articles/CreateArticleModal';
 import ArticleOverview from '@/components/articles/ArticleOverview';
-import ArticleDetailView from '@/components/articles/ArticleDetailView';
+import ArticleDetailView from '@/components/articles/ArticleEdit';
 import { Article } from '../../interfaces/Article';
 import { Category } from '../../interfaces/Category';
 

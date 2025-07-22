@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import { Article } from '@/interfaces/Article';
-import ArticleDetailView from './ArticleDetailView';
+import ArticleDetailView from './ArticleEdit';
 import Image from 'next/image';
 import NoPhotographyIcon from '@mui/icons-material/NoPhotography';
 import VisibilityIcon from '@mui/icons-material/Visibility';
