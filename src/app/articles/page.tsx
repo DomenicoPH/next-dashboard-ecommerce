@@ -22,6 +22,8 @@ import {
   Box
 } from '@mui/material';
 
+const API = "https://nestjs-eccommercex-819245f6bb7d.herokuapp.com/api/v1";
+
 const AdminArticlesPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [products, setProducts] = useState<Article[]>([]);
@@ -37,14 +39,16 @@ const AdminArticlesPage: React.FC = () => {
   const [modalMode, setModalMode] = useState<'overview' | 'edit' | null>(null);
 
   const fetchArticles = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles`);
+    //const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles`);
+    const res = await fetch(`${API}/articles`);
     const data: Article[] = await res.json();
     setArticles(data);
     setSelectedArticle(data.find(a => a.id === selectedArticle?.id) ?? null);
   };
 
   const fetchCategories = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories`);
+    //const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories`);
+    const res = await fetch(`${API}/categories`);
     const data: Category[] = await res.json();
     setCategories(data);
   };
