@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import CouponItem from '@/components/coupons/CouponItem';
-import CreateCouponModal from '@/components/modals/CreateCouponModal';
+import CreateCouponModal from '@/components/coupons/CreateCouponModal';
 
 interface Coupon {
   id: string;
