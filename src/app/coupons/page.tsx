@@ -57,14 +57,14 @@ const AdminCouponsPage: React.FC = () => {
       });
 
       if (response.ok) {
-        console.log('✅ Cupón eliminado');
+        console.log('Cupón eliminado');
         await fetchCoupons();
       } else {
         const errorText = await response.text();
-        console.error('❌ Error al eliminar cupón:', errorText);
+        console.error('Error al eliminar cupón:', errorText);
       }
     } catch (error) {
-      console.error('❌ Error de red al eliminar cupón:', error);
+      console.error('Error de red al eliminar cupón:', error);
     }
   };
 
@@ -104,6 +104,7 @@ const AdminCouponsPage: React.FC = () => {
             onView={handleView}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            fetchCoupons={fetchCoupons}
           />
         ))}
       </Box>
