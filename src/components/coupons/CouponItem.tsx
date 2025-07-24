@@ -135,6 +135,7 @@ const CouponItem: React.FC<CouponItemProps> = ({
           overflow: 'hidden',
           borderRadius: 4,
           p: 1,
+          pr: 5
         }}
       >
         {/* Imagen */}
@@ -170,6 +171,7 @@ const CouponItem: React.FC<CouponItemProps> = ({
                   top: 8,
                   right: 8,
                   display: 'flex',
+                  flexDirection: 'column',
                   gap: .5,
                 }}
               >

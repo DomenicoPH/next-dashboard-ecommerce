@@ -25,6 +25,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import NoPhotographyIcon from '@mui/icons-material/NoPhotography';
 import { ArticleImageAction, UpdateArticleImage } from '@/interfaces/UpdateArticleImage';
+import CustomAlert from '../ui/CustomAlert';
 
 const VisuallyHiddenInput = styled('input')(visuallyHidden);
 
@@ -40,6 +41,7 @@ interface ImageProps {
 }
 
 const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }) => {
+
   const [formChanges, setFormChanges] = useState({});
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
@@ -53,9 +55,21 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
   const [isHovering, setIsHovering] = useState<number | null>(null);
   const [mainSwiper, setMainSwiper] = useState<any>(null);
 
+  // estados de Swiper
   const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
   const [images, setImages] = useState<ImageProps[]>([]);
   const [mainImageName, setMainImageName] = useState<string>('');
+
+  // estados de alerta
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"error" | "warning" | "info" | "success">("info");
+
+  const showAlert = (message: string, severity: "error" | "warning" | "info" | "success" = "info") => {
+    setAlertMessage(message);
+    setAlertSeverity(severity);
+    setAlertOpen(true);
+  };
 
   const loadArticleData = () => {
     setName(article.name);
@@ -146,7 +160,7 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
 
   const MAX_IMAGES = 4;
   if (images.length >= MAX_IMAGES) {
-    alert(`Solo puedes subir un máximo de ${MAX_IMAGES} imágenes.`);
+    showAlert(`Solo puedes subir un máximo de ${MAX_IMAGES} imágenes.`, "warning");
     return;
   }
 
@@ -230,7 +244,7 @@ const handleImageDelete = async (img: ImageProps) => {
     if (img.name === mainImageName) return;
 
     if (img.isNew) {
-      alert('Primero guarda la imagen antes de marcarla como principal.');
+      showAlert('Primero guarda la imagen antes de marcarla como principal.', 'info');
       return;
     }
 
@@ -579,6 +593,14 @@ const handleImageDelete = async (img: ImageProps) => {
               >
                 Guardar
               </Button>
+
+              <CustomAlert
+                open={alertOpen}
+                message={alertMessage}
+                severity={alertSeverity}
+                onClose={() => setAlertOpen(false)}
+              />
+
             </Box>
           </Grid>
         </Grid>

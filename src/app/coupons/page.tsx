@@ -4,6 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import CouponItem from '@/components/coupons/CouponItem';
 import CreateCouponModal from '@/components/coupons/CreateCouponModal';
+import {LocalOffer} from '@mui/icons-material';
+import SectionHeader from '@/components/ui/SectionHeader';
+import CustomAlert from '@/components/ui/CustomAlert';
 
 interface Coupon {
   id: string;
@@ -12,6 +15,7 @@ interface Coupon {
   value: number;
   unit: 'relative' | 'absolute';
   endDate: string;
+  startDate: string;
   image?: {
     id: string;
     name: string;
@@ -20,16 +24,39 @@ interface Coupon {
 }
 
 const AdminCouponsPage: React.FC = () => {
+
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+   // estados de alerta
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertSeverity, setAlertSeverity] = useState<'error' | 'success' | 'info' | 'warning'>('info');
+
+  const showAlert = (message: string, severity: 'error' | 'success' | 'info' | 'warning' = 'info') => {
+    setAlertMessage(message);
+    setAlertSeverity(severity);
+    setAlertOpen(true);
+  };
+
   const fetchCoupons = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/coupons?limit=200`);
-      const data = await response.json();
-      setCoupons(data);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/coupons?limit=200`
+      );
+
+      if (!response.ok) throw new Error('Error al obtener cupones');
+
+      const data: Coupon[] = await response.json();
+
+      // ordena por fecha de creación (startDate), más reciente primero
+      const sortedCoupons = data.sort(
+        (a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+      );
+
+      setCoupons(sortedCoupons);
     } catch (error) {
-      console.error('Error al obtener cupones:', error);
+      console.error('Error al cargar cupones:', error);
     }
   };
 
@@ -50,11 +77,11 @@ const AdminCouponsPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/coupons/${id}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/coupons/${id}`,
+        { method: 'DELETE' }
+      );
 
       if (response.ok) {
         console.log('Cupón eliminado');
@@ -69,11 +96,12 @@ const AdminCouponsPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ width: '100%', px: { xs: 2, md: 6 }, py: 4 }}>
+    <Box sx={{ px: { xs: 2, md: 4 }, py: 4, width: '100%' }}>
 
-      <Typography variant="h4" fontWeight="bold" gutterBottom>
-        Cupones
-      </Typography>
+      <SectionHeader
+        icon={<LocalOffer fontSize="large" />}
+        title="Cupones"
+      />
 
       <Box
         sx={{
@@ -113,8 +141,17 @@ const AdminCouponsPage: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         fetchCoupons={fetchCoupons}
+        onShowAlert={(msg, severity) => showAlert(msg, severity)}
       />
-      
+
+
+      <CustomAlert
+        open={alertOpen}
+        message={alertMessage}
+        severity={alertSeverity}
+        onClose={() => setAlertOpen(false)}
+      />
+
     </Box>
   );
 };

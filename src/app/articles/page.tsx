@@ -8,6 +8,8 @@ import ArticleDetailView from '@/components/articles/ArticleEdit';
 import { Article } from '../../interfaces/Article';
 import { Category } from '../../interfaces/Category';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import SectionHeader from '@/components/ui/SectionHeader';
+import { Inventory2 } from '@mui/icons-material';
 import {
   TextField,
   Button,
@@ -123,8 +125,12 @@ const AdminArticlesPage: React.FC = () => {
 
   return (
     <>
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Artículos</h1>
+      <Box sx={{ px: { xs: 2, md: 4 }, py: 4, width: '100%' }}>
+
+        <SectionHeader
+          icon={<Inventory2 fontSize="large" />}
+          title="Artículos"
+        />
 
         <div className="flex flex-col items-center justify-between gap-4 mb-6">
           {/* Filtro de texto y botón */}
@@ -254,7 +260,7 @@ const AdminArticlesPage: React.FC = () => {
             )}
           </div>
         </div>
-      </div>
+      </Box>
 
       {/* Modal para vista previa o edición */}
       <Modal
