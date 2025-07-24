@@ -87,6 +87,8 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
     }
   };
 
+
+
   const toggleCategory = async () => {
     if (!selectedCategoryId) return;
     try {
@@ -100,6 +102,43 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
       toast.error("Error al actualizar categoría");
     }
   };
+
+  const deleteCategory = async (categoryId: string) => {
+  toast.custom((t) => (
+    <div className="bg-white text-black p-4 rounded shadow-lg flex flex-col gap-2 w-[300px]">
+      <p>¿Estás seguro de que querés eliminar esta categoría?</p>
+      <div className="flex justify-end gap-2 mt-2">
+        <button
+          onClick={() => toast.dismiss(t.id)}
+          className="text-sm text-gray-700 px-3 py-1 rounded hover:bg-gray-200"
+        >
+          Cancelar
+        </button>
+        <button
+          onClick={async () => {
+            toast.dismiss(t.id);
+            try {
+              const res = await fetch(`${API}/ads/categories/${categoryId}`, {
+                method: "DELETE",
+              });
+              if (!res.ok) throw new Error();
+              toast.success("Categoría eliminada");
+              fetchCategories();
+              setCategoryName("");
+              setSelectedCategoryId("");
+            } catch {
+              toast.error("Error al eliminar categoría");
+            }
+          }}
+          className="bg-red-600 text-white text-sm px-3 py-1 rounded hover:bg-red-700"
+        >
+          Eliminar
+        </button>
+      </div>
+    </div>
+  ));
+};
+
 
   const uploadImage = async (file: File): Promise<string> => {
     const formData = new FormData();
@@ -207,6 +246,15 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
                 ? "Desactivar Categoría"
                 : "Activar Categoría"}
             </Button>
+            <Button
+            variant="outlined"
+            color="error"
+            fullWidth
+            onClick={() => deleteCategory(selectedCategoryId)}
+            disabled={!selectedCategoryId}
+          >
+            Eliminar Categoría
+          </Button>
           </div>
 
           {/* Columna 2: Crear Categoría + Imagen */}
