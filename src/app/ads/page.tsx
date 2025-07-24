@@ -1,13 +1,17 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
-import { Button, CircularProgress } from "@mui/material";
+import { 
+  Button, 
+  CircularProgress, 
+  Box 
+} from "@mui/material";
 import { Refresh } from "@mui/icons-material";
 import toast from "react-hot-toast";
-
+import CampaignIcon from '@mui/icons-material/Campaign';
 import AdsList from "@/components/ads/AdsList";
 import CreateAdModal from "@/components/ads/CreateAdModal";
 import PreviewAdModal from "@/components/ads/PreviewAdModal";
-import AdsHeader from "@/components/ads/AdsHeader";
+import SectionHeader from "@/components/ui/SectionHeader";
 import AdsFilters from "@/components/ads/AdsFilters";
 import { Ad, Category } from "@/interfaces/Ads";
 
@@ -57,10 +61,12 @@ const AdsPage = () => {
   }, [ads, adsFilter]);
 
   return (
-    <div className="min-h-screen py-10 px-4">
-      <div className="max-w-6xl mx-auto">
+    <Box sx={{ px: { xs: 2, md: 4 }, py: 4, width: '100%' }}>
 
-        <AdsHeader />
+        <SectionHeader
+          icon={<CampaignIcon fontSize="large" />}
+          title="Gestión de Anuncios"
+        />
 
         <div className="flex justify-between mb-6">
           <Button variant="contained" color="primary" onClick={() => setIsCreateModalOpen(true)}>
@@ -96,8 +102,7 @@ const AdsPage = () => {
             onClose={() => setPreviewAd(null)}
           />
         )}
-      </div>
-    </div>
+    </Box>
   );
 };
 

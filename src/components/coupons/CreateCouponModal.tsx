@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+'use client';
+
+import React, { useState, useRef } from 'react';
 import {
   Box,
   Button,
@@ -11,19 +13,25 @@ import {
   MenuItem,
   Select,
   TextField,
+  CircularProgress,
+  IconButton,
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import Image from 'next/image';
 
 interface CreateCouponModalProps {
   isOpen: boolean;
   onClose: () => void;
   fetchCoupons: () => void;
+  onShowAlert: (message: string, severity: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
 const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
   isOpen,
   onClose,
   fetchCoupons,
+  onShowAlert
 }) => {
   const [couponData, setCouponData] = useState({
     name: '',
@@ -32,6 +40,11 @@ const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
     unit: 'relative',
     endDate: '',
   });
+
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [imageName, setImageName] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent
@@ -43,6 +56,40 @@ const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
     }));
   };
 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/files/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error('Error al subir imagen');
+      const uploadData = await uploadRes.json();
+
+      setImageName(uploadData.filename); // guarda nombre para el payload
+      onShowAlert('Imagen subida correctamente', 'success');
+    } catch (error) {
+      console.error('Error al subir imagen:', error);
+      onShowAlert('Hubo un problema al subir la imagen.', 'error');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleCreateCoupon = async () => {
     const payload = {
       name: couponData.name,
@@ -50,9 +97,10 @@ const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
       value: Number(couponData.value),
       unit: couponData.unit,
       endDate: couponData.endDate,
+      ...(imageName && { imageName }), // si hay imagen, la incluye
     };
 
-    console.log('📦 Payload enviado:', payload);
+    console.log('payload enviado:', payload);
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/coupons`, {
@@ -64,16 +112,14 @@ const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
       });
 
       if (response.ok) {
-        const result = await response.json();
-        console.log('Cupón creado:', result);
         await fetchCoupons();
+        onShowAlert('Cupón creado con éxito', 'success');
         handleClose();
       } else {
-        const errorText = await response.text();
-        console.error('Error al crear cupón:', errorText);
+        onShowAlert('Error al crear cupón', 'error');
       }
     } catch (error) {
-      console.error('Error de red:', error);
+      onShowAlert('Error de red. Intenta nuevamente.', 'error');
     }
   };
 
@@ -85,6 +131,8 @@ const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
       unit: 'relative',
       endDate: '',
     });
+    setImagePreview('');
+    setImageName('');
     onClose();
   };
 
@@ -143,13 +191,81 @@ const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
             size="small"
             InputLabelProps={{ shrink: true }}
           />
+
+          {/* Área de imagen con overlay */}
+          <Box
+            sx={{
+              position: 'relative',
+              width: '100%',
+              height: 180,
+              borderRadius: 2,
+              backgroundColor: '#f0f0f0',
+              overflow: 'hidden',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              mt: 1,
+            }}
+          >
+            {isUploading ? (
+              <CircularProgress />
+            ) : imagePreview ? (
+              <>
+                <Image
+                  src={imagePreview}
+                  alt="Preview"
+                  fill
+                  style={{ objectFit: 'cover' }}
+                />
+                <IconButton
+                  onClick={handleUploadClick}
+                  sx={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    color: '#fff',
+                    '&:hover': { backgroundColor: 'rgba(0,0,0,0.8)' },
+                  }}
+                >
+                  <CloudUploadIcon fontSize="small" />
+                </IconButton>
+              </>
+            ) : (
+              <IconButton
+                onClick={handleUploadClick}
+                sx={{
+                  width: 80,
+                  height: 80,
+                  backgroundColor: 'rgba(0,0,0,0.05)',
+                  borderRadius: '50%',
+                }}
+              >
+                <CloudUploadIcon sx={{ fontSize: 40, color: '#777' }} />
+              </IconButton>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handleFileChange}
+            />
+          </Box>
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button variant="contained" color="primary" onClick={handleCreateCoupon} sx={{ mr: 2, mb: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleCreateCoupon}
+          disabled={isUploading}
+          sx={{ mr: 2, mb: 2 }}
+        >
           Crear Cupón
         </Button>
       </DialogActions>
+
     </Dialog>
   );
 };

@@ -16,6 +16,8 @@ import {
 } from '@mui/material';
 import { Customer } from '@/interfaces/Customer';
 import CustomerRow from '@/components/customers/CustomerRow';
+import {People} from '@mui/icons-material';
+import SectionHeader from '@/components/ui/SectionHeader';
 
 const AdminCustomersPage: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -49,7 +51,7 @@ const AdminCustomersPage: React.FC = () => {
     fetchCustomers();
   }, []);
 
-  // ✅ Colores dinámicos para estado
+  // colores para estado
   const getStatusColor = (status: Customer['status']) => {
     switch (status) {
       case 'Frecuente':
@@ -64,10 +66,12 @@ const AdminCustomersPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Typography variant="h4" fontWeight="bold" mb={4}>
-        Clientes
-      </Typography>
+    <Box sx={{ px: { xs: 2, md: 4 }, py: 4, width: '100%' }}>
+
+      <SectionHeader
+        icon={<People fontSize="large" />}
+        title="Clientes"
+      />
 
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">

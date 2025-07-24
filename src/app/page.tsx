@@ -8,6 +8,8 @@ import {
   Grid,
   useTheme
 } from '@mui/material';
+import SectionHeader from '@/components/ui/SectionHeader';
+import {Dashboard} from '@mui/icons-material';
 import { EcommerceWidgetSummary } from '@/widgets/overview/e-commerce/ecommerce-widget-summary';
 import { EcommerceYearlySales } from '@/widgets/overview/e-commerce/ecommerce-yearly-sales';
 import { EcommerceSaleByGender } from '@/widgets/overview/e-commerce/ecommerce-sale-by-gender';
@@ -19,7 +21,6 @@ import { mockDashboardData } from '@/data/mockDashboard';
 
 //...imports
 
-
 const AdminOverviewPage: React.FC = () => {
 
   const theme = useTheme();
@@ -29,16 +30,10 @@ const AdminOverviewPage: React.FC = () => {
 
     <Box sx={{ px: { xs: 2, md: 4 }, py: 4, width: '100%' }}>
 
-      <Typography 
-        variant="h4" 
-        fontWeight="bold" 
-        gutterBottom
-        sx={{
-          mb: 4
-        }}
-      >
-        Resumen General
-      </Typography>
+      <SectionHeader
+        icon={<Dashboard fontSize="large" />}
+        title="Resumen General"
+      />
     
       {/* Fila 1 - Productos vendidos / balance total / ganancias */}
       <Grid container spacing={3}>
