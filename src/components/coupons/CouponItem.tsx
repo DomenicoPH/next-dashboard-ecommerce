@@ -7,17 +7,14 @@ import {
   Typography,
   Button,
   Box,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
   IconButton,
   CircularProgress,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import EditIcon from '@mui/icons-material/Edit';
+import ConfirmDialog from '../ui/ConfirmDialog';
+import Image from 'next/image';
+import DeleteButtonWithConfirm from '../ui/DeleteButton';
 
 interface Coupon {
   id: string;
@@ -36,6 +33,7 @@ interface CouponItemProps {
   onView: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  fetchCoupons: () => Promise<void>;
 }
 
 const CouponItem: React.FC<CouponItemProps> = ({
@@ -43,18 +41,18 @@ const CouponItem: React.FC<CouponItemProps> = ({
   onView,
   onEdit,
   onDelete,
+  fetchCoupons,
 }) => {
-  const [openDialog, setOpenDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openRemoveImageDialog, setOpenRemoveImageDialog] = useState(false);
   const [imageUrl, setImageUrl] = useState(coupon.image?.imgUrl || '');
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleDeleteClick = () => setOpenDialog(true);
-  const handleConfirmDelete = () => {
+  const handleDeleteCoupon = () => {
     onDelete(coupon.id);
-    setOpenDialog(false);
+    setOpenDeleteDialog(false);
   };
-  const handleCancelDelete = () => setOpenDialog(false);
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
@@ -64,13 +62,11 @@ const CouponItem: React.FC<CouponItemProps> = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // ✅ Preview inmediato
     const previewUrl = URL.createObjectURL(file);
     setImageUrl(previewUrl);
 
     setIsUploading(true);
     try {
-      // 1️⃣ Subir imagen temporal
       const formData = new FormData();
       formData.append('file', file);
 
@@ -82,7 +78,6 @@ const CouponItem: React.FC<CouponItemProps> = ({
       if (!uploadRes.ok) throw new Error('Error al subir imagen');
       const uploadData = await uploadRes.json();
 
-      // 2️⃣ Asociar imagen al cupón
       const updateRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/coupons/images`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -93,21 +88,39 @@ const CouponItem: React.FC<CouponItemProps> = ({
       });
 
       if (!updateRes.ok) throw new Error('Error al asociar imagen al cupón');
-      const updatedCoupon = await updateRes.json();
 
-      // ✅ Usa la URL real del backend, con fallback a temp/
-      if (updatedCoupon.image?.imgUrl) {
-        setImageUrl(updatedCoupon.image.imgUrl);
-      } else {
-        // Fallback a temp
-        setImageUrl(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/files/temp/${uploadData.filename}`);
-      }
-
+      await fetchCoupons();
     } catch (error) {
-      console.error('❌ Error al subir imagen:', error);
+      console.error('Error al subir imagen:', error);
       alert('Hubo un problema al subir la imagen.');
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleRemoveImage = async () => {
+    try {
+      setIsUploading(true);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/coupons/images`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          couponId: coupon.id,
+          image: {},
+        }),
+      });
+
+      if (!res.ok) throw new Error('Error al eliminar imagen');
+
+      setImageUrl('');
+      await fetchCoupons();
+    } catch (error) {
+      console.error('Error al eliminar imagen:', error);
+      alert('Hubo un problema al eliminar la imagen.');
+    } finally {
+      setIsUploading(false);
+      setOpenRemoveImageDialog(false);
     }
   };
 
@@ -124,7 +137,7 @@ const CouponItem: React.FC<CouponItemProps> = ({
           p: 1,
         }}
       >
-        {/* Imagen o upload */}
+        {/* Imagen */}
         <Box
           sx={{
             position: 'relative',
@@ -142,31 +155,45 @@ const CouponItem: React.FC<CouponItemProps> = ({
             <CircularProgress />
           ) : imageUrl ? (
             <>
-              <img
+              <Image
+                width={300}
+                height={300}
+                priority
                 src={imageUrl}
                 alt={coupon.name}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                onError={(e) => {
-                  // Fallback si la URL principal falla
-                  if (coupon.image?.name) {
-                    (e.currentTarget as HTMLImageElement).src =
-                      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/files/temp/${coupon.image.name}`;
-                  }
-                }}
               />
-              <IconButton
-                onClick={handleUploadClick}
+             
+              <Box
                 sx={{
                   position: 'absolute',
                   top: 8,
                   right: 8,
-                  backgroundColor: 'rgba(0,0,0,0.5)',
-                  color: '#fff',
-                  '&:hover': { backgroundColor: 'rgba(0,0,0,0.7)' },
+                  display: 'flex',
+                  gap: .5,
                 }}
               >
-                <EditIcon fontSize="small" />
-              </IconButton>
+                <IconButton
+                  onClick={handleUploadClick}
+                  sx={{
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    color: '#fff',
+                    '&:hover': { backgroundColor: 'rgba(0,0,0,0.8)' },
+                  }}
+                >
+                  <CloudUploadIcon fontSize="small" />
+                </IconButton>
+                <IconButton
+                  onClick={() => setOpenRemoveImageDialog(true)}
+                  sx={{
+                    backgroundColor: 'rgba(255,0,0,0.6)',
+                    color: '#fff',
+                    '&:hover': { backgroundColor: 'rgba(255,0,0,0.8)' },
+                  }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Box>
             </>
           ) : (
             <IconButton
@@ -212,45 +239,35 @@ const CouponItem: React.FC<CouponItemProps> = ({
           </Typography>
         </CardContent>
 
-        {/* Eliminar */}
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: { xs: 'center', sm: 'flex-start' },
-            gap: 1,
-            pr: { sm: 2 },
-            pb: { xs: 2, sm: 0 },
-          }}
-        >
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={handleDeleteClick}
-            endIcon={<DeleteIcon />}
-          >
-            Eliminar
-          </Button>
-        </Box>
+        {/* Eliminar cupón */}
+        <DeleteButtonWithConfirm
+          onConfirm={() => onDelete(coupon.id)}
+          confirmMessage={`¿Estás seguro de que deseas eliminar el cupón "${coupon.name}"? Esta acción no se puede deshacer.`}
+          confirmTitle="Eliminar Cupón"
+          buttonText="Eliminar"
+          color="error"
+          variant="outlined"
+        />
+
       </Card>
 
-      {/* Confirmación eliminación */}
-      <Dialog open={openDialog} onClose={handleCancelDelete}>
-        <DialogTitle>Eliminar Cupón</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            ¿Estás seguro de que deseas eliminar el cupón "<strong>{coupon.name}</strong>"? Esta acción no se puede deshacer.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancelDelete} color="inherit">
-            Cancelar
-          </Button>
-          <Button onClick={handleConfirmDelete} color="error" variant="contained">
-            Eliminar
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* Confirmación eliminar imagen */}
+      <ConfirmDialog
+        open={openRemoveImageDialog}
+        title="Eliminar Imagen"
+        message="¿Estás seguro de que deseas eliminar la imagen de este cupón?"
+        onConfirm={handleRemoveImage}
+        onCancel={() => setOpenRemoveImageDialog(false)}
+      />
+
+      {/* Confirmación eliminar cupón */}
+      <ConfirmDialog
+        open={openDeleteDialog}
+        title="Eliminar Cupón"
+        message={`¿Estás seguro de que deseas eliminar el cupón "${coupon.name}"? Esta acción no se puede deshacer.`}
+        onConfirm={handleDeleteCoupon}
+        onCancel={() => setOpenDeleteDialog(false)}
+      />
     </>
   );
 };

@@ -22,7 +22,7 @@ const AdminCustomersPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ Fetch clientes
+  // Fetch clientes
   const fetchCustomers = async () => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/customers`, {

@@ -65,15 +65,15 @@ const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ Cupón creado:', result);
+        console.log('Cupón creado:', result);
         await fetchCoupons();
         handleClose();
       } else {
         const errorText = await response.text();
-        console.error('❌ Error al crear cupón:', errorText);
+        console.error('Error al crear cupón:', errorText);
       }
     } catch (error) {
-      console.error('❌ Error de red:', error);
+      console.error('Error de red:', error);
     }
   };
 
