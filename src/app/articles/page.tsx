@@ -7,7 +7,7 @@ import ArticleOverview from '@/components/articles/ArticleOverview';
 import ArticleDetailView from '@/components/articles/ArticleEdit';
 import { Article } from '../../interfaces/Article';
 import { Category } from '../../interfaces/Category';
-
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import {
   TextField,
   Button,
@@ -34,6 +34,8 @@ const AdminArticlesPage: React.FC = () => {
   const [selectedType, setSelectedType] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [articleToDelete, setArticleToDelete] = useState<string | null>(null);
 
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [modalMode, setModalMode] = useState<'overview' | 'edit' | null>(null);
@@ -52,6 +54,38 @@ const AdminArticlesPage: React.FC = () => {
     const data: Category[] = await res.json();
     setCategories(data);
   };
+
+  const handleRequestDelete = (id: string) => {
+    setArticleToDelete(id);
+    setConfirmOpen(true);
+  };
+
+
+  // Eliminar artículo
+  const handleConfirmDelete = async () => {
+    if (!articleToDelete) return;
+
+    try {
+      const res = await fetch(`${API}/articles/${articleToDelete}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Error al eliminar el artículo');
+
+      await fetchArticles();
+    } catch (error) {
+      console.error('Error eliminando artículo:', error);
+      alert('Hubo un error al eliminar el artículo');
+    } finally {
+      setConfirmOpen(false);
+      setArticleToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmOpen(false);
+    setArticleToDelete(null);
+  };
+
 
   useEffect(() => {
     fetchArticles();
@@ -180,7 +214,7 @@ const AdminArticlesPage: React.FC = () => {
                         setModalMode('edit');
                       }}
                       onDelete={() => {
-                        console.log('eliminando artículo', article.id);
+                        handleRequestDelete(article.id)
                       }}
                     />
                   ))}
@@ -208,7 +242,7 @@ const AdminArticlesPage: React.FC = () => {
                         setModalMode('edit');
                       }}
                       onDelete={() => {
-                        console.log('eliminando artículo', article.id);
+                        handleRequestDelete(article.id)
                       }}
                     />
                   ))}
@@ -259,6 +293,16 @@ const AdminArticlesPage: React.FC = () => {
         fetchArticles={fetchArticles}
         categories={categories}
       />
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Eliminar artículo"
+        message="¿Estás seguro de que deseas eliminar este artículo? Esta acción no se puede deshacer."
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
+
+
     </>
   );
 };

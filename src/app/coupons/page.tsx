@@ -12,7 +12,11 @@ interface Coupon {
   value: number;
   unit: 'relative' | 'absolute';
   endDate: string;
-  imageUrl?: string;
+  image?: {
+    id: string;
+    name: string;
+    imgUrl: string;
+  };
 }
 
 const AdminCouponsPage: React.FC = () => {
