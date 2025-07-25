@@ -5,7 +5,6 @@ import {
   CircularProgress, 
   Box 
 } from "@mui/material";
-import { Refresh } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import CampaignIcon from '@mui/icons-material/Campaign';
 import AdsList from "@/components/ads/AdsList";
@@ -14,6 +13,8 @@ import PreviewAdModal from "@/components/ads/PreviewAdModal";
 import SectionHeader from "@/components/ui/SectionHeader";
 import AdsFilters from "@/components/ads/AdsFilters";
 import { Ad, Category } from "@/interfaces/Ads";
+import PrimaryButton from '@/components/ui/PrimaryButton';
+import AddIcon from '@mui/icons-material/Add';
 
 const API = "https://nestjs-eccommercex-819245f6bb7d.herokuapp.com/api/v1";
 
@@ -68,17 +69,17 @@ const AdsPage = () => {
           title="Gestión de Anuncios"
         />
 
-        <div className="flex justify-between mb-6">
-          <Button variant="contained" color="primary" onClick={() => setIsCreateModalOpen(true)}>
-            Crear Anuncio
-          </Button>
+        <div className="flex justify-between items-center mb-6">
+          
           {/* FILTROS */}
           <AdsFilters adsFilter={adsFilter} onFilterChange={setAdsFilter} />
 
-          <Button onClick={fetchAds} variant="outlined" disabled={loading}>
-            {loading ? <CircularProgress size={20} /> : <Refresh className="mr-2" />}
-            Actualizar
-          </Button>
+          <PrimaryButton
+            label="Crear Anuncio"
+            icon={<AddIcon />}
+            onClick={() => setIsCreateModalOpen(true)}
+          />
+          
         </div>
 
 

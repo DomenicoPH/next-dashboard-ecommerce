@@ -9,7 +9,7 @@ interface AdsFiltersProps {
 
 const AdsFilters: React.FC<AdsFiltersProps> = ({ adsFilter, onFilterChange }) => {
   return (
-    <div className="mb-6 flex justify-end">
+    <div className="flex justify-end items-center">
       <TextField
         select
         size="small"

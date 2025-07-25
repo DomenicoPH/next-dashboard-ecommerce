@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import CouponItem from '@/components/coupons/CouponItem';
 import CreateCouponModal from '@/components/coupons/CreateCouponModal';
 import {LocalOffer} from '@mui/icons-material';
 import SectionHeader from '@/components/ui/SectionHeader';
 import CustomAlert from '@/components/ui/CustomAlert';
+import PrimaryButton from '@/components/ui/PrimaryButton';
+import AddIcon from '@mui/icons-material/Add';
 
 interface Coupon {
   id: string;
@@ -108,20 +110,19 @@ const AdminCouponsPage: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          marginBottom: '24px',
         }}
       >
-        <Typography variant="h5" fontWeight="medium" gutterBottom>
-          Activos: {coupons.length}
+        <Typography variant="h5" fontWeight="medium">
+          Cupones Activos: {coupons.length}
         </Typography>
 
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ mt: 2, mb: 4 }}
+        <PrimaryButton
+          label="Generar Cupón"
+          icon={<AddIcon />}
           onClick={() => setIsModalOpen(true)}
-        >
-          Generar Cupón
-        </Button>
+        />
+        
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
