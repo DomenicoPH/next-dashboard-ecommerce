@@ -10,6 +10,8 @@ import { Category } from '../../interfaces/Category';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { Inventory2 } from '@mui/icons-material';
+import PrimaryButton from '@/components/ui/PrimaryButton';
+import AddIcon from '@mui/icons-material/Add';
 import {
   TextField,
   Button,
@@ -135,6 +137,7 @@ const AdminArticlesPage: React.FC = () => {
         <div className="flex flex-col items-center justify-between gap-4 mb-6">
           {/* Filtro de texto y botón */}
           <div className="flex items-center gap-2 w-full">
+            
             <TextField
               label="Buscar por nombre..."
               variant="outlined"
@@ -143,14 +146,12 @@ const AdminArticlesPage: React.FC = () => {
               fullWidth
             />
 
-            <Button
+            <PrimaryButton
+              label="Crear Artículo"
+              icon={<AddIcon />}
               onClick={() => setIsModalOpen(true)}
-              variant="contained"
-              color="primary"
-              sx={{ minWidth: '200px', padding: 1.8 }}
-            >
-              Crear Artículo
-            </Button>
+            />
+
           </div>
 
           {/* Radio buttons */}
