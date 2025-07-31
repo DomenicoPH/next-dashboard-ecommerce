@@ -24,7 +24,7 @@ interface ImageProps {
   isNew: boolean;
 }
 
-const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }) => {
+const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }) => {
   const theme = useTheme();
 
   const [formChanges, setFormChanges] = useState({});
@@ -92,6 +92,7 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
     setFormChanges((prev) => ({ ...prev, [fieldName]: value }));
   };
 
+  // Guardado de cambios:
   const handleSaveChanges = async () => {
     setIsLoading(true);
     try {
@@ -133,6 +134,7 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
     loadArticleData();
   };
 
+  // Upload de imagen:
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) return;
     const MAX_IMAGES = 4;
@@ -173,6 +175,7 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
     }
   };
 
+  // Borrado de imagen:
   const handleImageDelete = async (img: ImageProps) => {
     setIsLoading(true);
     try {
@@ -201,6 +204,7 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
     }
   };
 
+  // Pin de imagen principal:
   const handlePinImage = async (img: ImageProps) => {
     if (img.name === mainImageName) return;
     if (img.isNew) {
@@ -210,6 +214,9 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
 
     setIsLoading(true);
     try {
+
+      await handleSaveChanges();
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles/${article.type.name}s/${article.id}`,
         {
@@ -220,9 +227,15 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
           }),
         }
       );
+
       if (!res.ok) throw new Error('Error al marcar imagen como principal');
-      await fetchArticle();
+
       setMainImageName(img.name);
+      await fetchArticle();
+      showAlert("Imagen principal actualizada", "success");
+
+    } catch(err){
+      showAlert("Ocurrió un error al actualizar la imagen principal", "error");
     } finally {
       setIsLoading(false);
     }
@@ -301,4 +314,4 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
   );
 };
 
-export default ArticleDetailView;
+export default ArticleEdit;
