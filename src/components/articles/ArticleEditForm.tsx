@@ -14,20 +14,15 @@ import { Article } from '@/interfaces/Article';
 
 interface ArticleEditFormProps {
   article: Article;
-  name: string;
-  setName: (value: string) => void;
-  price: string;
-  setPrice: (value: string) => void;
-  discountPrice: string;
-  setDiscountPrice: (value: string) => void;
-  description: string;
-  setDescription: (value: string) => void;
-  stock: number;
-  setStock: (value: number) => void;
-  isActive: boolean;
-  setIsActive: (value: boolean) => void;
-  isDiscountActive: boolean;
-  setIsDiscountActive: (value: boolean) => void;
+  formData: {
+    name: string;
+    price: string;
+    discountPrice: string;
+    description: string;
+    stock: number;
+    isActive: boolean;
+    onDiscount: boolean;
+  };
   formChanges: Record<string, any>;
   imageChanges: any[];
   isLoading: boolean;
@@ -42,20 +37,7 @@ interface ArticleEditFormProps {
 
 export default function ArticleEditForm({
   article,
-  name,
-  setName,
-  price,
-  setPrice,
-  discountPrice,
-  setDiscountPrice,
-  description,
-  setDescription,
-  stock,
-  setStock,
-  isActive,
-  setIsActive,
-  isDiscountActive,
-  setIsDiscountActive,
+  formData,
   formChanges,
   imageChanges,
   isLoading,
@@ -75,9 +57,8 @@ export default function ArticleEditForm({
             label="Nombre del Producto/Servicio"
             fullWidth
             size="small"
-            value={name}
+            value={formData.name}
             onChange={(e) => {
-              setName(e.target.value);
               handleInputChange('name', e.target.value);
             }}
           />
@@ -96,21 +77,19 @@ export default function ArticleEditForm({
             label="Precio"
             fullWidth
             size="small"
-            value={price}
+            value={formData.price}
             onChange={(e) => {
-              setPrice(e.target.value);
               handleInputChange('price', e.target.value);
             }}
           />
-          {isDiscountActive && (
+          {formData.onDiscount && (
             <Box mt={2}>
               <TextField
                 label="Precio con Descuento"
                 fullWidth
                 size="small"
-                value={discountPrice}
+                value={formData.discountPrice}
                 onChange={(e) => {
-                  setDiscountPrice(e.target.value);
                   handleInputChange('discountPrice', e.target.value);
                 }}
               />
@@ -131,9 +110,8 @@ export default function ArticleEditForm({
           multiline
           rows={4}
           size="small"
-          value={description}
+          value={formData.description}
           onChange={(e) => {
-            setDescription(e.target.value);
             handleInputChange('description', e.target.value);
           }}
         />
@@ -147,10 +125,9 @@ export default function ArticleEditForm({
               type="number"
               fullWidth
               size="small"
-              value={stock}
+              value={formData.stock}
               onChange={(e) => {
                 const value = parseInt(e.target.value);
-                setStock(value);
                 handleInputChange('stock', value);
               }}
             />
@@ -160,10 +137,9 @@ export default function ArticleEditForm({
           <FormControlLabel
             control={
               <Switch
-                checked={isActive}
+                checked={formData.isActive}
                 onChange={() => {
-                  setIsActive(!isActive);
-                  handleInputChange('isActive', !isActive);
+                  handleInputChange('isActive', !formData.isActive);
                 }}
                 color="success"
               />
@@ -175,10 +151,9 @@ export default function ArticleEditForm({
           <FormControlLabel
             control={
               <Switch
-                checked={isDiscountActive}
+                checked={formData.onDiscount}
                 onChange={() => {
-                  setIsDiscountActive(!isDiscountActive);
-                  handleInputChange('onDiscount', !isDiscountActive);
+                  handleInputChange('onDiscount', !formData.onDiscount);
                 }}
                 color="primary"
               />

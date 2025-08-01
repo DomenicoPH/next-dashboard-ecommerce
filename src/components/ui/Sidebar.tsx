@@ -70,7 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             width={200}
             height={40}
             priority
-            style={{ objectFit: 'contain', height: 'auto' }}
+            style={{ objectFit: 'contain', height: 'auto', width: '200px' }}
           />
           <p className="opacity-40 font-extralight tracking-[6px] mt-2">
             Administración
