@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import ArticleItem from '@/components/articles/ArticleItem';
 import CreateArticleModal from '@/components/articles/CreateArticleModal';
 import ArticleOverview from '@/components/articles/ArticleOverview';
-import ArticleDetailView from '@/components/articles/ArticleEdit';
+import ArticleEdit from '@/components/articles/ArticleEdit';
 import { Article } from '../../interfaces/Article';
 import { Category } from '../../interfaces/Category';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
@@ -289,7 +289,7 @@ const AdminArticlesPage: React.FC = () => {
             <ArticleOverview article={selectedArticle} fetchArticle={fetchArticles} />
           )}
           {selectedArticle && modalMode === 'edit' && (
-            <ArticleDetailView article={selectedArticle} fetchArticle={fetchArticles} />
+            <ArticleEdit article={selectedArticle} fetchArticle={fetchArticles} />
           )}
         </Box>
       </Modal>

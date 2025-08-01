@@ -24,7 +24,7 @@ interface ImageProps {
   isNew: boolean;
 }
 
-const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }) => {
+const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }) => {
   const theme = useTheme();
 
   const [formChanges, setFormChanges] = useState({});
@@ -37,13 +37,16 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
   const [images, setImages] = useState<ImageProps[]>([]);
   const [mainImageName, setMainImageName] = useState<string>('');
 
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
-  const [discountPrice, setDiscountPrice] = useState('');
-  const [description, setDescription] = useState('');
-  const [stock, setStock] = useState(0);
-  const [isActive, setIsActive] = useState(false);
-  const [isDiscountActive, setIsDiscountActive] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    price: '',
+    discountPrice: '',
+    description: '',
+    stock: 0,
+    isActive: false,
+    onDiscount: false,
+  });
+
 
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -56,14 +59,16 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
   };
 
   const loadArticleData = () => {
-    setName(article.name);
-    setPrice(article.price.toFixed(2));
-    setDiscountPrice(article.discountPrice.toFixed(2));
-    setDescription(article.description);
-    setStock(article.stock || 0);
-    setIsActive(article.isActive);
-    setIsDiscountActive(article.onDiscount);
-    setMainImageName(article.mainImage?.name || '');
+    
+    setFormData({
+      name: article.name,
+      price: article.price.toFixed(2),
+      discountPrice: article.discountPrice.toFixed(2),
+      description: article.description,
+      stock: article.stock || 0,
+      isActive: article.isActive,
+      onDiscount: article.onDiscount,
+    });
 
     setFormChanges({});
     setImageChanges([]);
@@ -90,8 +95,10 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
 
   const handleInputChange = (fieldName: string, value: any) => {
     setFormChanges((prev) => ({ ...prev, [fieldName]: value }));
+    setFormData((prev) => ({ ...prev, [fieldName]: value }));
   };
 
+  // Guardado de cambios:
   const handleSaveChanges = async () => {
     setIsLoading(true);
     try {
@@ -133,6 +140,7 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
     loadArticleData();
   };
 
+  // Upload de imagen:
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) return;
     const MAX_IMAGES = 4;
@@ -173,6 +181,7 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
     }
   };
 
+  // Borrado de imagen:
   const handleImageDelete = async (img: ImageProps) => {
     setIsLoading(true);
     try {
@@ -201,6 +210,7 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
     }
   };
 
+  // Pin de imagen principal:
   const handlePinImage = async (img: ImageProps) => {
     if (img.name === mainImageName) return;
     if (img.isNew) {
@@ -210,6 +220,9 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
 
     setIsLoading(true);
     try {
+
+      await handleSaveChanges();
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles/${article.type.name}s/${article.id}`,
         {
@@ -220,9 +233,15 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
           }),
         }
       );
+
       if (!res.ok) throw new Error('Error al marcar imagen como principal');
-      await fetchArticle();
+
       setMainImageName(img.name);
+      await fetchArticle();
+      showAlert("Imagen principal actualizada", "success");
+
+    } catch(err){
+      showAlert("Ocurrió un error al actualizar la imagen principal", "error");
     } finally {
       setIsLoading(false);
     }
@@ -269,20 +288,7 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
           <Grid size={{ xs: 12, lg: 8 }} sx={{ maxWidth: 500, marginX: 'auto' }}>
             <ArticleEditForm
               article={article}
-              name={name}
-              setName={setName}
-              price={price}
-              setPrice={setPrice}
-              discountPrice={discountPrice}
-              setDiscountPrice={setDiscountPrice}
-              description={description}
-              setDescription={setDescription}
-              stock={stock}
-              setStock={setStock}
-              isActive={isActive}
-              setIsActive={setIsActive}
-              isDiscountActive={isDiscountActive}
-              setIsDiscountActive={setIsDiscountActive}
+              formData={formData}
               formChanges={formChanges}
               handleInputChange={handleInputChange}
               imageChanges={imageChanges}
@@ -301,4 +307,4 @@ const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({ article, fetchArt
   );
 };
 
-export default ArticleDetailView;
+export default ArticleEdit;
