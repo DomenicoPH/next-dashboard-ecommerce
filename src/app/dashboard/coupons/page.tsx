@@ -41,10 +41,24 @@ const AdminCouponsPage: React.FC = () => {
     setAlertOpen(true);
   };
 
+  const token = localStorage.getItem('token');
+
   const fetchCoupons = async () => {
     try {
+
+      if(!token){
+        throw new Error('No se encontró el token de autenticación.');
+      }
+
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/coupons?limit=200`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/coupons?limit=200`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          cache: 'no-store'
+        }
       );
 
       if (!response.ok) throw new Error('Error al obtener cupones');
@@ -81,8 +95,14 @@ const AdminCouponsPage: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/coupons/${id}`,
-        { method: 'DELETE' }
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/coupons/${id}`, { 
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          cache: 'no-store'
+        }
       );
 
       if (response.ok) {

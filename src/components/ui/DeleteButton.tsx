@@ -49,6 +49,7 @@ const DeleteButtonWithConfirm: React.FC<DeleteButtonWithConfirmProps> = ({
         open={open}
         title={confirmTitle}
         message={confirmMessage}
+        action="Eliminar"
         onConfirm={handleConfirm}
         onCancel={handleCloseDialog}
       />

@@ -46,6 +46,8 @@ const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const token = localStorage.getItem('token');
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent
   ) => {
@@ -75,6 +77,10 @@ const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
       const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/files/upload`, {
         method: 'POST',
         body: formData,
+        headers: {
+            Authorization: `Bearer ${token}`
+          },
+          cache: 'no-store'
       });
 
       if (!uploadRes.ok) throw new Error('Error al subir imagen');
@@ -107,7 +113,9 @@ const CreateCouponModal: React.FC<CreateCouponModalProps> = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
         },
+        cache: 'no-store',
         body: JSON.stringify(payload),
       });
 

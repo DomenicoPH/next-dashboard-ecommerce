@@ -3,15 +3,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import ArticleItem from '@/components/articles/ArticleItem';
 import CreateArticleModal from '@/components/articles/CreateArticleModal';
+import CategoriesModal from '@/components/articles/CategoriesModal';
 import ArticleOverview from '@/components/articles/ArticleOverview';
 import ArticleEdit from '@/components/articles/ArticleEdit';
-import { Article } from '../../interfaces/Article';
-import { Category } from '../../interfaces/Category';
+import { Article } from '../../../interfaces/Article';
+import { Category } from '../../../interfaces/Category';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { Inventory2 } from '@mui/icons-material';
 import PrimaryButton from '@/components/ui/PrimaryButton';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
 import {
   TextField,
   Button,
@@ -37,7 +39,9 @@ const AdminArticlesPage: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  //const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [articleToDelete, setArticleToDelete] = useState<string | null>(null);
 
@@ -146,11 +150,19 @@ const AdminArticlesPage: React.FC = () => {
               fullWidth
             />
 
-            <PrimaryButton
-              label="Crear Artículo"
-              icon={<AddIcon />}
-              onClick={() => setIsModalOpen(true)}
-            />
+            <div className="flex gap-2">
+              <PrimaryButton
+                label="Crear Artículo"
+                icon={<AddIcon />}
+                onClick={() => setIsCreateModalOpen(true)}
+              />
+              <PrimaryButton
+                label="Categorías"
+                icon={<EditIcon />}
+                onClick={() => {setIsCategoriesModalOpen(true)}}
+              />
+            </div>
+
 
           </div>
 
@@ -295,9 +307,15 @@ const AdminArticlesPage: React.FC = () => {
       </Modal>
 
       <CreateArticleModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
         fetchArticles={fetchArticles}
+        categories={categories}
+      />
+
+      <CategoriesModal 
+        isOpen={isCategoriesModalOpen}
+        onClose={() => setIsCategoriesModalOpen(false)}
         categories={categories}
       />
 
@@ -305,6 +323,7 @@ const AdminArticlesPage: React.FC = () => {
         open={confirmOpen}
         title="Eliminar artículo"
         message="¿Estás seguro de que deseas eliminar este artículo? Esta acción no se puede deshacer."
+        action='Eliminar'
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
       />

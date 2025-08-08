@@ -49,6 +49,8 @@ const CouponItem: React.FC<CouponItemProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const token = localStorage.getItem('token');
+
   const handleDeleteCoupon = () => {
     onDelete(coupon.id);
     setOpenDeleteDialog(false);
@@ -73,6 +75,10 @@ const CouponItem: React.FC<CouponItemProps> = ({
       const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/files/upload`, {
         method: 'POST',
         body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        cache: 'no-store'
       });
 
       if (!uploadRes.ok) throw new Error('Error al subir imagen');
@@ -80,7 +86,11 @@ const CouponItem: React.FC<CouponItemProps> = ({
 
       const updateRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/coupons/images`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        cache: 'no-store',
         body: JSON.stringify({
           couponId: coupon.id,
           image: { name: uploadData.filename },
@@ -104,7 +114,11 @@ const CouponItem: React.FC<CouponItemProps> = ({
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/coupons/images`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        cache: 'no-store',
         body: JSON.stringify({
           couponId: coupon.id,
           image: {},
@@ -258,6 +272,7 @@ const CouponItem: React.FC<CouponItemProps> = ({
         open={openRemoveImageDialog}
         title="Eliminar Imagen"
         message="¿Estás seguro de que deseas eliminar la imagen de este cupón?"
+        action='Eliminar'
         onConfirm={handleRemoveImage}
         onCancel={() => setOpenRemoveImageDialog(false)}
       />
@@ -267,6 +282,7 @@ const CouponItem: React.FC<CouponItemProps> = ({
         open={openDeleteDialog}
         title="Eliminar Cupón"
         message={`¿Estás seguro de que deseas eliminar el cupón "${coupon.name}"? Esta acción no se puede deshacer.`}
+        action='Eliminar'
         onConfirm={handleDeleteCoupon}
         onCancel={() => setOpenDeleteDialog(false)}
       />
