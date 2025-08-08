@@ -34,7 +34,7 @@ const CustomerRow: React.FC<CustomerRowProps> = ({ customer, getStatusColor }) =
       <TableCell align="center">
         <IconButton
           color="primary"
-          onClick={() => router.push(`/customers/${customer.nDni}`)}
+          onClick={() => router.push(`/dashboard/customers/${customer.nDni}`)}
         >
           <VisibilityIcon />
         </IconButton>

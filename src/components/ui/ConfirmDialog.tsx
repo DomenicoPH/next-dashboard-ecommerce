@@ -14,6 +14,7 @@ interface ConfirmDialogProps {
   open: boolean;
   title?: string;
   message: string;
+  action: string;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -22,6 +23,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   open,
   title = 'Confirmación',
   message,
+  action,
   onConfirm,
   onCancel
 }) => {
@@ -31,6 +33,11 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       onClose={onCancel}
       aria-labelledby="confirm-dialog-title"
       aria-describedby="confirm-dialog-description"
+      slotProps={{
+        paper: {
+          sx: { p: 3, borderRadius: 2 }
+        }
+      }}
     >
       <DialogTitle id="confirm-dialog-title">{title}</DialogTitle>
       <DialogContent>
@@ -43,7 +50,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           Cancelar
         </Button>
         <Button onClick={onConfirm} color="error" variant="contained" autoFocus>
-          Eliminar
+          {action}
         </Button>
       </DialogActions>
     </Dialog>

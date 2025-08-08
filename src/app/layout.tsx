@@ -10,8 +10,10 @@ import { Toaster } from 'react-hot-toast';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { lightTheme, darkTheme } from '@/theme/theme';
 import { ThemeProviderCustom, useThemeContext } from '@/context/ThemeContext';
+import { UserProvider } from '@/context/UserContext';
 
 import { Inter } from 'next/font/google';
+import { usePathname } from 'next/navigation';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,7 +21,6 @@ interface LayoutProps {
 
 const inter = Inter({ subsets: ['latin'] });
 
-// ✅ Componente wrapper para aplicar el tema dinámico
 const AppThemeWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { mode } = useThemeContext();
 
@@ -33,36 +34,43 @@ const AppThemeWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const pathname = usePathname();
 
   const toggleSidebar = () => {
     setIsSidebarOpen(prev => !prev);
   };
 
+  const isAuthPage = pathname.startsWith('/login');
+
   return (
     <html lang="es">
       <body>
-        {/* ✅ Envuelve todo en el provider del contexto */}
         <ThemeProviderCustom>
-          {/* ✅ Envuelve en ThemeProvider para aplicar el tema */}
-          <AppThemeWrapper>
-            <div className="flex w-full h-screen">
-              {/* Sidebar */}
-              <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+          <UserProvider>
+            <AppThemeWrapper>
+              <div className="flex w-full h-screen">
+                {/* Sidebar */}
+                {!isAuthPage && (
+                  <>
+                    <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-              {/* Botón toggle para móvil */}
-              <div className="absolute top-4 left-4 md:hidden z-30">
-                <IconButton onClick={toggleSidebar} >
-                  <MenuIcon />
-                </IconButton>
+                    {/* Botón toggle para móvil */}
+                    <div className="absolute top-4 left-4 md:hidden z-30">
+                      <IconButton onClick={toggleSidebar} >
+                        <MenuIcon />
+                      </IconButton>
+                    </div>
+                  </>
+                )}
+
+                {/* Contenido principal */}
+                <main className="flex-1 overflow-y-auto p-5 pt-10 w-full">
+                  {children}
+                  <Toaster position="top-center" toastOptions={{ duration: 4000 }} />
+                </main>
               </div>
-
-              {/* Contenido principal */}
-              <main className="flex-1 overflow-y-auto p-5 pt-10 w-full">
-                {children}
-                <Toaster position="top-center" toastOptions={{ duration: 4000 }} />
-              </main>
-            </div>
-          </AppThemeWrapper>
+            </AppThemeWrapper>
+          </UserProvider>
         </ThemeProviderCustom>
       </body>
     </html>

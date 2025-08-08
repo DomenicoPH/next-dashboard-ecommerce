@@ -12,6 +12,8 @@ const CustomerDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const token = localStorage.getItem('token');
+
   useEffect(() => {
     const fetchCustomer = async () => {
       if (!nDni) return;
@@ -19,7 +21,14 @@ const CustomerDetailPage: React.FC = () => {
       setError(null);
 
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/customers/${nDni}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/customers/${nDni}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          cache: 'no-store'
+        });
         if (!res.ok) {
           throw new Error(`Error al obtener cliente: ${res.status}`);
         }

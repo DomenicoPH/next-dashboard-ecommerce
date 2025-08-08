@@ -171,11 +171,22 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
 
       setImages((prevImages) => {
         const updated = [...prevImages, newImage];
-        if (!mainImageName && updated.length > 0) {
-          setMainImageName(updated[0].name);
+            
+        if (!mainImageName || updated.length === 1) {
+          setMainImageName(newImage.name);
+        
+          setImageChanges((prevChanges) => [
+            ...prevChanges,
+            {
+              name: newImage.name,
+              url: newImage.url,
+              action: ArticleImageAction.PIN,
+            },
+          ]);
         }
         return updated;
       });
+
     } finally {
       setIsLoading(false);
     }

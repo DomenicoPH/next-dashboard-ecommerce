@@ -25,8 +25,6 @@ interface Order {
   createdAt: string;
 }
 
-const API = 'https://nestjs-eccommercex-819245f6bb7d.herokuapp.com/api/v1';
-
 const AdminOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,11 +33,26 @@ const AdminOrdersPage: React.FC = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API}/orders`);
-      if (!res.ok) throw new Error('Error al obtener pedidos');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!token) {
+        throw new Error('No se encontró el token de autenticación');
+      }
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/orders`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error('Error al obtener pedidos');
+      }
+
       const data: Order[] = await res.json();
       setOrders(data);
     } catch (err) {
+      console.error('Error al cargar pedidos:', err);
       setError('No se pudieron cargar los pedidos');
     } finally {
       setLoading(false);

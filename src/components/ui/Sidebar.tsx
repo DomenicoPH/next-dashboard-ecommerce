@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Button } from '@mui/material';
 import {
   Dashboard,
   ShoppingCart,
@@ -11,10 +12,14 @@ import {
   People,
   Campaign,
   Close,
+  Logout
 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { useThemeContext } from '@/context/ThemeContext';
 import ThemeToggleSwitch from './ThemeToggleSwitch';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/context/UserContext';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -23,11 +28,21 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { mode } = useThemeContext();
+  const { logout } = useUser();
   const theme = useTheme();
+  const router = useRouter();
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const linkClass = `flex items-center gap-2 hover:bg-sky-300 transition-colors duration-200 py-4 px-4 text-lg tracking-wider w-full md:w-auto justify-center md:justify-start ${
     mode === 'light' ? 'hover:bg-sky-300' : 'hover:bg-slate-900'
   }`;
+
+  // logout centralizado en el context
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
 
   // Cierra el sidebar solo en modo móvil
   const handleLinkClick = () => {
@@ -81,37 +96,37 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         <nav className="flex flex-col items-center md:items-start w-full">
           <ul className="flex flex-col gap-2 w-full text-center md:text-left">
             <li>
-              <Link href="/" onClick={handleLinkClick} className={linkClass}>
+              <Link href="/dashboard/general" onClick={handleLinkClick} className={linkClass}>
                 <Dashboard fontSize="small" />
                 General
               </Link>
             </li>
             <li>
-              <Link href="/orders" onClick={handleLinkClick} className={linkClass}>
+              <Link href="/dashboard/orders" onClick={handleLinkClick} className={linkClass}>
                 <ShoppingCart fontSize="small" />
                 Pedidos
               </Link>
             </li>
             <li>
-              <Link href="/articles" onClick={handleLinkClick} className={linkClass}>
+              <Link href="/dashboard/articles" onClick={handleLinkClick} className={linkClass}>
                 <Inventory2 fontSize="small" />
                 Artículos
               </Link>
             </li>
             <li>
-              <Link href="/coupons" onClick={handleLinkClick} className={linkClass}>
+              <Link href="/dashboard/coupons" onClick={handleLinkClick} className={linkClass}>
                 <LocalOffer fontSize="small" />
                 Cupones
               </Link>
             </li>
             <li>
-              <Link href="/customers" onClick={handleLinkClick} className={linkClass}>
+              <Link href="/dashboard/customers" onClick={handleLinkClick} className={linkClass}>
                 <People fontSize="small" />
                 Clientes
               </Link>
             </li>
             <li>
-              <Link href="/ads" onClick={handleLinkClick} className={linkClass}>
+              <Link href="/dashboard/ads" onClick={handleLinkClick} className={linkClass}>
                 <Campaign fontSize="small" />
                 Anuncios
               </Link>
@@ -119,11 +134,47 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </ul>
         </nav>
 
-        {/* Botón cambiar tema */}
-        <div className="mt-auto p-4">
+        
+        <div className="mt-auto p-4 mb-10">
+          {/* Switch cambiar tema */}
           <ThemeToggleSwitch />
+          {/* Botón Logout */}
+          <Button
+            onClick={() => {setConfirmOpen(true)}}
+            variant="contained"
+            //color="error"
+            startIcon={<Logout fontSize="small" />}
+            sx={{
+              px: 2,
+              py: .5,
+              mx: 'auto',
+              display: 'flex',
+              justifyContent: { xs: 'center', md: 'flex-start' },
+              borderRadius: 2,
+              textTransform: 'none',
+              borderWidth: 2,
+              backgroundColor: (theme) => theme.palette.background.default,
+              color: (theme) => theme.palette.text.primary,
+              '&:hover': {
+                backgroundColor: (theme) => theme.palette.background.paper,
+                color: (theme) => theme.palette.error.main,
+              },
+            }}
+          >
+            Cerrar sesión
+          </Button>
         </div>
       </aside>
+
+      <ConfirmDialog 
+        open={confirmOpen}
+        title="Cerrar sesión"
+        message="¿Estás seguro de que quieres cerrar sesión?"
+        action="Cerrar"
+        onConfirm={handleLogout}
+        onCancel={() => setConfirmOpen(false)}
+      />
+
     </>
   );
 };
