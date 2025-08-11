@@ -2,13 +2,13 @@
 
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 
 interface User {
   id: string;
   name: string;
   email: string;
   role?: string;
-  // puedes añadir más campos si tu API devuelve más datos
 }
 
 interface UserContextProps {
@@ -19,20 +19,54 @@ interface UserContextProps {
   isAuthenticated: boolean;
 }
 
+interface JwtPayload {
+  exp?: number;
+  [key: string]: any;
+}
+
 const UserContext = createContext<UserContextProps | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
-  // Cargar token y datos del usuario al iniciar
+  // Carga token y datos del usuario al iniciar
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
 
     if (storedToken) {
       setToken(storedToken);
-      Cookies.set('token', storedToken); // Mantener middleware funcional
+      Cookies.set('token', storedToken); // Mantiene middleware funcional
+
+      // Valida si el token está expirado
+      try {
+        const decoded = jwtDecode<JwtPayload>(storedToken);
+        if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+          logout(); // Expirado: salir
+          return;
+        }
+      } catch {
+        logout(); // Token corrupto: salir
+        return;
+      }
+
+      // Valida contra el backend
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/me`, {
+        headers: { Authorization: `Bearer ${storedToken}` }
+      })
+        .then(res => {
+          if (!res.ok) throw new Error('Unauthorized');
+          return res.json();
+        })
+        .then(data => {
+          if (!storedUser) {
+            setUser(data);
+            localStorage.setItem('user', JSON.stringify(data));
+          }
+        })
+        .catch(() => logout());
+
     }
 
     if (storedUser) {
@@ -57,9 +91,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     Cookies.remove('token');
-
-    // Redirigir al login
-    window.location.href = '/dashboard/login';
+    window.location.href = '/dashboard/login'; // Redirigir al login
   };
 
   const value: UserContextProps = {

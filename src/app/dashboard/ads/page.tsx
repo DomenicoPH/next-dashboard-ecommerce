@@ -17,6 +17,7 @@ import PrimaryButton from '@/components/ui/PrimaryButton';
 import AddIcon from '@mui/icons-material/Add';
 
 const API = "https://nestjs-eccommercex-819245f6bb7d.herokuapp.com/api/v1";
+const token = localStorage.getItem('token');
 
 const AdsPage = () => {
   const [ads, setAds] = useState<Ad[]>([]);
@@ -30,7 +31,11 @@ const AdsPage = () => {
   const fetchAds = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API}/ads?showAll=true`);
+      const res = await fetch(`${API}/ads?showAll=true`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       const data = await res.json();
       setAds(data);
     } catch {
@@ -42,7 +47,11 @@ const AdsPage = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch(`${API}/ads/categories?showAll=true`);
+      const res = await fetch(`${API}/ads/categories?showAll=true`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       const data = await res.json();
       setCategories(data);
     } catch {

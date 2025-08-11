@@ -23,6 +23,7 @@ interface AdsListProps {
 }
 
 const API = "https://nestjs-eccommercex-819245f6bb7d.herokuapp.com/api/v1";
+const token = localStorage.getItem('token');
 
 const AdsList: React.FC<AdsListProps> = ({ ads, onPreview, onRefresh }) => {
   const theme = useTheme();
@@ -62,6 +63,9 @@ const AdsList: React.FC<AdsListProps> = ({ ads, onPreview, onRefresh }) => {
               try {
                 const res = await fetch(`${API}/ads/${adId}`, {
                   method: "DELETE",
+                  headers: {
+                    Authorization: `Bearer ${token}`
+                  }
                 });
                 const result = await res.json();
                 if (result.deleted) {
@@ -84,6 +88,9 @@ const AdsList: React.FC<AdsListProps> = ({ ads, onPreview, onRefresh }) => {
     try {
       const res = await fetch(`${API}/ads/toggle/${adId}`, {
         method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       const result = await res.json();
       if (result.updated) {

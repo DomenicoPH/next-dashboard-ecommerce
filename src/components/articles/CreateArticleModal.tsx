@@ -24,6 +24,7 @@ interface CreateArticleModalProps {
   fetchArticles: () => void;
 }
 
+const token = localStorage.getItem('token');
 
 const CreateArticleModal: React.FC<CreateArticleModalProps> = ({ isOpen, categories, onClose, fetchArticles }) => {
   const [formData, setFormData] = useState({
@@ -106,7 +107,9 @@ const CreateArticleModal: React.FC<CreateArticleModalProps> = ({ isOpen, categor
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
         },
+        cache: 'no-store',
         body: JSON.stringify(body),
       });
 
