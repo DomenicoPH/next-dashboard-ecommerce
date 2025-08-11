@@ -47,6 +47,7 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
     onDiscount: false,
   });
 
+  const token = localStorage.getItem('token');
 
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -106,7 +107,11 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles/${article.type.name}s/${article.id}`,
         {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          cache: 'no-store',
           body: JSON.stringify({
             ...formChanges,
             images: imageChanges.map((img) => ({
@@ -134,6 +139,10 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
       if (image.action === ArticleImageAction.ADD) {
         await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/files/temp/${image.name}`, {
           method: 'DELETE',
+          headers: { 
+            Authorization: `Bearer ${token}`
+          },
+          cache: 'no-store',
         });
       }
     }
@@ -157,6 +166,10 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/files/upload`, {
         method: 'POST',
         body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        cache: 'no-store',
       });
       if (!res.ok) throw new Error('Failed to upload image');
 
@@ -199,6 +212,10 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
       if (img.isNew) {
         await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/files/temp/${img.name}`, {
           method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          cache: 'no-store',
         });
         setImageChanges((prev) => prev.filter((i) => i.name !== img.name));
       } else {
@@ -238,7 +255,11 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles/${article.type.name}s/${article.id}`,
         {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          cache: 'no-store',
           body: JSON.stringify({
             images: [{ name: img.name, action: 'pin' }],
           }),

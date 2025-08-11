@@ -37,13 +37,19 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
   const [loading, setLoading] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<"all" | "active" | "inactive">("active");
 
+  const token = localStorage.getItem('token');
+
   useEffect(() => {
     if (open) fetchCategories();
   }, [open, categoryFilter]);
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch(`${API}/ads/categories?showAll=true`);
+      const res = await fetch(`${API}/ads/categories?showAll=true`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       const data = await res.json();
       if (!Array.isArray(data)) return toast.error("Error al cargar categorías");
 
@@ -73,7 +79,10 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
     try {
       const res = await fetch(`${API}/ads/categories`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+         },
         body: JSON.stringify({ name: newCategory, isActive: false }),
       });
       const data = await res.json();
@@ -87,12 +96,15 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
     }
   };
 
-
-
   const toggleCategory = async () => {
     if (!selectedCategoryId) return;
     try {
-      const res = await fetch(`${API}/ads/categories/toggle/${selectedCategoryId}`, { method: "PATCH" });
+      const res = await fetch(`${API}/ads/categories/toggle/${selectedCategoryId}`, { 
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`
+        } 
+      });
       const result = await res.json();
       if (result.updated) {
         toast.success("Categoría actualizada");
@@ -120,6 +132,9 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
             try {
               const res = await fetch(`${API}/ads/categories/${categoryId}`, {
                 method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${token}`
+                }
               });
               if (!res.ok) throw new Error();
               toast.success("Categoría eliminada");
@@ -143,7 +158,14 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
   const uploadImage = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append("file", file);
-    const res = await fetch(`${API}/files/upload`, { method: "POST", body: formData });
+    const res = await fetch(`${API}/files/upload`, { 
+      method: "POST", 
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      body: formData,
+    });
+    if(!res.ok) throw new Error('Error al subir imagen')
     const data = await res.json();
     return data.filename;
   };
@@ -170,7 +192,11 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
       const imageName = await uploadImage(imageFile);
       const res = await fetch(`${API}/ads`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        cache: 'no-store',
         body: JSON.stringify({ categoryName: finalCategory, imageName, isActive }),
       });
       if (!res.ok) throw new Error();

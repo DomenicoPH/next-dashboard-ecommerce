@@ -28,37 +28,37 @@ import {
   Box
 } from '@mui/material';
 
-const API = "https://nestjs-eccommercex-819245f6bb7d.herokuapp.com/api/v1";
+const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
 const AdminArticlesPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
-  const [products, setProducts] = useState<Article[]>([]);
-  const [services, setServices] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedService, setSelectedService] = useState('');
   const [selectedProduct, setSelectedProduct] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  //const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [articleToDelete, setArticleToDelete] = useState<string | null>(null);
 
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [modalMode, setModalMode] = useState<'overview' | 'edit' | null>(null);
 
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const MAX_PER_TYPE = 5;
+  const MAX_PER_PAGE = 10;
+
   const fetchArticles = async () => {
-    //const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles`);
-    const res = await fetch(`${API}/articles`);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles?limit=50`);
     const data: Article[] = await res.json();
     setArticles(data);
     setSelectedArticle(data.find(a => a.id === selectedArticle?.id) ?? null);
   };
 
   const fetchCategories = async () => {
-    //const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories`);
-    const res = await fetch(`${API}/categories`);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories`);
     const data: Category[] = await res.json();
     setCategories(data);
   };
@@ -68,17 +68,17 @@ const AdminArticlesPage: React.FC = () => {
     setConfirmOpen(true);
   };
 
-
-  // Eliminar artículo
   const handleConfirmDelete = async () => {
     if (!articleToDelete) return;
-
     try {
-      const res = await fetch(`${API}/articles/${articleToDelete}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles/${articleToDelete}`, {
         method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        cache: 'no-store'
       });
       if (!res.ok) throw new Error('Error al eliminar el artículo');
-
       await fetchArticles();
     } catch (error) {
       console.error('Error eliminando artículo:', error);
@@ -93,7 +93,6 @@ const AdminArticlesPage: React.FC = () => {
     setConfirmOpen(false);
     setArticleToDelete(null);
   };
-
 
   useEffect(() => {
     fetchArticles();
@@ -116,83 +115,98 @@ const AdminArticlesPage: React.FC = () => {
     if (selectedService) setSelectedProduct('');
   }, [selectedService]);
 
-  useEffect(() => {
-    const filtered = articles.filter(article => {
-      const matchesSearch = article.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesService = selectedService === '' || (article.type.name === 'service' && article.name === selectedService);
-      const matchesProduct = selectedProduct === '' || (article.type.name === 'product' && article.name === selectedProduct);
-      const matchesType = selectedType === '' || article.type.name === selectedType;
-      return matchesSearch && matchesService && matchesProduct && matchesType;
-    });
+  // Filtrar artículos según búsqueda y filtros
+  const filteredProducts = useMemo(() => {
+    return articles.filter(article =>
+      article.type.name === 'product' &&
+      article.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (selectedProduct === '' || article.name === selectedProduct) &&
+      (selectedType === '' || article.type.name === selectedType)
+    );
+  }, [articles, searchTerm, selectedProduct, selectedType]);
 
-    setProducts(filtered.filter(a => a.type.name === 'product'));
-    setServices(filtered.filter(a => a.type.name === 'service'));
-  }, [articles, searchTerm, selectedService, selectedProduct, selectedType]);
+  const filteredServices = useMemo(() => {
+    return articles.filter(article =>
+      article.type.name === 'service' &&
+      article.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (selectedService === '' || article.name === selectedService) &&
+      (selectedType === '' || article.type.name === selectedType)
+    );
+  }, [articles, searchTerm, selectedService, selectedType]);
+
+  // Calcular páginas y datos mostrados
+  const totalPages = Math.max(
+    1,
+    Math.max(
+      Math.ceil(filteredProducts.length / MAX_PER_TYPE),
+      Math.ceil(filteredServices.length / MAX_PER_TYPE)
+    )
+  );
+
+  const displayedProducts = filteredProducts.slice(
+    (currentPage - 1) * MAX_PER_TYPE,
+    (currentPage - 1) * MAX_PER_TYPE + MAX_PER_TYPE
+  );
+
+  const displayedServices = filteredServices.slice(
+    (currentPage - 1) * MAX_PER_TYPE,
+    (currentPage - 1) * MAX_PER_TYPE + MAX_PER_TYPE
+  );
 
   return (
     <>
       <Box sx={{ px: { xs: 2, md: 4 }, py: 4, width: '100%' }}>
-
-        <SectionHeader
-          icon={<Inventory2 fontSize="large" />}
-          title="Artículos"
+        
+        <SectionHeader 
+          icon={<Inventory2 fontSize="large" />} 
+          title="Artículos" 
         />
 
         <div className="flex flex-col items-center justify-between gap-4 mb-6">
-          {/* Filtro de texto y botón */}
           <div className="flex items-center gap-2 w-full">
-            
+
             <TextField
               label="Buscar por nombre..."
               variant="outlined"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
               fullWidth
             />
 
             <div className="flex gap-2">
-              <PrimaryButton
-                label="Crear Artículo"
-                icon={<AddIcon />}
-                onClick={() => setIsCreateModalOpen(true)}
+              <PrimaryButton 
+                label="Crear Artículo" 
+                icon={<AddIcon />} 
+                onClick={() => setIsCreateModalOpen(true)} 
               />
-              <PrimaryButton
-                label="Categorías"
-                icon={<EditIcon />}
-                onClick={() => {setIsCategoriesModalOpen(true)}}
+              <PrimaryButton 
+                label="Categorías" 
+                icon={<EditIcon />} 
+                onClick={() => setIsCategoriesModalOpen(true)} 
               />
             </div>
 
-
           </div>
 
-          {/* Radio buttons */}
           <div className="flex gap-6 mt-2 w-full">
-            <RadioGroup
-              row
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-            >
+            <RadioGroup row value={selectedType} onChange={(e) => { setSelectedType(e.target.value); setCurrentPage(1); }}>
               <FormControlLabel value="" control={<Radio />} label="Todos" />
               <FormControlLabel value="product" control={<Radio />} label="Productos" />
               <FormControlLabel value="service" control={<Radio />} label="Servicios" />
             </RadioGroup>
           </div>
 
-          {/* Dropdowns */}
           <div className="flex items-center gap-4 w-full mt-2">
+
             {(selectedType === '' || selectedType === 'product') && (
               <FormControl fullWidth size="small">
                 <InputLabel>Filtrar por producto</InputLabel>
-                <Select
-                  value={selectedProduct}
-                  onChange={(e) => setSelectedProduct(e.target.value)}
-                  label="Filtrar por producto"
-                >
+                <Select value={selectedProduct} onChange={(e) => { setSelectedProduct(e.target.value); setCurrentPage(1); }}>
                   <MenuItem value="">Todos</MenuItem>
-                  {allProductNames.map(name => (
-                    <MenuItem key={name} value={name}>{name}</MenuItem>
-                  ))}
+                  {allProductNames.map(name => <MenuItem key={name} value={name}>{name}</MenuItem>)}
                 </Select>
               </FormControl>
             )}
@@ -200,46 +214,30 @@ const AdminArticlesPage: React.FC = () => {
             {(selectedType === '' || selectedType === 'service') && (
               <FormControl fullWidth size="small">
                 <InputLabel>Filtrar por servicio</InputLabel>
-                <Select
-                  value={selectedService}
-                  onChange={(e) => setSelectedService(e.target.value)}
-                  label="Filtrar por servicio"
-                >
+                <Select value={selectedService} onChange={(e) => { setSelectedService(e.target.value); setCurrentPage(1); }}>
                   <MenuItem value="">Todos</MenuItem>
-                  {allServiceNames.map(name => (
-                    <MenuItem key={name} value={name}>{name}</MenuItem>
-                  ))}
+                  {allServiceNames.map(name => <MenuItem key={name} value={name}>{name}</MenuItem>)}
                 </Select>
               </FormControl>
             )}
+            
           </div>
 
-          {/* Artículos con layout responsive */}
           <div className="flex flex-col lg:flex-row w-full gap-6 mt-8">
             {(selectedType === '' || selectedType === 'product') && (
               <div className={`flex flex-col ${selectedType === '' ? 'w-full lg:w-1/2' : 'w-full'}`}>
                 <h2 className="text-xl font-bold">Productos</h2>
                 <div className="mt-6 space-y-4">
-                  {products.map(article => (
+                  {displayedProducts.map(article => (
                     <ArticleItem
                       key={article.id}
                       article={article}
-                      onView={() => {
-                        setSelectedArticle(article);
-                        setModalMode('overview');
-                      }}
-                      onEdit={() => {
-                        setSelectedArticle(article);
-                        setModalMode('edit');
-                      }}
-                      onDelete={() => {
-                        handleRequestDelete(article.id)
-                      }}
+                      onView={() => { setSelectedArticle(article); setModalMode('overview'); }}
+                      onEdit={() => { setSelectedArticle(article); setModalMode('edit'); }}
+                      onDelete={() => { handleRequestDelete(article.id) }}
                     />
                   ))}
-                  {products.length === 0 && (
-                    <p>No se encontraron productos.</p>
-                  )}
+                  {displayedProducts.length === 0 && <p>No se encontraron productos.</p>}
                 </div>
               </div>
             )}
@@ -248,55 +246,57 @@ const AdminArticlesPage: React.FC = () => {
               <div className={`flex flex-col ${selectedType === '' ? 'w-full lg:w-1/2' : 'w-full'}`}>
                 <h2 className="text-xl font-bold">Servicios</h2>
                 <div className="mt-6 space-y-4">
-                  {services.map(article => (
+                  {displayedServices.map(article => (
                     <ArticleItem
                       key={article.id}
                       article={article}
-                      onView={() => {
-                        setSelectedArticle(article);
-                        setModalMode('overview');
-                      }}
-                      onEdit={() => {
-                        setSelectedArticle(article);
-                        setModalMode('edit');
-                      }}
-                      onDelete={() => {
-                        handleRequestDelete(article.id)
-                      }}
+                      onView={() => { setSelectedArticle(article); setModalMode('overview'); }}
+                      onEdit={() => { setSelectedArticle(article); setModalMode('edit'); }}
+                      onDelete={() => { handleRequestDelete(article.id) }}
                     />
                   ))}
-                  {services.length === 0 && (
-                    <p className="text-gray-400">No se encontraron servicios.</p>
-                  )}
+                  {displayedServices.length === 0 && <p className="text-gray-400">No se encontraron servicios.</p>}
                 </div>
               </div>
             )}
           </div>
+
+          {/* Controles de paginación */}
+          <div className="flex justify-center items-center gap-4 mt-6">
+            
+            <Button 
+              disabled={currentPage === 1} 
+              onClick={() => setCurrentPage(p => p - 1)}
+            >Anterior</Button>
+
+            <span>Página {currentPage} de {totalPages}</span>
+            
+            <Button 
+              disabled={currentPage === totalPages} 
+              onClick={() => setCurrentPage(p => p + 1)}
+            >Siguiente</Button>
+
+          </div>
         </div>
       </Box>
 
-      {/* Modal para vista previa o edición */}
-      <Modal
-        open={!!selectedArticle}
-        onClose={() => {
-          setSelectedArticle(null);
-          setModalMode(null);
-        }}
+      {/* Modales */}
+      <Modal 
+        open={!!selectedArticle} 
+        onClose={() => { setSelectedArticle(null); setModalMode(null); }}
       >
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: { xs: 'auto' },
-            maxHeight: '90vh',
-            overflowY: 'auto',
-            bgcolor: 'background.paper',
-            boxShadow: 24,
-            borderRadius: 4,
-          }}
-        >
+        <Box sx={{ 
+          position: 'absolute', 
+          top: '50%', 
+          left: '50%', 
+          transform: 'translate(-50%, -50%)', 
+          width: { xs: 'auto' }, 
+          maxHeight: '90vh', 
+          overflowY: 'auto', 
+          bgcolor: 'background.paper', 
+          boxShadow: 24, 
+          borderRadius: 4 
+        }}>
           {selectedArticle && modalMode === 'overview' && (
             <ArticleOverview article={selectedArticle} fetchArticle={fetchArticles} />
           )}
@@ -306,28 +306,25 @@ const AdminArticlesPage: React.FC = () => {
         </Box>
       </Modal>
 
-      <CreateArticleModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        fetchArticles={fetchArticles}
-        categories={categories}
+      <CreateArticleModal 
+        isOpen={isCreateModalOpen} 
+        onClose={() => setIsCreateModalOpen(false)} 
+        fetchArticles={fetchArticles} 
+        categories={categories} 
       />
-
       <CategoriesModal 
-        isOpen={isCategoriesModalOpen}
-        onClose={() => setIsCategoriesModalOpen(false)}
-        categories={categories}
+        isOpen={isCategoriesModalOpen} 
+        onClose={() => setIsCategoriesModalOpen(false)} 
+        categories={categories} 
       />
-
-      <ConfirmDialog
-        open={confirmOpen}
-        title="Eliminar artículo"
-        message="¿Estás seguro de que deseas eliminar este artículo? Esta acción no se puede deshacer."
-        action='Eliminar'
-        onConfirm={handleConfirmDelete}
-        onCancel={handleCancelDelete}
+      <ConfirmDialog 
+        open={confirmOpen} 
+        title="Eliminar artículo" 
+        message="¿Estás seguro de que deseas eliminar este artículo? Esta acción no se puede deshacer." 
+        action='Eliminar' 
+        onConfirm={handleConfirmDelete} 
+        onCancel={handleCancelDelete} 
       />
-
 
     </>
   );
