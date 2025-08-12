@@ -14,6 +14,8 @@ import { Inventory2 } from '@mui/icons-material';
 import PrimaryButton from '@/components/ui/PrimaryButton';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
+import ArticlesPagination from '@/components/articles/ArticlesPagination';
+import ArticlesFilters from '@/components/articles/ArticlesFilters';
 import {
   TextField,
   Button,
@@ -163,66 +165,24 @@ const AdminArticlesPage: React.FC = () => {
         />
 
         <div className="flex flex-col items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-2 w-full">
+          
+          {/* Filtros */}
+          <ArticlesFilters
+            searchTerm={searchTerm}
+            setSearchTerm={(val) => { setSearchTerm(val); setCurrentPage(1); }}
+            selectedType={selectedType}
+            setSelectedType={(val) => { setSelectedType(val); setCurrentPage(1); }}
+            selectedProduct={selectedProduct}
+            setSelectedProduct={(val) => { setSelectedProduct(val); setCurrentPage(1); }}
+            selectedService={selectedService}
+            setSelectedService={(val) => { setSelectedService(val); setCurrentPage(1); }}
+            allProductNames={allProductNames}
+            allServiceNames={allServiceNames}
+            onOpenCreateModal={() => setIsCreateModalOpen(true)}
+            onOpenCategoriesModal={() => setIsCategoriesModalOpen(true)}
+          />
 
-            <TextField
-              label="Buscar por nombre..."
-              variant="outlined"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-              fullWidth
-            />
-
-            <div className="flex gap-2">
-              <PrimaryButton 
-                label="Crear Artículo" 
-                icon={<AddIcon />} 
-                onClick={() => setIsCreateModalOpen(true)} 
-              />
-              <PrimaryButton 
-                label="Categorías" 
-                icon={<EditIcon />} 
-                onClick={() => setIsCategoriesModalOpen(true)} 
-              />
-            </div>
-
-          </div>
-
-          <div className="flex gap-6 mt-2 w-full">
-            <RadioGroup row value={selectedType} onChange={(e) => { setSelectedType(e.target.value); setCurrentPage(1); }}>
-              <FormControlLabel value="" control={<Radio />} label="Todos" />
-              <FormControlLabel value="product" control={<Radio />} label="Productos" />
-              <FormControlLabel value="service" control={<Radio />} label="Servicios" />
-            </RadioGroup>
-          </div>
-
-          <div className="flex items-center gap-4 w-full mt-2">
-
-            {(selectedType === '' || selectedType === 'product') && (
-              <FormControl fullWidth size="small">
-                <InputLabel>Filtrar por producto</InputLabel>
-                <Select value={selectedProduct} onChange={(e) => { setSelectedProduct(e.target.value); setCurrentPage(1); }}>
-                  <MenuItem value="">Todos</MenuItem>
-                  {allProductNames.map(name => <MenuItem key={name} value={name}>{name}</MenuItem>)}
-                </Select>
-              </FormControl>
-            )}
-
-            {(selectedType === '' || selectedType === 'service') && (
-              <FormControl fullWidth size="small">
-                <InputLabel>Filtrar por servicio</InputLabel>
-                <Select value={selectedService} onChange={(e) => { setSelectedService(e.target.value); setCurrentPage(1); }}>
-                  <MenuItem value="">Todos</MenuItem>
-                  {allServiceNames.map(name => <MenuItem key={name} value={name}>{name}</MenuItem>)}
-                </Select>
-              </FormControl>
-            )}
-            
-          </div>
-
+          {/* Bloque productos */}
           <div className="flex flex-col lg:flex-row w-full gap-6 mt-8">
             {(selectedType === '' || selectedType === 'product') && (
               <div className={`flex flex-col ${selectedType === '' ? 'w-full lg:w-1/2' : 'w-full'}`}>
@@ -242,6 +202,7 @@ const AdminArticlesPage: React.FC = () => {
               </div>
             )}
 
+            {/* Bloque servicios */}
             {(selectedType === '' || selectedType === 'service') && (
               <div className={`flex flex-col ${selectedType === '' ? 'w-full lg:w-1/2' : 'w-full'}`}>
                 <h2 className="text-xl font-bold">Servicios</h2>
@@ -259,26 +220,19 @@ const AdminArticlesPage: React.FC = () => {
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Controles de paginación */}
-          <div className="flex justify-center items-center gap-4 mt-6">
-            
-            <Button 
-              disabled={currentPage === 1} 
-              onClick={() => setCurrentPage(p => p - 1)}
-            >Anterior</Button>
-
-            <span>Página {currentPage} de {totalPages}</span>
-            
-            <Button 
-              disabled={currentPage === totalPages} 
-              onClick={() => setCurrentPage(p => p + 1)}
-            >Siguiente</Button>
 
           </div>
+
+          {/* paginación */}
+          <ArticlesPagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
+          
         </div>
       </Box>
+
 
       {/* Modales */}
       <Modal 
@@ -315,6 +269,7 @@ const AdminArticlesPage: React.FC = () => {
       <CategoriesModal 
         isOpen={isCategoriesModalOpen} 
         onClose={() => setIsCategoriesModalOpen(false)} 
+        refreshCategories={fetchCategories}
         categories={categories} 
       />
       <ConfirmDialog 
