@@ -22,10 +22,13 @@ interface CategoriesModalProps {
   isOpen: boolean;
   onClose: () => void;
   categories: Category[];
+  refreshCategories: () => Promise<void>;
 }
 
-const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, categories }) => {
+const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, categories, refreshCategories }) => {
+
   const [newCategoryName, setNewCategoryName] = React.useState('');
+  const token = localStorage.getItem('token');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewCategoryName(e.target.value);
@@ -36,11 +39,12 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
     
     try {
       const res = await fetch(
-        'https://nestjs-eccommercex-819245f6bb7d.herokuapp.com/api/v1/categories',
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
           },
           cache: 'no-store',
           body: JSON.stringify({ name: newCategoryName.trim() }),
@@ -56,6 +60,7 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
       // TODO: actualizar lista en AdminArticlesPage (por ahora, solo limpiamos input)
       setNewCategoryName('');
       alert(`Categoría "${newCategory.name}" creada con éxito.`);
+      await refreshCategories();
     } catch (error) {
       console.error(error);
       alert('Ocurrió un error al crear la categoría.');
