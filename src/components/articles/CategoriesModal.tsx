@@ -30,7 +30,7 @@ interface CategoriesModalProps {
 const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, categories, refreshCategories }) => {
 
   const [newCategoryName, setNewCategoryName] = React.useState('');
-  const token = localStorage.getItem('token');
+  
   // customAlert
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -51,6 +51,9 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
   }
 
   const handleCreateCategory = async () => {
+
+    const token = localStorage.getItem('token');
+
     if (!newCategoryName.trim()) return;
     
     try {
@@ -89,6 +92,8 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
   }
 
   const handleConfirmDelete = async () => {
+
+    const token = localStorage.getItem('token');
 
     if(!selectedCategoryId) return;
 
