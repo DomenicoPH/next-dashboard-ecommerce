@@ -187,7 +187,6 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
             
         if (!mainImageName || updated.length === 1) {
           setMainImageName(newImage.name);
-        
           setImageChanges((prevChanges) => [
             ...prevChanges,
             {

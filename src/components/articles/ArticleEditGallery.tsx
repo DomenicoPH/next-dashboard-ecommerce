@@ -64,15 +64,16 @@ const ArticleEditGallery: React.FC<ArticleEditGalleryProps> = ({
           modules={[Thumbs, Navigation]}
         >
           {images.length ? (
-            images.map((img, i) => (
-              <SwiperSlide key={i}>
+            images.map((img) => (
+              <SwiperSlide key={img.name}>
                 <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
                   <Image
                     src={img.url}
-                    alt={`Image ${i + 1}`}
+                    alt={img.name}
                     fill
                     priority
-                    sizes='(max-width: 600px) 100vw, 50vw'
+                    unoptimized
+                    sizes="(max-width: 600px) 100vw, 50vw"
                     style={{ objectFit: 'cover', borderRadius: '8px' }}
                   />
                 </Box>
@@ -110,7 +111,7 @@ const ArticleEditGallery: React.FC<ArticleEditGalleryProps> = ({
         >
           {images.map((img, i) => (
             <SwiperSlide
-              key={`thumb-${i}`}
+              key={img.name}
               style={{ height: 64, cursor: 'pointer', position: 'relative' }}
             >
               <Box
@@ -126,8 +127,9 @@ const ArticleEditGallery: React.FC<ArticleEditGalleryProps> = ({
               >
                 <Image
                   src={img.url}
-                  alt={`Thumb ${i + 1}`}
+                  alt={img.name}
                   priority
+                  unoptimized
                   sizes="(max-width: 600px) 100vw, 50vw"
                   fill
                   style={{ objectFit: 'cover', borderRadius: '4px' }}
