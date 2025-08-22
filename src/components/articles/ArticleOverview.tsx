@@ -43,7 +43,6 @@ const ArticleOverview: React.FC<ArticleOverviewProps> = ({ article, fetchArticle
     price,
     discountPrice,
     category,
-    type,
     stock,
     isActive,
     onDiscount,
@@ -69,7 +68,7 @@ const ArticleOverview: React.FC<ArticleOverviewProps> = ({ article, fetchArticle
         variant='h6'
         sx={{ pb: 4, opacity: 0.3, fontStyle: 'italic' }}
       >
-        <VisibilityIcon /> {`Información de ${type.name === 'product' ? 'Producto' : 'Servicio'}`}
+        <VisibilityIcon /> {`Información de ${article.category?.type?.name === 'product' ? 'Producto' : 'Servicio'}`}
       </Typography>
       
       <Grid container spacing={{ xs: 2, md: 4 }}>
@@ -132,7 +131,7 @@ const ArticleOverview: React.FC<ArticleOverviewProps> = ({ article, fetchArticle
             {name}
           </Typography>
           <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-            {category.name} • {type.name === 'product' ? 'Producto' : 'Servicio'}
+            {category.name} • {article.category?.type?.name === 'product' ? 'Producto' : 'Servicio'}
           </Typography>
           <Typography variant="body1" paragraph>
             {description}
@@ -150,7 +149,7 @@ const ArticleOverview: React.FC<ArticleOverviewProps> = ({ article, fetchArticle
             )}
           </Typography>
 
-          {type.name === 'product' && (
+          {article.category?.type?.name === 'product' && (
             <Typography variant="body2" mt={1}>
               Stock: {stock ?? 0} unidades
             </Typography>

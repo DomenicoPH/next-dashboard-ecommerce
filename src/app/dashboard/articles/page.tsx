@@ -102,11 +102,11 @@ const AdminArticlesPage: React.FC = () => {
   }, []);
 
   const allServiceNames = useMemo(() => {
-    return [...new Set(articles.filter(a => a.type.name === 'service').map(a => a.name))];
+    return [...new Set(articles.filter(a => a.category?.type?.name === 'service').map(a => a.name))];
   }, [articles]);
 
   const allProductNames = useMemo(() => {
-    return [...new Set(articles.filter(a => a.type.name === 'product').map(a => a.name))];
+    return [...new Set(articles.filter(a => a.category?.type?.name === 'product').map(a => a.name))];
   }, [articles]);
 
   useEffect(() => {
@@ -120,19 +120,19 @@ const AdminArticlesPage: React.FC = () => {
   // Filtrar artículos según búsqueda y filtros
   const filteredProducts = useMemo(() => {
     return articles.filter(article =>
-      article.type.name === 'product' &&
+      article.category?.type?.name === 'product' &&
       article.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
       (selectedProduct === '' || article.name === selectedProduct) &&
-      (selectedType === '' || article.type.name === selectedType)
+      (selectedType === '' || article.category?.type?.name === selectedType)
     );
   }, [articles, searchTerm, selectedProduct, selectedType]);
 
   const filteredServices = useMemo(() => {
     return articles.filter(article =>
-      article.type.name === 'service' &&
+      article.category?.type?.name === 'service' &&
       article.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
       (selectedService === '' || article.name === selectedService) &&
-      (selectedType === '' || article.type.name === selectedType)
+      (selectedType === '' || article.category?.type?.name === selectedType)
     );
   }, [articles, searchTerm, selectedService, selectedType]);
 

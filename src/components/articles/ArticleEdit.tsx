@@ -104,7 +104,7 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
     setIsLoading(true);
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles/${article.type.name}s/${article.id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles/${article.category?.type?.name}s/${article.id}`,
         {
           method: 'PUT',
           headers: { 
@@ -251,7 +251,7 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
       await handleSaveChanges();
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles/${article.type.name}s/${article.id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles/${article.category?.type?.name}s/${article.id}`,
         {
           method: 'PUT',
           headers: { 
@@ -291,7 +291,7 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
       }}
     >
       <Typography variant="h6" sx={{ pb: 4, opacity: 0.3, fontStyle: 'italic' }}>
-        <EditIcon /> {`Editar ${article.type.name === 'product' ? 'Producto' : 'Servicio'}`}
+        <EditIcon /> {`Editar ${article.category?.type?.name === 'product' ? 'Producto' : 'Servicio'}`}
       </Typography>
 
       <Box className="px-10 py-5 w-full flex justify-center items-center">
