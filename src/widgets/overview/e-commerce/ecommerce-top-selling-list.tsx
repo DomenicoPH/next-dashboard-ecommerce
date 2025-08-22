@@ -51,7 +51,7 @@ export function EcommerceTopSellingList({
         const articles: Article[] = await res.json();
 
         // Filtrar por tipo (product o service)
-        const filtered = articles.filter((a) => a.type.name === type);
+        const filtered = articles.filter((a) => a.category?.type?.name === type);
 
         // 3 artículos aleatorios
         const randomItems = filtered

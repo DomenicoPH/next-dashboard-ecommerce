@@ -100,7 +100,7 @@ export default function ArticleEditForm({
 
       <Box mt={4}>
         <Typography variant="h6" gutterBottom sx={{ color: 'text.primary' }}>
-          {article.type.name === 'product'
+          {article.category?.type?.name === 'product'
             ? 'Información del Producto'
             : 'Información del Servicio'}
         </Typography>
@@ -118,7 +118,7 @@ export default function ArticleEditForm({
       </Box>
 
       <Grid container spacing={4} mt={2}>
-        {article.type.name === 'product' && (
+        {article.category?.type?.name === 'product' && (
           <Grid size={{ xs: 12, md: 4 }}>
             <TextField
               label="Stock"

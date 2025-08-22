@@ -11,10 +11,10 @@ export interface Article {
     category: {
       id: string;
       name: string;
-    };
-    type: {
-      id: number;
-      name: string;
+      type: {
+        id: number;
+        name: string;
+      };
     };
     stock?: number;
     size?: string;
