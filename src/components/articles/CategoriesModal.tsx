@@ -13,6 +13,7 @@ import {
   ListItem,
   ListItemText,
   Typography,
+  MenuItem,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -28,94 +29,93 @@ interface CategoriesModalProps {
 }
 
 const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, categories, refreshCategories }) => {
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryType, setNewCategoryType] = useState<'service' | 'product' | 'promotion'>('service');
 
-  const [newCategoryName, setNewCategoryName] = React.useState('');
-  
   // customAlert
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
-  const [alertSeverity, setAlertSeverity] = useState<'error'|'warning'|'info'|'success'>('info');
+  const [alertSeverity, setAlertSeverity] = useState<'error' | 'warning' | 'info' | 'success'>('info');
+
   // confirmDialog
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string|null>(null);
-
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewCategoryName(e.target.value);
   };
 
-  const showAlert = (message:string, severity:'error'|'warning'|'info'|'success') => {
+  const showAlert = (message: string, severity: 'error' | 'warning' | 'info' | 'success') => {
     setAlertMessage(message);
     setAlertSeverity(severity);
     setAlertOpen(true);
-  }
+  };
 
   const handleCreateCategory = async () => {
-
     const token = localStorage.getItem('token');
-
     if (!newCategoryName.trim()) return;
-    
+
+    const typeMap: Record<typeof newCategoryType, number> = {
+      service: 1,
+      product: 2,
+      promotion: 3,
+    };
+    const typeId = typeMap[newCategoryType];
+
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          cache: 'no-store',
-          body: JSON.stringify({ categoryName: newCategoryName.trim() }),
-        }
-      );
-    
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        cache: 'no-store',
+        body: JSON.stringify({
+          name: newCategoryName.trim(),
+          type: { id: typeId }
+        }),
+      });
+
       if (!res.ok) {
         throw new Error('No se pudo crear la categoría');
       }
-    
+
       const newCategory = await res.json();
-    
+
       setNewCategoryName('');
+      setNewCategoryType('service'); // reset al default
       showAlert(`Categoría "${newCategory.name}" creada con éxito`, 'success');
       await refreshCategories();
-    
     } catch (error) {
       console.error(error);
-      showAlert(`Ocurrió un error al crear la categoría`, 'error');
+      showAlert('Ocurrió un error al crear la categoría', 'error');
     }
   };
 
   const requestDeleteCategory = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
     setConfirmOpen(true);
-  }
+  };
 
   const handleConfirmDelete = async () => {
-
     const token = localStorage.getItem('token');
-
-    if(!selectedCategoryId) return;
+    if (!selectedCategoryId) return;
 
     try {
-      
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories/${selectedCategoryId}`, {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-          cache: 'no-store',
-        }
-      );
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories/${selectedCategoryId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        cache: 'no-store',
+      });
 
-      if(!res.ok){
+      if (!res.ok) {
         throw new Error('No se pudo eliminar la categoría.');
       }
 
       showAlert('Categoría eliminada con éxito', 'success');
       await refreshCategories();
-
     } catch (error) {
       console.error(error);
       showAlert('Ocurrió un error al eliminar la categoría', 'error');
@@ -123,7 +123,6 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
       setConfirmOpen(false);
       setSelectedCategoryId(null);
     }
-
   };
 
   return (
@@ -140,14 +139,29 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
               size="small"
               value={newCategoryName}
               onChange={handleInputChange}
+              sx={{ width: 275 }}
             />
+
+            <TextField
+              select
+              label="Tipo"
+              size="small"
+              value={newCategoryType}
+              onChange={(e) => setNewCategoryType(e.target.value as 'service' | 'product' | 'promotion')}
+              sx={{ minWidth: 150 }}
+            >
+              <MenuItem value="service">Servicio</MenuItem>
+              <MenuItem value="product">Producto</MenuItem>
+              <MenuItem value="promotion">Promoción</MenuItem>
+            </TextField>
+
             <Button
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleCreateCategory}
               disabled={!newCategoryName.trim()}
             >
-              Crear categoría
+              Crear
             </Button>
           </Box>
 
@@ -172,7 +186,10 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
                     </IconButton>
                   }
                 >
-                  <ListItemText primary={category.name} />
+                  <ListItemText
+                    primary={category.name}
+                    secondary={category.type?.name ? `Tipo: ${category.type.name === 'service' ? 'Servicio' : category.type.name === 'product' ? 'Producto' : 'Promoción'}` : undefined}
+                  />
                 </ListItem>
               ))
             )}
@@ -187,23 +204,17 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
       </Dialog>
 
       {/* CustomAlert */}
-      <CustomAlert 
-        open={alertOpen}
-        message={alertMessage}
-        severity={alertSeverity}
-        onClose={() => setAlertOpen(false)}
-      />
+      <CustomAlert open={alertOpen} message={alertMessage} severity={alertSeverity} onClose={() => setAlertOpen(false)} />
 
       {/* ConfirmDialog */}
-      <ConfirmDialog 
+      <ConfirmDialog
         open={confirmOpen}
-        title='Eliminar categoría'
-        message='¿Seguro que deseas eliminar esta categoría?'
-        action='Eliminar'
+        title="Eliminar categoría"
+        message="¿Seguro que deseas eliminar esta categoría?"
+        action="Eliminar"
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmOpen(false)}
       />
-
     </>
   );
 };
