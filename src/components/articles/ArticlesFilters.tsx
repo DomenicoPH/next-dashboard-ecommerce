@@ -100,8 +100,8 @@ const ArticlesFilters: React.FC<ArticlesFiltersProps> = ({
               onChange={(e) => setSelectedProduct(e.target.value)}
             >
               <MenuItem value="">Todos</MenuItem>
-              {allProductNames.map(name => (
-                <MenuItem key={name} value={name}>{name}</MenuItem>
+              {allProductNames.map((name, index) => (
+                <MenuItem key={index} value={name}>{name}</MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -115,8 +115,8 @@ const ArticlesFilters: React.FC<ArticlesFiltersProps> = ({
               onChange={(e) => setSelectedService(e.target.value)}
             >
               <MenuItem value="">Todos</MenuItem>
-              {allServiceNames.map(name => (
-                <MenuItem key={name} value={name}>{name}</MenuItem>
+              {allServiceNames.map((name, index) => (
+                <MenuItem key={index} value={name}>{name}</MenuItem>
               ))}
             </Select>
           </FormControl>
