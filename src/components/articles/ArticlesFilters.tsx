@@ -12,6 +12,7 @@ import {
 import PrimaryButton from '@/components/ui/PrimaryButton';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
+import { Category } from '@/interfaces/Category';
 
 interface ArticlesFiltersProps {
   searchTerm: string;
@@ -22,10 +23,13 @@ interface ArticlesFiltersProps {
   setSelectedProduct: (value: string) => void;
   selectedService: string;
   setSelectedService: (value: string) => void;
+  selectedCategory: string;
+  setSelectedCategory: (value: string) => void;
   allProductNames: string[];
   allServiceNames: string[];
   onOpenCreateModal: () => void;
   onOpenCategoriesModal: () => void;
+  categories: Category[];
 }
 
 const ArticlesFilters: React.FC<ArticlesFiltersProps> = ({
@@ -37,10 +41,13 @@ const ArticlesFilters: React.FC<ArticlesFiltersProps> = ({
   setSelectedProduct,
   selectedService,
   setSelectedService,
+  selectedCategory,
+  setSelectedCategory,
   allProductNames,
   allServiceNames,
   onOpenCreateModal,
   onOpenCategoriesModal,
+  categories
 }) => {
   return (
     <>
@@ -114,6 +121,19 @@ const ArticlesFilters: React.FC<ArticlesFiltersProps> = ({
             </Select>
           </FormControl>
         )}
+
+        <FormControl size='small' sx={{ minWidth: 200 }}>
+          <InputLabel>Filtrar por categoría</InputLabel>
+          <Select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            <MenuItem value="">Todos</MenuItem>
+            {categories.map(category => (
+              <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
       </div>
     </>
