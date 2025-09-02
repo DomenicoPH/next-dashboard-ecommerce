@@ -45,6 +45,7 @@ const AdminArticlesPage: React.FC = () => {
   const [articleToDelete, setArticleToDelete] = useState<string | null>(null);
 
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [modalMode, setModalMode] = useState<'overview' | 'edit' | null>(null);
 
   // Paginación
@@ -123,7 +124,8 @@ const AdminArticlesPage: React.FC = () => {
       article.category?.type?.name === 'product' &&
       article.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
       (selectedProduct === '' || article.name === selectedProduct) &&
-      (selectedType === '' || article.category?.type?.name === selectedType)
+      (selectedType === '' || article.category?.type?.name === selectedType) &&
+      (selectedCategory === '' || article.category?.id === selectedCategory)
     );
   }, [articles, searchTerm, selectedProduct, selectedType]);
 
@@ -132,9 +134,10 @@ const AdminArticlesPage: React.FC = () => {
       article.category?.type?.name === 'service' &&
       article.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
       (selectedService === '' || article.name === selectedService) &&
-      (selectedType === '' || article.category?.type?.name === selectedType)
+      (selectedType === '' || article.category?.type?.name === selectedType) &&
+      (selectedCategory === '' || article.category?.id === selectedCategory)
     );
-  }, [articles, searchTerm, selectedService, selectedType]);
+  }, [articles, searchTerm, selectedService, selectedType, selectedCategory]);
 
   // Calcular páginas y datos mostrados
   const totalPages = Math.max(
@@ -176,10 +179,13 @@ const AdminArticlesPage: React.FC = () => {
             setSelectedProduct={(val) => { setSelectedProduct(val); setCurrentPage(1); }}
             selectedService={selectedService}
             setSelectedService={(val) => { setSelectedService(val); setCurrentPage(1); }}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
             allProductNames={allProductNames}
             allServiceNames={allServiceNames}
             onOpenCreateModal={() => setIsCreateModalOpen(true)}
             onOpenCategoriesModal={() => setIsCategoriesModalOpen(true)}
+            categories={categories}
           />
 
           {/* Bloque productos */}
