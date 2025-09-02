@@ -17,8 +17,8 @@ import {
   DialogContent,
   DialogActions,
   Divider,
-  Pagination,
 } from '@mui/material';
+import PaginationComponent from '@/components/ui/Pagination';
 
 interface Order {
   id: string;
@@ -166,16 +166,12 @@ const AdminOrdersPage: React.FC = () => {
           </Stack>
 
           {/* Paginación */}
-          {totalPages > 1 && (
-            <Box display="flex" justifyContent="center" mt={4}>
-              <Pagination
-                count={totalPages}
-                page={page}
-                onChange={(_, value) => setPage(value)}
-                color="primary"
-              />
-            </Box>
-          )}
+          <PaginationComponent
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
+
         </>
       )}
 

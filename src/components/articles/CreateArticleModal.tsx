@@ -139,6 +139,28 @@ const CreateArticleModal: React.FC<CreateArticleModalProps> = ({ isOpen, categor
     <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle sx={{ color: 'text.primary' }}>Crear Artículo</DialogTitle>
       <DialogContent dividers>
+
+        <Box mt={2}>
+          <Box mb={1} fontSize="0.875rem" fontWeight={500}>
+            Selecciona un tipo:
+          </Box>
+          <ToggleButtonGroup
+            value={formData.type}
+            exclusive
+            onChange={handleTypeChange}
+            fullWidth
+            disabled={isLoading}
+            size="small"
+          >
+            <ToggleButton value="product">Producto</ToggleButton>
+            <ToggleButton value="service">Servicio</ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
+
+      </DialogContent>
+
+      <DialogContent dividers>
+
         <Box display="flex" gap={2} mt={1}>
           <TextField
             name="name"
@@ -182,33 +204,18 @@ const CreateArticleModal: React.FC<CreateArticleModalProps> = ({ isOpen, categor
             value={formData.category}
             label="Categoría"
             onChange={handleInputChange}
-            disabled={isLoading}
+            disabled={isLoading || !formData.type}
           >
             <MenuItem value="">Seleccionar Categoría</MenuItem>
-            {categories.map((cat) => (
+            {categories
+              .filter( cat => cat.type?.name === formData.type )
+              .map((cat) => (
               <MenuItem key={cat.id} value={cat.id}>
                 {cat.name}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
-
-        <Box mt={2}>
-          <Box mb={1} fontSize="0.875rem" fontWeight={500}>
-            Selecciona un tipo:
-          </Box>
-          <ToggleButtonGroup
-            value={formData.type}
-            exclusive
-            onChange={handleTypeChange}
-            fullWidth
-            disabled={isLoading}
-            size="small"
-          >
-            <ToggleButton value="product">Producto</ToggleButton>
-            <ToggleButton value="service">Servicio</ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
 
         {formData.type === 'product' && (
           <Box mt={2} display="flex" gap={2}>

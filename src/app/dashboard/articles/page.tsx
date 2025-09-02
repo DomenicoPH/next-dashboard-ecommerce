@@ -14,7 +14,7 @@ import { Inventory2 } from '@mui/icons-material';
 import PrimaryButton from '@/components/ui/PrimaryButton';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
-import ArticlesPagination from '@/components/articles/ArticlesPagination';
+import PaginationComponent from '@/components/ui/Pagination';
 import ArticlesFilters from '@/components/articles/ArticlesFilters';
 import {
   TextField,
@@ -230,7 +230,7 @@ const AdminArticlesPage: React.FC = () => {
           </div>
 
           {/* paginación */}
-          <ArticlesPagination 
+          <PaginationComponent
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={(page) => setCurrentPage(page)}
