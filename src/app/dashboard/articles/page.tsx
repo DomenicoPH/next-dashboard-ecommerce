@@ -11,30 +11,22 @@ import { Category } from '../../../interfaces/Category';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { Inventory2 } from '@mui/icons-material';
-import PrimaryButton from '@/components/ui/PrimaryButton';
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
 import PaginationComponent from '@/components/ui/Pagination';
 import ArticlesFilters from '@/components/articles/ArticlesFilters';
 import {
-  TextField,
-  Button,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Modal,
   Box
 } from '@mui/material';
+import AdminArticlesSkeleton from '@/components/articles/AdminArticlesSkeleton';
 
 const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
 const AdminArticlesPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Filtros y búsqueda
   const [selectedService, setSelectedService] = useState('');
   const [selectedProduct, setSelectedProduct] = useState('');
   const [selectedType, setSelectedType] = useState('');
@@ -54,16 +46,27 @@ const AdminArticlesPage: React.FC = () => {
   const MAX_PER_PAGE = 10;
 
   const fetchArticles = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles?limit=50`);
-    const data: Article[] = await res.json();
-    setArticles(data);
-    setSelectedArticle(data.find(a => a.id === selectedArticle?.id) ?? null);
+    try {
+      setLoading(true);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/articles?limit=50`);
+      const data: Article[] = await res.json();
+      setArticles(data);
+      setSelectedArticle(data.find((a) => a.id === selectedArticle?.id) ?? null);
+    } catch (error) {
+      console.error("Error cargando artículos:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchCategories = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories`);
-    const data: Category[] = await res.json();
-    setCategories(data);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories`);
+      const data: Category[] = await res.json();
+      setCategories(data);
+    } catch (error) {
+      console.error("Error cargando categorías:", error);
+    }
   };
 
   const handleRequestDelete = (id: string) => {
@@ -160,11 +163,13 @@ const AdminArticlesPage: React.FC = () => {
 
   return (
     <>
-      <Box sx={{ px: { xs: 2, md: 4 }, py: 4, width: '100%' }}>
-        
-        <SectionHeader 
-          icon={<Inventory2 fontSize="large" />} 
-          title="Artículos" 
+    { loading 
+    ? <AdminArticlesSkeleton /> 
+    : <Box sx={{ px: { xs: 2, md: 4 }, py: 4, width: '100%' }}>
+
+        <SectionHeader
+          icon={<Inventory2 fontSize="large" />}
+          title="Artículos"
         />
 
         <div className="flex flex-col items-center justify-between gap-4 mb-6">
@@ -238,6 +243,7 @@ const AdminArticlesPage: React.FC = () => {
           
         </div>
       </Box>
+    };
 
 
       {/* Modales */}

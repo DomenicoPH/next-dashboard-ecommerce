@@ -15,6 +15,7 @@ import AdsFilters from "@/components/ads/AdsFilters";
 import { Ad, Category } from "@/interfaces/Ads";
 import PrimaryButton from '@/components/ui/PrimaryButton';
 import AddIcon from '@mui/icons-material/Add';
+import AdsPageSkeleton from "@/components/ads/AdsPageSkeleton";
 
 const API = "https://nestjs-eccommercex-819245f6bb7d.herokuapp.com/api/v1";
 const token = localStorage.getItem('token');
@@ -69,6 +70,8 @@ const AdsPage = () => {
     if (adsFilter === "inactive") return ads.filter((ad) => !ad.isActive);
     return ads.sort((a, b) => (a.isActive === b.isActive ? 0 : a.isActive ? -1 : 1));
   }, [ads, adsFilter]);
+
+  if(loading) { return <AdsPageSkeleton /> };
 
   return (
     <Box sx={{ px: { xs: 2, md: 4 }, py: 4, width: '100%' }}>

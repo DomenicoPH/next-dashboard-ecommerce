@@ -12,7 +12,8 @@ import {
   People,
   Campaign,
   Close,
-  Logout
+  Logout,
+  Home
 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { useThemeContext } from '@/context/ThemeContext';
@@ -95,6 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         {/* Navegación */}
         <nav className="flex flex-col items-center md:items-start w-full">
           <ul className="flex flex-col gap-2 w-full text-center md:text-left">
+            
             <li>
               <Link href="/dashboard/general" onClick={handleLinkClick} className={linkClass}>
                 <Dashboard fontSize="small" />
@@ -131,6 +133,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 Anuncios
               </Link>
             </li>
+            <li>
+              <Link href="/dashboard/landing" onClick={handleLinkClick} className={linkClass}>
+                <Home fontSize="small" />
+                Landing Page
+              </Link>
+            </li>
+
           </ul>
         </nav>
 
