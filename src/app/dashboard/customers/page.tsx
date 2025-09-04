@@ -3,14 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
-  Typography,
   Paper,
   Table,
   TableHead,
   TableBody,
   TableRow,
   TableCell,
-  CircularProgress,
   Alert,
   TableContainer,
 } from '@mui/material';
@@ -18,6 +16,7 @@ import { Customer } from '@/interfaces/Customer';
 import CustomerRow from '@/components/customers/CustomerRow';
 import {People} from '@mui/icons-material';
 import SectionHeader from '@/components/ui/SectionHeader';
+import AdminCustomersSkeleton from '@/components/ui/skeletons/AdminCustomersSkeleton';
 
 const AdminCustomersPage: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -83,9 +82,7 @@ const AdminCustomersPage: React.FC = () => {
       />
 
       {loading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-          <CircularProgress />
-        </Box>
+        <AdminCustomersSkeleton />
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : (

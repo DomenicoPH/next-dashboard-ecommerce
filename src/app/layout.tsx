@@ -1,80 +1,36 @@
-'use client';
+// src/app/layout.tsx
+import "./globals.css";
+import { Inter } from "next/font/google";
+import { Metadata } from "next";
+import { ThemeProviderCustom } from "@/context/ThemeContext";
+import { UserProvider } from "@/context/UserContext";
+import ClientLayout from "@/components/layout/ClientLayout";
 
-import './globals.css';
-import React, { useState } from 'react';
-import Sidebar from '@/components/ui/Sidebar';
-import MenuIcon from '@mui/icons-material/Menu';
-import { IconButton } from '@mui/material';
-import { Toaster } from 'react-hot-toast';
+const inter = Inter({ subsets: ["latin"] });
 
-import { ThemeProvider, CssBaseline } from '@mui/material';
-import { lightTheme, darkTheme } from '@/theme/theme';
-import { ThemeProviderCustom, useThemeContext } from '@/context/ThemeContext';
-import { UserProvider } from '@/context/UserContext';
+export const metadata: Metadata = {
+  title: "Depilzone Admin",
+  description:
+    "Dashboard administrativo para gestión de recursos e interfaces.",
+  icons: {
+    icon: "/favicon.png",
+  },
+};
 
-import { Inter } from 'next/font/google';
-import { usePathname } from 'next/navigation';
-
-interface LayoutProps {
+export default function RootLayout({
+  children,
+}: {
   children: React.ReactNode;
-};
-
-const inter = Inter({ subsets: ['latin'] });
-
-const AppThemeWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { mode } = useThemeContext();
-
+}) {
   return (
-    <ThemeProvider theme={mode === 'light' ? lightTheme : darkTheme}>
-      <CssBaseline />
-      {children}
-    </ThemeProvider>
-  );
-};
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const pathname = usePathname();
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(prev => !prev);
-  };
-
-  const isAuthPage = pathname.startsWith('/login');
-
-  return (
-    <html lang="es">
+    <html lang="es" className={inter.className}>
       <body>
         <ThemeProviderCustom>
           <UserProvider>
-            <AppThemeWrapper>
-              <div className="flex w-full h-screen">
-                {/* Sidebar */}
-                {!isAuthPage && (
-                  <>
-                    <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-
-                    {/* Botón toggle para móvil */}
-                    <div className="absolute top-4 left-4 md:hidden z-30">
-                      <IconButton onClick={toggleSidebar} >
-                        <MenuIcon />
-                      </IconButton>
-                    </div>
-                  </>
-                )}
-
-                {/* Contenido principal */}
-                <main className="flex-1 overflow-y-auto p-5 pt-10 w-full">
-                  {children}
-                  <Toaster position="top-center" toastOptions={{ duration: 4000 }} />
-                </main>
-              </div>
-            </AppThemeWrapper>
+            <ClientLayout>{children}</ClientLayout>
           </UserProvider>
         </ThemeProviderCustom>
       </body>
     </html>
   );
-};
-
-export default Layout;
+}
