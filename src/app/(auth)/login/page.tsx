@@ -16,8 +16,10 @@ import CustomAlert from '@/components/ui/CustomAlert';
 
 const LoginForm: React.FC = () => {
   
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  //const [email, setEmail] = useState('');
+  //const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('soporte.ti@depilzone.net');
+  const [password, setPassword] = useState('#C90?+Wd,12F');
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertSeverity, setAlertSeverity] = useState<"error" | "warning" | "info" | "success">("info");
