@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import SectionHeader from "@/components/ui/SectionHeader"; 
-import { AddCircleOutline, AddCircle, Delete, Edit } from "@mui/icons-material";
+import { Category, AddCircle, Delete, Edit } from "@mui/icons-material";
 import { IconButton, Checkbox } from "@mui/material";
 import { useTheme } from '@mui/material/styles'
 import CreateCategoriaModal from "@/components/landing_create/CreateCategoriaModal";
@@ -63,7 +63,7 @@ const CategoriaPage: React.FC = () => {
     <div className="p-6">
       {/* Encabezado */}
       <SectionHeader 
-        icon={<AddCircleOutline fontSize="large" />} 
+        icon={<Category fontSize="large" />} 
         title="Categorías de Landing Page" 
       />
 

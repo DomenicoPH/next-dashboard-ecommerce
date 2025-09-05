@@ -16,6 +16,7 @@ import {
   Home
 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useThemeContext } from '@/context/ThemeContext';
 import ThemeToggleSwitch from './ThemeToggleSwitch';
 import { useRouter } from 'next/navigation';
@@ -141,7 +142,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               {/* Landing Page */}
               <button
                 onClick={() => setLandingOpen(!landingOpen)}
-                className={`${linkClass} justify-between`}
+                className={`${linkClass} md:w-full text-left`}
               >
                 <div className="flex items-center gap-2">
                   <Home fontSize="small" />
@@ -152,14 +153,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
               {/* Submenú */}
               {landingOpen && (
-                <ul className="flex flex-col ml-6 border-l border-gray-300 dark:border-gray-700">
+                <motion.ul 
+                  className="flex flex-col ml-6 border-l border-gray-300 dark:border-gray-700"
+                  initial={{ height: 0, opacity: 0}}
+                  animate={{ height: "auto", opacity: 1}}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut'}}
+                >
                   <li>
                     <Link
                       href="/dashboard/landing_create/categoria"
                       onClick={() => handleLinkClick(true)}
                       className={`${linkClass} py-2 text-base`}
                     >
-                      Categoría
+                      Categorías
                     </Link>
                   </li>
                   <li>
@@ -171,7 +178,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                       Landing
                     </Link>
                   </li>
-                </ul>
+                </motion.ul>
               )}
             </li>
 
