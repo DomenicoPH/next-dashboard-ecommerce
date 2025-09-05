@@ -4,6 +4,9 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import { AddCircleOutline, AddCircle, Delete, Edit } from "@mui/icons-material";
 import { IconButton, Checkbox } from "@mui/material";
 import { useTheme } from '@mui/material/styles'
+import CreateCategoriaModal from "@/components/landing_create/CreateCategoriaModal";
+import EditCategoriaModal from "@/components/landing_create/EditCategoriaModal";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 interface Categoria {
   id: number;
@@ -12,16 +15,21 @@ interface Categoria {
   status: string;
 }
 
-const mockCategorias: Categoria[] = [
+const categorias: Categoria[] = [
   { id: 1, titulo: "Día de la madre", fecha: "04/05/2025", status: "Activo" },
   { id: 2, titulo: "Día del padre", fecha: "03/06/2025", status: "Inactivo" },
-  { id: 3, titulo: "Navidad", fecha: "01/12/2025", status: "Activo" },
+  { id: 3, titulo: "Fiestas patrias", fecha: "01/07/2025", status: "Inactivo" },
+  { id: 4, titulo: "Navidad 2025", fecha: "01/12/2025", status: "Activo" },
 ];
 
 const CategoriaPage: React.FC = () => {
     
     const theme = useTheme();
     const [selected, setSelected] = useState<number[]>([]);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [categoriaToEdit, setCategoriaToEdit] = useState<Categoria | null>(null);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
     const toggleSelect = (id: number) => {
       setSelected((prev) =>
@@ -30,6 +38,26 @@ const CategoriaPage: React.FC = () => {
     };
 
     const isSelected = (id: number) => selected.includes(id);
+
+    const selectedCategorias = categorias.filter(cat => selected.includes(cat.id));
+
+    const handleDelete = () => {
+      console.log('Eliminando categorías:', selectedCategorias);
+      setIsConfirmOpen(false);
+      setSelected([]);
+    };
+
+    const handleEditClick = () => {
+      if(selected.length === 1){
+        const cat = categorias.find( cat => cat.id === selected[0]) || null;
+        setCategoriaToEdit(cat);
+        setIsEditModalOpen(true);
+      }
+    };
+
+    const handleSaveCategoria = (updated: Categoria) => {
+      console.log("Categoria editada", updated);
+    };
 
     return (
     <div className="p-6">
@@ -41,20 +69,33 @@ const CategoriaPage: React.FC = () => {
 
       {/* Barra de acciones */}
       <div className={`flex justify-end items-center gap-2 mb-6 border-b pb-2 ${theme.palette.mode === "dark" ? "border-indigo-950" : "border-gray-300"}`}>
+        
         {/* Si hay selección, mostrar Editar/Eliminar */}
         {selected.length === 1 && (
-          <IconButton color="primary" size="large">
+          <IconButton 
+            color="primary" 
+            size="large"
+            onClick={handleEditClick}
+          >
             <Edit sx={{ fontSize: 32 }} />
           </IconButton>
         )}
         {selected.length >= 1 && (
-          <IconButton color="error" size="large">
+          <IconButton 
+            color="error" 
+            size="large"
+            onClick={() => setIsConfirmOpen(true)}
+          >
             <Delete sx={{ fontSize: 32 }} />
           </IconButton>
         )}
 
         {/* Botón añadir */}
-        <IconButton color="primary" size="large">
+        <IconButton 
+          color="primary" 
+          size="large"
+          onClick={() => setIsCreateModalOpen(true)}
+        >
           <AddCircle sx={{ fontSize: 50 }} />
         </IconButton>
       </div>
@@ -68,13 +109,13 @@ const CategoriaPage: React.FC = () => {
                 <Checkbox
                   indeterminate={
                     selected.length > 0 &&
-                    selected.length < mockCategorias.length
+                    selected.length < categorias.length
                   }
-                  checked={selected.length === mockCategorias.length}
+                  checked={selected.length === categorias.length}
                   onChange={(e) =>
                     setSelected(
                       e.target.checked
-                        ? mockCategorias.map((c) => c.id)
+                        ? categorias.map((c) => c.id)
                         : []
                     )
                   }
@@ -87,7 +128,7 @@ const CategoriaPage: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {mockCategorias.map((cat) => (
+            {categorias.map((cat) => (
               <tr
                 key={cat.id}
                 className={`${theme.palette.mode === "dark" ? "hover:bg-indigo-950" : "hover:bg-gray-50"} ${
@@ -109,6 +150,43 @@ const CategoriaPage: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Modal de creación de categoría */}
+      <CreateCategoriaModal 
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
+
+      {/* Modal de edición de categoría */}
+      <EditCategoriaModal 
+        isOpen={isEditModalOpen}
+        categoria={categoriaToEdit}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleSaveCategoria}
+      />
+
+      {/* Confirmación de eliminación */}
+      <ConfirmDialog 
+        open={isConfirmOpen}
+        title="¿Eliminar Categorias?"
+        message={
+          selectedCategorias.length === 1 ? (
+            `¿Estás seguro de que deseas eliminar la categoría '${selectedCategorias[0].titulo}'?`
+          ) : (
+          <div>
+            <p>¿Estás seguro de que deseas eliminar estas categorías?</p>
+            <ul>
+              {selectedCategorias.map( cat => (
+                <li key={cat.id}>• {cat.titulo}</li>
+              ))}
+            </ul>
+          </div>
+          )}
+        action="Eliminar"
+        onConfirm={handleDelete}
+        onCancel={() => setIsConfirmOpen(false)}
+      />
+
     </div>
   );
 };
