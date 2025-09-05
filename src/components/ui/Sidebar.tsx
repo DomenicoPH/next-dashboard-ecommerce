@@ -147,9 +147,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   <Home fontSize="small" />
                   Landing Page
                 </div>
-                <span className={`transition-transform ${landingOpen ? "rotate-90" : ""}`}>
-                  ▶
-                </span>
+                {/* <span className={`transition-transform ${landingOpen ? "rotate-90" : ""}`}>▶</span> */}
               </button>
 
               {/* Submenú */}
