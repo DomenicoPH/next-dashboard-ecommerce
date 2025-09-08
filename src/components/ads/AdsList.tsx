@@ -137,7 +137,8 @@ const AdsList: React.FC<AdsListProps> = ({ ads, onPreview, onRefresh }) => {
                 alt={ad.category.name}
                 fill
                 style={{ objectFit: "cover" }}
-                sizes="100vw"
+                sizes="300px"
+                priority
               />
             </Box>
 

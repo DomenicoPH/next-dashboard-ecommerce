@@ -19,6 +19,7 @@ import { Article } from '@/interfaces/Article';
 import { mockDashboardData } from '@/data/mockDashboard';
 
 type TopSellingItem = {
+  id: string;
   label: string;
   value: number;
   imageUrl?: string; // ahora opcional
@@ -67,6 +68,7 @@ export function EcommerceTopSellingList({
                 : mockDashboardData.bestSellingProducts[index]?.value || 0;
           
             return {
+              id: article.id,
               label: article.name,
               value: mockValue,
               imageUrl,
@@ -88,7 +90,7 @@ export function EcommerceTopSellingList({
       <CardHeader title={title} subheader={subheader} />
       <List disablePadding>
         {data.map((item, index) => (
-          <React.Fragment key={item.label}>
+          <React.Fragment key={item.id}>
             <ListItem
               sx={{
                 py: 1.5,
@@ -106,14 +108,15 @@ export function EcommerceTopSellingList({
                     borderRadius: 1,
                     bgcolor: 'grey.200',
                     overflow: 'hidden',
+                    position: 'relative'
                   }}
                 >
                   {item.imageUrl ? (
                     <Image
                       src={item.imageUrl}
                       alt={item.label}
-                      width={48}
-                      height={48}
+                      fill
+                      sizes='48px'
                       style={{ objectFit: 'cover' }}
                     />
                   ) : (

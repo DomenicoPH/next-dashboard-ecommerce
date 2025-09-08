@@ -51,21 +51,23 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      // Valida contra el backend
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/me`, {
-        headers: { Authorization: `Bearer ${storedToken}` }
-      })
-        .then(res => {
-          if (!res.ok) throw new Error('Unauthorized');
-          return res.json();
+      // Valida contra el backend ( * En desarrollo no valida con el backend )
+      if(process.env.NODE_ENV !== 'development'){
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/me`, {
+          headers: { Authorization: `Bearer ${storedToken}` }
         })
-        .then(data => {
-          if (!storedUser) {
-            setUser(data);
-            localStorage.setItem('user', JSON.stringify(data));
-          }
-        })
-        .catch(() => logout());
+          .then(res => {
+            if (!res.ok) throw new Error('Unauthorized');
+            return res.json();
+          })
+          .then(data => {
+            if (!storedUser) {
+              setUser(data);
+              localStorage.setItem('user', JSON.stringify(data));
+            }
+          })
+          .catch(() => logout());
+      }
 
     }
 
