@@ -71,8 +71,7 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
         },
         cache: 'no-store',
         body: JSON.stringify({
-          name: newCategoryName.trim(),
-          type: { id: typeId }
+          categoryName: newCategoryName.trim()
         }),
       });
 
