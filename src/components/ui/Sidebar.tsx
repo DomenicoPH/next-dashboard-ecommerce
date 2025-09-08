@@ -85,14 +85,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
         {/* Logo */}
         <div className="flex flex-col items-center justify-center py-6">
-          <Image
-            src={mode === 'light' ? '/logo_light.png' : '/logo_dark.png'}
-            alt="Logo"
-            width={200}
-            height={40}
-            priority
-            style={{ objectFit: 'contain', height: 'auto', width: '200px' }}
-          />
+          <div style={{position: 'relative', width: '200px', height: '50px'}}>
+            <Image
+              src={mode === 'light' ? '/logo_light.png' : '/logo_dark.png'}
+              alt="Logo"
+              fill
+              priority
+              style={{ objectFit: 'contain' }}
+              sizes="200px"
+            />
+          </div>
           <p className="opacity-40 font-extralight tracking-[6px] mt-2">
             Administración
           </p>
