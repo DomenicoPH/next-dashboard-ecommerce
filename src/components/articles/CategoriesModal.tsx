@@ -30,7 +30,7 @@ interface CategoriesModalProps {
 
 const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, categories, refreshCategories }) => {
   const [newCategoryName, setNewCategoryName] = useState('');
-  const [newCategoryType, setNewCategoryType] = useState<'service' | 'product' | 'promotion'>('service');
+  const [newCategoryType, setNewCategoryType] = useState<'service' | 'product'>('service');
 
   // customAlert
   const [alertOpen, setAlertOpen] = useState(false);
@@ -40,6 +40,7 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
   // confirmDialog
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewCategoryName(e.target.value);
@@ -58,7 +59,6 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
     const typeMap: Record<typeof newCategoryType, number> = {
       service: 1,
       product: 2,
-      promotion: 3,
     };
     const typeId = typeMap[newCategoryType];
 
@@ -71,7 +71,8 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
         },
         cache: 'no-store',
         body: JSON.stringify({
-          categoryName: newCategoryName.trim()
+          categoryName: newCategoryName.trim(),
+          typeName: newCategoryType
         }),
       });
 
@@ -91,8 +92,9 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
     }
   };
 
-  const requestDeleteCategory = (categoryId: string) => {
+  const requestDeleteCategory = (categoryId: string, categoryName: string) => {
     setSelectedCategoryId(categoryId);
+    setSelectedCategoryName(categoryName);
     setConfirmOpen(true);
   };
 
@@ -146,12 +148,11 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
               label="Tipo"
               size="small"
               value={newCategoryType}
-              onChange={(e) => setNewCategoryType(e.target.value as 'service' | 'product' | 'promotion')}
+              onChange={(e) => setNewCategoryType(e.target.value as 'service' | 'product')}
               sx={{ minWidth: 150 }}
             >
               <MenuItem value="service">Servicio</MenuItem>
               <MenuItem value="product">Producto</MenuItem>
-              <MenuItem value="promotion">Promoción</MenuItem>
             </TextField>
 
             <Button
@@ -180,7 +181,7 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
                   key={category.id}
                   divider
                   secondaryAction={
-                    <IconButton edge="end" onClick={() => requestDeleteCategory(category.id)}>
+                    <IconButton edge="end" onClick={() => requestDeleteCategory(category.id, category.name)}>
                       <DeleteIcon />
                     </IconButton>
                   }
@@ -209,7 +210,7 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
       <ConfirmDialog
         open={confirmOpen}
         title="Eliminar categoría"
-        message="¿Seguro que deseas eliminar esta categoría?"
+        message={`¿Seguro que deseas eliminar la categoría ${selectedCategoryName}?`}
         action="Eliminar"
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmOpen(false)}
