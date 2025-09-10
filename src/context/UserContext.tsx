@@ -3,6 +3,7 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
+import { useRouter } from 'next/navigation';
 
 interface User {
   id: string;
@@ -30,6 +31,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
+  const router = useRouter();
+
   // Carga token y datos del usuario al iniciar
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -37,7 +40,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     if (storedToken) {
       setToken(storedToken);
-      Cookies.set('token', storedToken); // Mantiene middleware funcional
+      Cookies.set('token', storedToken, {path: '/', expires: 1}); // Mantiene middleware funcional
 
       // Valida si el token está expirado
       try {
@@ -79,7 +82,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const login = (newToken: string, userData?: User) => {
     setToken(newToken);
     localStorage.setItem('token', newToken);
-    Cookies.set('token', newToken);
+    Cookies.set('token', newToken, {path: '/', expires: 1});
 
     if (userData) {
       setUser(userData);
@@ -90,10 +93,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
+
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     Cookies.remove('token');
-    window.location.href = '/dashboard/login'; // Redirigir al login
+
+    router.push('/login');
   };
 
   const value: UserContextProps = {
