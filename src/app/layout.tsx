@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { Metadata } from "next";
 import { ThemeProviderCustom } from "@/context/ThemeContext";
 import { UserProvider } from "@/context/UserContext";
+import { NotificationProvider } from "@/context/NotificationContext";
 import ClientLayout from "@/components/layout/ClientLayout";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -27,7 +28,9 @@ export default function RootLayout({
       <body>
         <ThemeProviderCustom>
           <UserProvider>
-            <ClientLayout>{children}</ClientLayout>
+            <NotificationProvider>
+              <ClientLayout>{children}</ClientLayout>
+            </NotificationProvider>
           </UserProvider>
         </ThemeProviderCustom>
       </body>

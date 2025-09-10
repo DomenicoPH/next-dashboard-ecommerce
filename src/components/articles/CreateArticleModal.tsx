@@ -16,6 +16,7 @@ import {
   ToggleButtonGroup,
 } from '@mui/material';
 import { Category } from '@/interfaces/Category';
+import { useNotification } from '@/context/NotificationContext';
 
 interface CreateArticleModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ interface CreateArticleModalProps {
 const token = localStorage.getItem('token');
 
 const CreateArticleModal: React.FC<CreateArticleModalProps> = ({ isOpen, categories, onClose, fetchArticles }) => {
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -38,7 +40,10 @@ const CreateArticleModal: React.FC<CreateArticleModalProps> = ({ isOpen, categor
     brand: '',
     sessions: '',
   });
+
   const [isLoading, setIsLoading] = useState(false);
+
+  const { notify } = useNotification();
 
   useEffect(() => {
     if (!isOpen) {
@@ -128,9 +133,13 @@ const CreateArticleModal: React.FC<CreateArticleModalProps> = ({ isOpen, categor
         
         onClose();
         fetchArticles();
+        notify("Artículo creado con éxito", "success");
+      } else {
+        notify("No se pudo crear el artículo", "error");
       }
     } catch (error) {
-      // console.error('Error creating article:', error);
+      console.error(error);
+      notify("Ocurrió un error al crear el artículo", "error");
     }
     setIsLoading(false);
   };
