@@ -5,6 +5,7 @@ import { Metadata } from "next";
 import { ThemeProviderCustom } from "@/context/ThemeContext";
 import { UserProvider } from "@/context/UserContext";
 import { NotificationProvider } from "@/context/NotificationContext";
+import { ConfirmDialogProvider } from "@/context/ConfirmDialogContext";
 import ClientLayout from "@/components/layout/ClientLayout";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -29,7 +30,9 @@ export default function RootLayout({
         <ThemeProviderCustom>
           <UserProvider>
             <NotificationProvider>
-              <ClientLayout>{children}</ClientLayout>
+              <ConfirmDialogProvider>
+                <ClientLayout>{children}</ClientLayout>
+              </ConfirmDialogProvider>
             </NotificationProvider>
           </UserProvider>
         </ThemeProviderCustom>
