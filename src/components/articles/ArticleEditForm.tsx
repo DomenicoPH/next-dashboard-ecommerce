@@ -9,7 +9,6 @@ import {
   Switch,
   Button,
 } from '@mui/material';
-import CustomAlert from '../ui/CustomAlert';
 import { Article } from '@/interfaces/Article';
 
 interface ArticleEditFormProps {
@@ -29,10 +28,6 @@ interface ArticleEditFormProps {
   handleInputChange: (field: string, value: any) => void;
   handleSaveChanges: () => Promise<void>;
   handleDiscardChanges: () => Promise<void>;
-  alertOpen: boolean;
-  alertMessage: string;
-  alertSeverity: 'error' | 'warning' | 'info' | 'success';
-  setAlertOpen: (value: boolean) => void;
 }
 
 export default function ArticleEditForm({
@@ -44,11 +39,8 @@ export default function ArticleEditForm({
   handleInputChange,
   handleSaveChanges,
   handleDiscardChanges,
-  alertOpen,
-  alertMessage,
-  alertSeverity,
-  setAlertOpen,
 }: ArticleEditFormProps) {
+  
   return (
     <Grid size={{ xs: 12, lg: 8 }} sx={{ maxWidth: 500, marginX: 'auto' }}>
       <Grid container spacing={4}>
@@ -187,12 +179,6 @@ export default function ArticleEditForm({
         </Button>
       </Box>
 
-      <CustomAlert
-        open={alertOpen}
-        message={alertMessage}
-        severity={alertSeverity}
-        onClose={() => setAlertOpen(false)}
-      />
     </Grid>
   );
 }

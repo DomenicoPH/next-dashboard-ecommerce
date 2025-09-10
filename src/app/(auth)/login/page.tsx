@@ -13,19 +13,18 @@ import {
 } from '@mui/material';
 import { useThemeContext } from '@/context/ThemeContext';
 import CustomAlert from '@/components/ui/CustomAlert';
+import { useNotification } from '@/context/NotificationContext';
 
 const LoginForm: React.FC = () => {
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [alertOpen, setAlertOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');
-  const [alertSeverity, setAlertSeverity] = useState<"error" | "warning" | "info" | "success">("info");
-
 
   const router = useRouter();
   const { login } = useUser();
   const { mode } = useThemeContext();
+
+  const { notify } = useNotification();
 
   const handleLogin = async () => {
     try {
@@ -50,9 +49,7 @@ const LoginForm: React.FC = () => {
       // Guarda el token en localStorage
       login(token, data.user);
 
-      setAlertSeverity("success");
-      setAlertMessage("¡Login exitoso!");
-      setAlertOpen(true);
+      notify("¡Login exitoso!", "success");
 
       setTimeout(() => {
         router.push('/dashboard/general');
@@ -61,9 +58,7 @@ const LoginForm: React.FC = () => {
     } catch (err) {
 
       console.error(err);
-      setAlertSeverity("error");
-      setAlertMessage("Error al iniciar sesión. Verifica tus credenciales.");
-      setAlertOpen(true);
+      notify("Error al iniciar sesión. Verifica tus credenciales.", "error");
 
     }
   };
@@ -121,14 +116,6 @@ const LoginForm: React.FC = () => {
               Iniciar sesión
             </Button>
         </Paper>
-
-        {/* Alertas */}
-        <CustomAlert
-          open={alertOpen}
-          message={alertMessage}
-          severity={alertSeverity}
-          onClose={() => setAlertOpen(false)}
-        />
         
     </Box>
   );

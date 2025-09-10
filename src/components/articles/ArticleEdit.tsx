@@ -12,6 +12,7 @@ import { Article } from '@/interfaces/Article';
 import { ArticleImageAction, UpdateArticleImage } from '@/interfaces/UpdateArticleImage';
 import ArticleEditGallery from './ArticleEditGallery';
 import ArticleEditForm from './ArticleEditForm';
+import { useNotification } from '@/context/NotificationContext';
 
 interface ArticleDetailViewProps {
   article: Article;
@@ -48,16 +49,6 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
   });
 
   const token = localStorage.getItem('token');
-
-  const [alertOpen, setAlertOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertSeverity, setAlertSeverity] = useState<"error" | "warning" | "info" | "success">("info");
-
-  const showAlert = (message: string, severity: "error" | "warning" | "info" | "success" = "info") => {
-    setAlertMessage(message);
-    setAlertSeverity(severity);
-    setAlertOpen(true);
-  };
 
   const loadArticleData = () => {
     
@@ -99,6 +90,8 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
     setFormData((prev) => ({ ...prev, [fieldName]: value }));
   };
 
+  const { notify } = useNotification();
+
   // Guardado de cambios:
   const handleSaveChanges = async () => {
     setIsLoading(true);
@@ -126,9 +119,9 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
 
       setFormChanges({});
       setImageChanges([]);
-      showAlert('Cambios guardados exitosamente', 'success');
+      notify('Cambios guardados exitosamente', 'success');
     } catch {
-      showAlert('Error al guardar los cambios', 'error');
+      notify('Error al guardar los cambios', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -154,7 +147,7 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
     if (!event.target.files) return;
     const MAX_IMAGES = 4;
     if (images.length >= MAX_IMAGES) {
-      showAlert(`Solo puedes subir un máximo de ${MAX_IMAGES} imágenes.`, "warning");
+      notify(`Solo puedes subir un máximo de ${MAX_IMAGES} imágenes.`, "warning");
       return;
     }
 
@@ -241,7 +234,7 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
   const handlePinImage = async (img: ImageProps) => {
     if (img.name === mainImageName) return;
     if (img.isNew) {
-      showAlert('Primero guarda la imagen antes de marcarla como principal.', 'info');
+      notify('Primero guarda la imagen antes de marcarla como principal.', 'info');
       return;
     }
 
@@ -269,10 +262,10 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
 
       setMainImageName(img.name);
       await fetchArticle();
-      showAlert("Imagen principal actualizada", "success");
+      notify("Imagen principal actualizada", "success");
 
     } catch(err){
-      showAlert("Ocurrió un error al actualizar la imagen principal", "error");
+      notify("Ocurrió un error al actualizar la imagen principal", "error");
     } finally {
       setIsLoading(false);
     }
@@ -326,10 +319,6 @@ const ArticleEdit: React.FC<ArticleDetailViewProps> = ({ article, fetchArticle }
               handleSaveChanges={handleSaveChanges}
               handleDiscardChanges={handleDiscardChanges}
               isLoading={isLoading}
-              alertOpen={alertOpen}
-              alertMessage={alertMessage}
-              alertSeverity={alertSeverity}
-              setAlertOpen={setAlertOpen}
             />
           </Grid>
         </Grid>

@@ -18,8 +18,8 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Category } from '@/interfaces/Category';
-import CustomAlert from '../ui/CustomAlert';
 import ConfirmDialog from '../ui/ConfirmDialog';
+import { useNotification } from '@/context/NotificationContext';
 
 interface CategoriesModalProps {
   isOpen: boolean;
@@ -32,11 +32,6 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryType, setNewCategoryType] = useState<'service' | 'product'>('service');
 
-  // customAlert
-  const [alertOpen, setAlertOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');
-  const [alertSeverity, setAlertSeverity] = useState<'error' | 'warning' | 'info' | 'success'>('info');
-
   // confirmDialog
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
@@ -46,11 +41,7 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
     setNewCategoryName(e.target.value);
   };
 
-  const showAlert = (message: string, severity: 'error' | 'warning' | 'info' | 'success') => {
-    setAlertMessage(message);
-    setAlertSeverity(severity);
-    setAlertOpen(true);
-  };
+  const { notify } = useNotification();
 
   const handleCreateCategory = async () => {
     const token = localStorage.getItem('token');
@@ -84,11 +75,11 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
 
       setNewCategoryName('');
       setNewCategoryType('service'); // reset al default
-      showAlert(`Categoría "${newCategory.name}" creada con éxito`, 'success');
+      notify(`Categoría "${newCategory.name}" creada con éxito`, 'success');
       await refreshCategories();
     } catch (error) {
       console.error(error);
-      showAlert('Ocurrió un error al crear la categoría', 'error');
+      notify('Ocurrió un error al crear la categoría', 'error');
     }
   };
 
@@ -115,11 +106,11 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
         throw new Error('No se pudo eliminar la categoría.');
       }
 
-      showAlert('Categoría eliminada con éxito', 'success');
+      notify('Categoría eliminada con éxito', 'success');
       await refreshCategories();
     } catch (error) {
       console.error(error);
-      showAlert('Ocurrió un error al eliminar la categoría', 'error');
+      notify('Ocurrió un error al eliminar la categoría', 'error');
     } finally {
       setConfirmOpen(false);
       setSelectedCategoryId(null);
@@ -202,9 +193,6 @@ const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClose, cate
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* CustomAlert */}
-      <CustomAlert open={alertOpen} message={alertMessage} severity={alertSeverity} onClose={() => setAlertOpen(false)} />
 
       {/* ConfirmDialog */}
       <ConfirmDialog
