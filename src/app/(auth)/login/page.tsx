@@ -24,7 +24,7 @@ const LoginForm: React.FC = () => {
 
 
   const router = useRouter();
-  const login = useUser();
+  const { login } = useUser();
   const { mode } = useThemeContext();
 
   const handleLogin = async () => {
@@ -48,8 +48,7 @@ const LoginForm: React.FC = () => {
       if (!token) throw new Error('Token no recibido');
 
       // Guarda el token en localStorage
-      localStorage.setItem('token', token);
-      document.cookie = `token=${token}; path=/; max-age=86400;`;
+      login(token, data.user);
 
       setAlertSeverity("success");
       setAlertMessage("¡Login exitoso!");
