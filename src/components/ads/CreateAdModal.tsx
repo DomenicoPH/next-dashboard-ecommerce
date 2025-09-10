@@ -14,9 +14,13 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { CheckCircle } from "@mui/icons-material";
+import { useNotification } from "@/context/NotificationContext";
+import ConfirmDialog from "../ui/ConfirmDialog";
 import VistaCarruselPreview from "@/components/ads/CarrouselPreview";
-import { toast } from "react-hot-toast";
 import { Category } from "@/interfaces/Ads";
+
+// Constantes
+const API = "https://nestjs-eccommercex-819245f6bb7d.herokuapp.com/api/v1";
 
 interface CreateAdModalProps {
   open: boolean;
@@ -24,65 +28,67 @@ interface CreateAdModalProps {
   onRefresh: () => void;
 }
 
-const API = "https://nestjs-eccommercex-819245f6bb7d.herokuapp.com/api/v1";
-
+// Componente
 const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh }) => {
+  // Estados
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryName, setCategoryName] = useState("");
   const [newCategory, setNewCategory] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isActive, setIsActive] = useState(true);
-  const [loading, setLoading] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<"all" | "active" | "inactive">("active");
 
-  const token = localStorage.getItem('token');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
+  const [isActive, setIsActive] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+
+  const token = localStorage.getItem("token");
+  const { notify } = useNotification();
+
+  // Efectos
   useEffect(() => {
     if (open) fetchCategories();
   }, [open, categoryFilter]);
 
+  // Funciones de Categorías
   const fetchCategories = async () => {
     try {
       const res = await fetch(`${API}/ads/categories?showAll=true`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (!Array.isArray(data)) return toast.error("Error al cargar categorías");
+      if (!Array.isArray(data)) return notify("Error al cargar categorías", "error");
 
       let filtered = data;
-      if (categoryFilter === "active") {
-        filtered = data.filter((c: Category) => c.isActive);
-      } else if (categoryFilter === "inactive") {
-        filtered = data.filter((c: Category) => !c.isActive);
-      }
+      if (categoryFilter === "active") filtered = data.filter((c: Category) => c.isActive);
+      if (categoryFilter === "inactive") filtered = data.filter((c: Category) => !c.isActive);
 
       setCategories(filtered);
+
+      // Ajustar selección si la actual ya no existe
       const selected = filtered.find((cat) => cat.name === categoryName);
       if (!selected && filtered.length > 0) {
         setCategoryName(filtered[0].name);
         setSelectedCategoryId(filtered[0].id);
       }
     } catch {
-      toast.error("Error al cargar categorías");
+      notify("Error al cargar categorías", "error")
     }
   };
 
   const handleCreateCategory = async () => {
-    if (!newCategory.trim()) return toast.error("Nombre obligatorio");
+    if (!newCategory.trim()) return notify("Nombre obligatorio", "error");
     const exists = categories.some((c) => c.name === newCategory);
-    if (exists) return toast.error("Ya existe esa categoría");
+    if (exists) return notify("Ya existe esa categoría", "error");
 
     try {
       const res = await fetch(`${API}/ads/categories`, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-         },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name: newCategory, isActive: false }),
       });
       const data = await res.json();
@@ -90,82 +96,67 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
       setCategoryName(data.name);
       setSelectedCategoryId(data.id);
       setNewCategory("");
-      toast.success("Categoría creada");
+      notify("Categoría creada", "success");
     } catch {
-      toast.error("Error al crear categoría");
+      notify("Error al crear categoría", "error");
     }
   };
 
   const toggleCategory = async () => {
     if (!selectedCategoryId) return;
     try {
-      const res = await fetch(`${API}/ads/categories/toggle/${selectedCategoryId}`, { 
+      const res = await fetch(`${API}/ads/categories/toggle/${selectedCategoryId}`, {
         method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`
-        } 
+        headers: { Authorization: `Bearer ${token}` },
       });
       const result = await res.json();
       if (result.updated) {
-        toast.success("Categoría actualizada");
+      notify("Categoría actualizada", "success");
         fetchCategories();
       }
     } catch {
-      toast.error("Error al actualizar categoría");
+    notify("Error al actualizar categoría", "error");
     }
   };
 
-  const deleteCategory = async (categoryId: string) => {
-  toast.custom((t) => (
-    <div className="bg-white text-black p-4 rounded shadow-lg flex flex-col gap-2 w-[300px]">
-      <p>¿Estás seguro de que querés eliminar esta categoría?</p>
-      <div className="flex justify-end gap-2 mt-2">
-        <button
-          onClick={() => toast.dismiss(t.id)}
-          className="text-sm text-gray-700 px-3 py-1 rounded hover:bg-gray-200"
-        >
-          Cancelar
-        </button>
-        <button
-          onClick={async () => {
-            toast.dismiss(t.id);
-            try {
-              const res = await fetch(`${API}/ads/categories/${categoryId}`, {
-                method: "DELETE",
-                headers: {
-                  Authorization: `Bearer ${token}`
-                }
-              });
-              if (!res.ok) throw new Error();
-              toast.success("Categoría eliminada");
-              fetchCategories();
-              setCategoryName("");
-              setSelectedCategoryId("");
-            } catch {
-              toast.error("Error al eliminar categoría");
-            }
-          }}
-          className="bg-red-600 text-white text-sm px-3 py-1 rounded hover:bg-red-700"
-        >
-          Eliminar
-        </button>
-      </div>
-    </div>
-  ));
-};
+  const handleDeleteClick = (categoryId: string) => {
+    setCategoryToDelete(categoryId);
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!categoryToDelete) return;
+
+    try {
+      const res = await fetch(`${API}/ads/categories/${categoryToDelete}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error();
+      notify("Categoría eliminada", "success");
+      fetchCategories();
+      setCategoryName("");
+      setSelectedCategoryId("");
+    } catch {
+      notify("Error al eliminar categoría", "error");
+    } finally {
+      setConfirmOpen(false);
+      setCategoryToDelete(null);
+    }
+  };
 
 
+
+  // Funciones de Imagen y Form
   const uploadImage = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append("file", file);
-    const res = await fetch(`${API}/files/upload`, { 
-      method: "POST", 
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
+    const res = await fetch(`${API}/files/upload`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
       body: formData,
     });
-    if(!res.ok) throw new Error('Error al subir imagen')
+    if (!res.ok) throw new Error("Error al subir imagen");
     const data = await res.json();
     return data.filename;
   };
@@ -173,7 +164,7 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) return toast.error("Máximo 5MB");
+    if (file.size > 5 * 1024 * 1024) return notify("Máximo 5MB", "error");
 
     setImageFile(file);
     const reader = new FileReader();
@@ -184,28 +175,25 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const finalCategory = categoryName || newCategory;
-    if (!finalCategory.trim()) return toast.error("Seleccioná o creá una categoría");
-    if (!imageFile) return toast.error("Seleccioná una imagen");
+    if (!finalCategory.trim()) return notify("Seleccioná o creá una categoría", "error");
+    if (!imageFile) return notify("Seleccioná una imagen", "error");
 
     try {
       setLoading(true);
       const imageName = await uploadImage(imageFile);
       const res = await fetch(`${API}/ads`, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        cache: 'no-store',
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        cache: "no-store",
         body: JSON.stringify({ categoryName: finalCategory, imageName, isActive }),
       });
       if (!res.ok) throw new Error();
-      toast.success("Anuncio creado");
+      notify("Anuncio creado", "success");
       resetForm();
       onRefresh();
       onClose();
     } catch {
-      toast.error("Error al crear anuncio");
+      notify("Error al crear anuncio", "error");
     } finally {
       setLoading(false);
     }
@@ -219,6 +207,7 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
     setIsActive(true);
   };
 
+  // Render
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
       <DialogTitle sx={{ fontWeight: "bold" }}>Crear Nuevo Anuncio</DialogTitle>
@@ -231,7 +220,7 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
               fullWidth
               size="small"
               label="Filtrar Categorías"
-              sx={{marginBottom: '10px'}}
+              sx={{ marginBottom: "10px" }}
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value as any)}
             >
@@ -244,7 +233,7 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
               select
               fullWidth
               label="Seleccioná una Categoría"
-              sx={{marginBottom: '10px'}}
+              sx={{ marginBottom: "10px" }}
               value={categoryName}
               onChange={(e) => {
                 const value = e.target.value;
@@ -261,37 +250,26 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
               ))}
             </TextField>
 
+            <Button variant="outlined" color="secondary" fullWidth onClick={toggleCategory} disabled={!selectedCategoryId}>
+              {categories.find((c) => c.id === selectedCategoryId)?.isActive ? "Desactivar Categoría" : "Activar Categoría"}
+            </Button>
+
             <Button
               variant="outlined"
-              color="secondary"
+              color="error"
               fullWidth
-              onClick={toggleCategory}
+              onClick={() => handleDeleteClick(selectedCategoryId)}
               disabled={!selectedCategoryId}
             >
-              {categories.find((c) => c.id === selectedCategoryId)?.isActive
-                ? "Desactivar Categoría"
-                : "Activar Categoría"}
+              Eliminar Categoría
             </Button>
-            <Button
-            variant="outlined"
-            color="error"
-            fullWidth
-            onClick={() => deleteCategory(selectedCategoryId)}
-            disabled={!selectedCategoryId}
-          >
-            Eliminar Categoría
-          </Button>
+
           </div>
 
           {/* Columna 2: Crear Categoría + Imagen */}
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <TextField
-                fullWidth
-                label="Nueva Categoría"
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-              />
+              <TextField fullWidth label="Nueva Categoría" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} />
               <Button variant="outlined" onClick={handleCreateCategory}>
                 Crear Categoría
               </Button>
@@ -310,19 +288,11 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
             </div>
 
             <FormControlLabel
-              control={
-                <Switch checked={isActive} onChange={(e) => setIsActive(e.target.checked)} color="primary" />
-              }
+              control={<Switch checked={isActive} onChange={(e) => setIsActive(e.target.checked)} color="primary" />}
               label="Anuncio Activo"
             />
 
-            <Button
-              variant="contained"
-              type="submit"
-              color="primary"
-              disabled={loading}
-              className="w-full"
-            >
+            <Button variant="contained" type="submit" color="primary" disabled={loading} className="w-full">
               {loading ? <CircularProgress size={20} /> : <><CheckCircle className="mr-2" /> Crear Anuncio</>}
             </Button>
           </div>
@@ -347,6 +317,16 @@ const CreateAdModal: React.FC<CreateAdModalProps> = ({ open, onClose, onRefresh 
           Cancelar
         </Button>
       </DialogActions>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Eliminar Categoría"
+        message="¿Estás seguro de que quieres eliminar esta categoría? Esta acción no se puede deshacer."
+        action="Eliminar"
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
+
     </Dialog>
   );
 };

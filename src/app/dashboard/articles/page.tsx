@@ -18,6 +18,7 @@ import {
   Box
 } from '@mui/material';
 import AdminArticlesSkeleton from '@/components/articles/AdminArticlesSkeleton';
+import { useNotification } from '@/context/NotificationContext';
 
 const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
@@ -44,6 +45,8 @@ const AdminArticlesPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const MAX_PER_TYPE = 5;
   const MAX_PER_PAGE = 10;
+
+  const { notify } = useNotification();
 
   const fetchArticles = async () => {
     try {
@@ -86,9 +89,10 @@ const AdminArticlesPage: React.FC = () => {
       });
       if (!res.ok) throw new Error('Error al eliminar el artículo');
       await fetchArticles();
+      notify("Artículo eliminado con éxito", "success");
     } catch (error) {
       console.error('Error eliminando artículo:', error);
-      alert('Hubo un error al eliminar el artículo');
+      notify("Hubo un error al eliminar el artículo", "error");
     } finally {
       setConfirmOpen(false);
       setArticleToDelete(null);
