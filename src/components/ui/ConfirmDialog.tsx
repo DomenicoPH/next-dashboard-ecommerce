@@ -9,6 +9,7 @@ import {
   DialogTitle,
   Button
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -27,6 +28,9 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onConfirm,
   onCancel
 }) => {
+
+  const theme = useTheme();
+
   return (
     <Dialog
       open={open}
@@ -35,13 +39,22 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       aria-describedby="confirm-dialog-description"
       slotProps={{
         paper: {
-          sx: { p: 3, borderRadius: 2 }
+          sx: { 
+            p: 3, 
+            borderRadius: 2 
+          }
         }
       }}
     >
-      <DialogTitle id="confirm-dialog-title">{title}</DialogTitle>
+      <DialogTitle 
+        id="confirm-dialog-title"
+        sx={{ fontSize: 24 }}
+      >{title}</DialogTitle>
       <DialogContent>
-        <DialogContentText id="confirm-dialog-description">
+        <DialogContentText 
+          id="confirm-dialog-description"
+          sx={{ fontSize: 14, color: theme.palette.text.secondary }}
+        >
           {message}
         </DialogContentText>
       </DialogContent>

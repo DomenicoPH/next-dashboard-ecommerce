@@ -68,7 +68,7 @@ const AdsPage = () => {
   const filteredAds = useMemo(() => {
     if (adsFilter === "active") return ads.filter((ad) => ad.isActive);
     if (adsFilter === "inactive") return ads.filter((ad) => !ad.isActive);
-    return ads.sort((a, b) => (a.isActive === b.isActive ? 0 : a.isActive ? -1 : 1));
+    return ads; // el orden viene del backend
   }, [ads, adsFilter]);
 
   if(loading) { return <AdsPageSkeleton /> };

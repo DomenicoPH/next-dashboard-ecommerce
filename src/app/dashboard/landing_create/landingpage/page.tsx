@@ -4,6 +4,7 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import { AddCircle, Home, Delete, Edit } from "@mui/icons-material";
 import { IconButton, Checkbox } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 // 🟢 Interfaz para LandingPage
@@ -43,6 +44,8 @@ const landingPages: LandingPage[] = [
 ];
 
 const LandingPage: React.FC = () => {
+
+  const router = useRouter();
   const theme = useTheme();
   const [selected, setSelected] = useState<number[]>([]);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -82,7 +85,11 @@ const LandingPage: React.FC = () => {
         }`}
       >
         {selected.length === 1 && (
-          <IconButton color="primary" size="large" onClick={() => console.log("Editar")}>
+          <IconButton 
+            color="primary" 
+            size="large" 
+            onClick={() => console.log("Editar")}
+          >
             <Edit sx={{ fontSize: 32 }} />
           </IconButton>
         )}
@@ -95,7 +102,11 @@ const LandingPage: React.FC = () => {
             <Delete sx={{ fontSize: 32 }} />
           </IconButton>
         )}
-        <IconButton color="primary" size="large" onClick={() => console.log("Crear nueva")}>
+        <IconButton 
+          color="primary" 
+          size="large" 
+          onClick={() => router.push("/dashboard/landing_create/landingpage/create")}
+        >
           <AddCircle sx={{ fontSize: 50 }} />
         </IconButton>
       </div>

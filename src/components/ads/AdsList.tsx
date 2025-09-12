@@ -15,6 +15,7 @@ import {
 import { Visibility } from "@mui/icons-material";
 import { Ad } from "@/interfaces/Ads";
 import { toast } from "react-hot-toast";
+import { useConfirmDialog } from "@/context/ConfirmDialogContext";
 
 interface AdsListProps {
   ads: Ad[];
@@ -26,71 +27,53 @@ const API = "https://nestjs-eccommercex-819245f6bb7d.herokuapp.com/api/v1";
 const token = localStorage.getItem('token');
 
 const AdsList: React.FC<AdsListProps> = ({ ads, onPreview, onRefresh }) => {
+
   const theme = useTheme();
+  const confirm = useConfirmDialog();
 
   const deleteAd = async (adId: string) => {
-    toast.custom((t) => (
-      <Box
-        sx={{
-          background: theme.palette.background.paper,
-          color: theme.palette.text.primary,
-          p: 2,
-          borderRadius: 2,
-          boxShadow: theme.shadows[4],
-          width: 300,
-          display: "flex",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
-        <Typography variant="body2">
-          ¿Estás seguro de que querés eliminar este anuncio?
-        </Typography>
-        <Box display="flex" justifyContent="flex-end" gap={1} mt={2}>
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => toast.dismiss(t.id)}
-          >
-            Cancelar
-          </Button>
-          <Button
-            size="small"
-            color="error"
-            variant="contained"
-            onClick={async () => {
-              toast.dismiss(t.id);
-              try {
-                const res = await fetch(`${API}/ads/${adId}`, {
-                  method: "DELETE",
-                  headers: {
-                    Authorization: `Bearer ${token}`
-                  }
-                });
-                const result = await res.json();
-                if (result.deleted) {
-                  toast.success("Anuncio eliminado");
-                  onRefresh();
-                }
-              } catch {
-                toast.error("Error al eliminar anuncio");
-              }
-            }}
-          >
-            Eliminar
-          </Button>
-        </Box>
-      </Box>
-    ));
+    const ok = await confirm({
+      title: "Eliminar Anuncio",
+      message: "¿Estás seguro de que quieres eliminar este anuncio?",
+      action: "Eliminar",
+    });
+
+    if (!ok) return;
+
+    try {
+      const res = await fetch(`${API}/ads/${adId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const result = await res.json();
+      if (result.deleted) {
+        toast.success("Anuncio eliminado");
+        onRefresh();
+      }
+    } catch {
+      toast.error("Error al eliminar anuncio");
+    }
   };
 
   const toggleAd = async (adId: string, currentState: boolean) => {
+    const ok = await confirm({
+      title: currentState ? "Desactivar anuncio" : "Activar anuncio",
+      message: currentState
+        ? "¿Seguro que quieres desactivar este anuncio?"
+        : "¿Seguro que quieres activar este anuncio?",
+      action: currentState ? "Desactivar" : "Activar",
+    });
+
+    if (!ok) return;
+
     try {
       const res = await fetch(`${API}/ads/toggle/${adId}`, {
         method: "PATCH",
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       const result = await res.json();
       if (result.updated) {
@@ -101,6 +84,7 @@ const AdsList: React.FC<AdsListProps> = ({ ads, onPreview, onRefresh }) => {
       toast.error("Error al actualizar anuncio");
     }
   };
+
 
   if (ads.length === 0) {
     return (
