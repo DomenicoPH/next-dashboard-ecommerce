@@ -121,7 +121,7 @@ const AdminCouponsPage: React.FC = () => {
     <Box sx={{ px: { xs: 2, md: 4 }, py: 4, width: '100%' }}>
 
       <SectionHeader
-        icon={<LocalOffer fontSize="large" />}
+        icon={<LocalOffer fontSize="medium" />}
         title="Cupones"
       />
 

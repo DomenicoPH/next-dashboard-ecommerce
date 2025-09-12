@@ -72,7 +72,7 @@ const LandingPage: React.FC = () => {
     <div className="p-6">
       {/* Encabezado */}
       <SectionHeader
-        icon={<Home fontSize="large" />}
+        icon={<Home fontSize="medium" />}
         title="Landing Page"
       />
 

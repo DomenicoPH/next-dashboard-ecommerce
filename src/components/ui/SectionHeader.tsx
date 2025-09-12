@@ -11,7 +11,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({ icon, title }) => {
     <div className="text-center mb-12">
       <div className="flex justify-start items-center mb-4">
         {icon}
-        <h1 className="text-4xl font-bold ml-2">{title}</h1>
+        <h1 className="text-2xl font ml-2">{title}</h1>
       </div>
     </div>
   );

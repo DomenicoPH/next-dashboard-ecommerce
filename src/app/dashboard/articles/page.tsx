@@ -172,7 +172,7 @@ const AdminArticlesPage: React.FC = () => {
     : <Box sx={{ px: { xs: 2, md: 4 }, py: 4, width: '100%' }}>
 
         <SectionHeader
-          icon={<Inventory2 fontSize="large" />}
+          icon={<Inventory2 fontSize="medium" />}
           title="Artículos"
         />
 

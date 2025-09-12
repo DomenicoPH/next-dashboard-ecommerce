@@ -17,7 +17,8 @@ import {
 import { IconButton as MuiIconButton } from "@mui/material";
 import { motion } from "framer-motion";
 import { toast, Toaster } from "react-hot-toast";
-import { ExpandMore, ExpandLess } from "@mui/icons-material";
+import { ExpandMore, ExpandLess, Home, Delete } from "@mui/icons-material";
+import SectionHeader from "@/components/ui/SectionHeader";
 
 export default function LandingPageCreateForm() {
 
@@ -52,6 +53,10 @@ export default function LandingPageCreateForm() {
       setHeaderImage(null);
       if(fileInputRef.current) fileInputRef.current.value = "";
     }
+    
+    const handleRemoveSection = (index: number) => {
+        setSections(sections.filter((_, i) => i !== index));
+    }
 
     const handleSubmit = () => {
       // Aquí la llamada a la API..
@@ -67,10 +72,17 @@ export default function LandingPageCreateForm() {
 
     return (
       <div className="p-5 max-w-4xl mx-auto">
+        
+        {/* Encabezado */}
+        <SectionHeader
+          icon={<Home fontSize="medium" />}
+          title="Creación de Landing Page"
+        />
+
           <Toaster position="top-center" />
 
           {/* Detalles */}
-          <Card sx={{ mb: 3, borderRadius: 4, boxShadow: {boxShadow} }}>
+          <Card sx={{ mb: 3, borderRadius: 4, boxShadow }}>
               <CardHeader
                 title="Detalles"
                 action={renderCollapseButton(openDetails, () => setOpenDetails(!openDetails))}
@@ -132,7 +144,7 @@ export default function LandingPageCreateForm() {
         </Card>
 
         {/* Contenido */}
-        <Card sx={{ mb: 3, borderRadius: 4, boxShadow: {boxShadow} }}>
+        <Card sx={{ mb: 3, borderRadius: 4, boxShadow }}>
           <CardHeader
             title="Secciones"
             action={renderCollapseButton(openContent, () => setOpenContent(!openContent))}
@@ -140,24 +152,40 @@ export default function LandingPageCreateForm() {
           <Collapse in={openContent}>
             <Divider />
             <Stack spacing={2} sx={{ p: 3 }}>
-              {sections.map((section, i) => (
-                <TextField
-                  key={i}
-                  label={`Sección ${i + 1}`}
-                  value={section.content}
-                  onChange={e => handleSectionChange(i, e.target.value)}
-                  multiline
-                  rows={4}
-                  fullWidth
-                />
-              ))}
+                
+                {sections.map((section, i) => (
+                  <Stack key={i} direction="row" spacing={1} alignItems="flex-start">
+                    <TextField
+                      label={`Sección ${i + 1}`}
+                      value={section.content}
+                      onChange={e => handleSectionChange(i, e.target.value)}
+                      multiline
+                      rows={4}
+                      fullWidth
+                    />
+                    <IconButton
+                      onClick={() => handleRemoveSection(i)}
+                      sx={{
+                          mt: 1,
+                          color: "primary.main",
+                          transition: "color 0.2s ease",
+                          "&:hover": {
+                            color: "error.main",
+                          },
+                        }}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </Stack>
+                ))}
+
               <Button variant="outlined" onClick={handleAddSection}>Agregar sección</Button>
             </Stack>
           </Collapse>
         </Card>
 
         {/* SEO / Meta */}
-        <Card sx={{ mb: 3, borderRadius: 4, boxShadow: {boxShadow} }}>
+        <Card sx={{ mb: 3, borderRadius: 4, boxShadow }}>
           <CardHeader
             title="SEO / Meta"
             action={renderCollapseButton(openSEO, () => setOpenSEO(!openSEO))}

@@ -91,7 +91,7 @@ const AdminOrdersPage: React.FC = () => {
 
   return (
     <Box sx={{ px: { xs: 2, md: 4 }, py: 4, width: '100%' }}>
-      <SectionHeader icon={<ShoppingCart fontSize="large" />} title="Pedidos" />
+      <SectionHeader icon={<ShoppingCart fontSize="medium" />} title="Pedidos" />
 
       {loading && (
         <Box display="flex" justifyContent="center" mt={4}>
