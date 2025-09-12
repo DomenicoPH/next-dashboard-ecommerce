@@ -39,7 +39,19 @@ const CreateCategoriaModal: React.FC<CreateCategoriaModalProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog 
+      open={isOpen} 
+      onClose={onClose} 
+      fullWidth 
+      maxWidth="sm"
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 4
+          }
+        }    
+      }}
+    >
       <DialogTitle sx={{textAlign: 'center'}}>Crear categoría</DialogTitle>
       <DialogContent dividers sx={{paddingX: '50px'}}>
         {/* Campo título */}

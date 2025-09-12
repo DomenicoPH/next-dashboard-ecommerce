@@ -38,6 +38,7 @@ export default function LandingPageCreateForm() {
     const [metaTitle, setMetaTitle] = useState("");
     const [metaDescription, setMetaDescription] = useState("");
     const [seoPreview, setSeoPreview] = useState<string | null>(null);
+    const [expirationDate, setExpirationDate] = useState("");
 
     // handlers
     const handleAddSection = () => setSections([...sections, { content: "" }]);
@@ -74,14 +75,14 @@ export default function LandingPageCreateForm() {
         categoria: "General",
         titulo: title,
         fechaCreacion: new Date().toLocaleDateString(),
-        fechaExpiracion: "—",
+        fechaExpiracion: expirationDate || "—",
         terminos: "/terminos/demo",
         imagen: headerImage ? URL.createObjectURL(headerImage) : "",
         status: publish ? "Activo" : "Inactivo",
       };
-  
+
       addLandingPage(nuevaLanding);
-  
+
       toast.success("Landing Page creada!");
     };
 
@@ -109,20 +110,29 @@ export default function LandingPageCreateForm() {
                 action={renderCollapseButton(openDetails, () => setOpenDetails(!openDetails))}
               />
           <Collapse in={openDetails}>
-              <Divider />
-              <Stack spacing={2} sx={{ p: 3 }}>
-                  <TextField
-                    label="Título de la Landing Page"
-                    value={title}
-                    onChange={e => setTitle(e.target.value)}
-                    fullWidth
-                  />
-                  <TextField
-                    label="Texto de encabezado"
-                    value={headerText}
-                    onChange={e => setHeaderText(e.target.value)}
-                    fullWidth
-                  />
+                <Divider />
+                <Stack spacing={2} sx={{ p: 3 }}>
+                    <TextField
+                      label="Título de la Landing Page"
+                      value={title}
+                      onChange={e => setTitle(e.target.value)}
+                      fullWidth
+                    />
+                    <TextField
+                      label="Texto de encabezado"
+                      value={headerText}
+                      onChange={e => setHeaderText(e.target.value)}
+                      fullWidth
+                    />
+                    <TextField
+                      label="Fecha de expiración"
+                      type="date"
+                      InputLabelProps={{ shrink: true }}
+                      value={expirationDate}
+                      onChange={(e) => setExpirationDate(e.target.value)}
+                      fullWidth
+                    />
+
 
                   {/* Input de imagen */}
                   <Button
@@ -204,6 +214,9 @@ export default function LandingPageCreateForm() {
             </Stack>
           </Collapse>
         </Card>
+
+        {/* Términos y condiciones */}
+
 
         {/* SEO / Meta */}
         <Card sx={{ mb: 3, borderRadius: 4, boxShadow }}>
