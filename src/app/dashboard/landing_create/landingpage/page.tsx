@@ -2,12 +2,30 @@
 import React, { useState } from "react";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { AddCircle, Home, Delete, Edit } from "@mui/icons-material";
-import { IconButton, Checkbox } from "@mui/material";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  IconButton,
+  Checkbox,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Toolbar,
+  Tooltip,
+  Typography,
+  Box,
+  Divider,
+} from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
-// 🟢 Interfaz para LandingPage
+/*temp*/import { getLandingPages } from "@/app/lib/landingStore";
+
+// interfaz para LandingPage
 interface LandingPage {
   id: number;
   categoria: string;
@@ -19,36 +37,15 @@ interface LandingPage {
   status: string;
 }
 
-// 🔹 Datos de ejemplo
-const landingPages: LandingPage[] = [
-  {
-    id: 1,
-    categoria: "Día de la madre",
-    titulo: "Landing Madre 2025",
-    fechaCreacion: "04/05/2025",
-    fechaExpiracion: "15/05/2025",
-    terminos: "/terminos/madre",
-    imagen: "/imagenes/madre.png",
-    status: "Activo",
-  },
-  {
-    id: 2,
-    categoria: "Navidad 2025",
-    titulo: "Landing Navidad",
-    fechaCreacion: "01/12/2025",
-    fechaExpiracion: "31/12/2025",
-    terminos: "/terminos/navidad",
-    imagen: "/imagenes/navidad.png",
-    status: "Inactivo",
-  },
-];
-
 const LandingPage: React.FC = () => {
+
+  const boxShadow = '0 8px 24px rgba(0,0,0,0.1)'
 
   const router = useRouter();
   const theme = useTheme();
   const [selected, setSelected] = useState<number[]>([]);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  /*temp*/const [landingPages, setLandingPages] = useState(getLandingPages());
 
   const toggleSelect = (id: number) => {
     setSelected((prev) =>
@@ -68,194 +65,167 @@ const LandingPage: React.FC = () => {
     setSelected([]);
   };
 
+  React.useEffect(() => {
+    setLandingPages(getLandingPages());
+  }, []);
+
   return (
-    <div className="p-6">
+    <Box className="p-6 max-w-6xl mx-auto">
       {/* Encabezado */}
       <SectionHeader
         icon={<Home fontSize="medium" />}
-        title="Landing Page"
+        title="Landing Pages"
       />
 
-      {/* Barra de acciones */}
-      <div
-        className={`flex justify-end items-center gap-2 mb-6 border-b pb-2 ${
-          theme.palette.mode === "dark"
-            ? "border-indigo-950"
-            : "border-gray-300"
-        }`}
-      >
-        {selected.length === 1 && (
-          <IconButton 
-            color="primary" 
-            size="large" 
-            onClick={() => console.log("Editar")}
-          >
-            <Edit sx={{ fontSize: 32 }} />
-          </IconButton>
-        )}
-        {selected.length >= 1 && (
-          <IconButton
-            color="error"
-            size="large"
-            onClick={() => setIsConfirmOpen(true)}
-          >
-            <Delete sx={{ fontSize: 32 }} />
-          </IconButton>
-        )}
-        <IconButton 
-          color="primary" 
-          size="large" 
-          onClick={() => router.push("/dashboard/landing_create/landingpage/create")}
+      {/* Card principal */}
+      <Card sx={{ borderRadius: 4, boxShadow }}>
+        {/* Barra de acciones */}
+        <Toolbar
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 2,
+            borderBottom: `1px solid ${
+              theme.palette.mode === "dark" ? "#1e1b4b" : "#d1d5db"
+            }`,
+          }}
         >
-          <AddCircle sx={{ fontSize: 50 }} />
-        </IconButton>
-      </div>
-
-      {/* Tabla de Landing Pages */}
-      <div className="overflow-x-auto rounded-2xl overflow-hidden">
-        <table
-          className={`min-w-full text-sm border border-separate border-spacing-0 rounded-2xl ${
-            theme.palette.mode === "dark" ? "border-indigo-950" : "border-gray-300"
-          }`}
-        >
-          <thead
-            className={`${
-              theme.palette.mode === "dark" ? "bg-indigo-950" : "bg-gray-300"
-            }`}
-          >
-            <tr
-              className={`border-b ${
-                theme.palette.mode === "dark"
-                  ? "border-b-indigo-950"
-                  : "border-b-gray-300"
-              }`}
-            >
-              <th className="py-3 px-4 text-left w-12">
-                <Checkbox
-                  indeterminate={
-                    selected.length > 0 && selected.length < landingPages.length
-                  }
-                  checked={selected.length === landingPages.length}
-                  onChange={(e) =>
-                    setSelected(
-                      e.target.checked ? landingPages.map((lp) => lp.id) : []
-                    )
-                  }
-                />
-              </th>
-              <th className="py-3 px-4 text-left">ID</th>
-              <th className="py-2 px-4 text-left">Categoría</th>
-              <th className="py-2 px-4 text-left">Título</th>
-              <th className="py-2 px-4 text-left">Fecha creación</th>
-              <th className="py-2 px-4 text-left">Fecha expiración</th>
-              <th className="py-2 px-4 text-left">Términos</th>
-              <th className="py-2 px-4 text-left">Imagen</th>
-              <th className="py-2 px-4 text-left">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {landingPages.map((lp) => (
-              <tr
-                key={lp.id}
-                className={`${
-                  theme.palette.mode === "dark"
-                    ? "hover:bg-indigo-950"
-                    : "hover:bg-gray-50"
-                } ${isSelected(lp.id) ? "bg-sky-50" : ""}`}
+          {selected.length === 1 && (
+            <Tooltip title="Editar">
+              <IconButton
+                color="primary"
+                size="large"
+                onClick={() => console.log("Editar")}
               >
-                <td
-                  className={`py-2 px-4 border-b ${
-                    theme.palette.mode === "dark"
-                      ? "border-b-indigo-950"
-                      : "border-b-gray-300"
-                  }`}
-                >
+                <Edit sx={{ fontSize: 28 }} />
+              </IconButton>
+            </Tooltip>
+          )}
+          {selected.length >= 1 && (
+            <Tooltip title="Eliminar">
+              <IconButton
+                color="error"
+                size="large"
+                onClick={() => setIsConfirmOpen(true)}
+              >
+                <Delete sx={{ fontSize: 28 }} />
+              </IconButton>
+            </Tooltip>
+          )}
+          <Tooltip title="Crear Landing Page">
+            <IconButton
+              color="primary"
+              size="large"
+              onClick={() =>
+                router.push("/dashboard/landing_create/landingpage/create")
+              }
+            >
+              <AddCircle sx={{ fontSize: 40 }} />
+            </IconButton>
+          </Tooltip>
+        </Toolbar>
+
+        {/* Contenido tabla */}
+        <CardContent>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell padding="checkbox">
                   <Checkbox
-                    checked={isSelected(lp.id)}
-                    onChange={() => toggleSelect(lp.id)}
+                    indeterminate={
+                      selected.length > 0 &&
+                      selected.length < landingPages.length
+                    }
+                    checked={selected.length === landingPages.length}
+                    onChange={(e) =>
+                      setSelected(
+                        e.target.checked
+                          ? landingPages.map((lp) => lp.id)
+                          : []
+                      )
+                    }
                   />
-                </td>
-                <td
-                  className={`py-2 px-4 border-b ${
-                    theme.palette.mode === "dark"
-                      ? "border-b-indigo-950"
-                      : "border-b-gray-300"
-                  }`}
+                </TableCell>
+                <TableCell>Imagen</TableCell>
+                <TableCell>ID</TableCell>
+                <TableCell>Categoría</TableCell>
+                <TableCell>Título</TableCell>
+                <TableCell>Fecha creación</TableCell>
+                <TableCell>Fecha expiración</TableCell>
+                <TableCell>Términos</TableCell>
+                <TableCell>Imagen</TableCell>
+                <TableCell>Status</TableCell>
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              {landingPages.map((lp) => (
+                <TableRow
+                  key={lp.id}
+                  hover
+                  selected={isSelected(lp.id)}
+                  sx={{
+                    cursor: "pointer",
+                  }}
                 >
-                  {lp.id}
-                </td>
-                <td
-                  className={`py-2 px-4 border-b ${
-                    theme.palette.mode === "dark"
-                      ? "border-b-indigo-950"
-                      : "border-b-gray-300"
-                  }`}
-                >
-                  {lp.categoria}
-                </td>
-                <td
-                  className={`py-2 px-4 border-b ${
-                    theme.palette.mode === "dark"
-                      ? "border-b-indigo-950"
-                      : "border-b-gray-300"
-                  }`}
-                >
-                  {lp.titulo}
-                </td>
-                <td
-                  className={`py-2 px-4 border-b ${
-                    theme.palette.mode === "dark"
-                      ? "border-b-indigo-950"
-                      : "border-b-gray-300"
-                  }`}
-                >
-                  {lp.fechaCreacion}
-                </td>
-                <td
-                  className={`py-2 px-4 border-b ${
-                    theme.palette.mode === "dark"
-                      ? "border-b-indigo-950"
-                      : "border-b-gray-300"
-                  }`}
-                >
-                  {lp.fechaExpiracion}
-                </td>
-                <td
-                  className={`py-2 px-4 border-b text-blue-600 underline cursor-pointer ${
-                    theme.palette.mode === "dark"
-                      ? "border-b-indigo-950"
-                      : "border-b-gray-300"
-                  }`}
-                >
-                  <a href={lp.terminos} target="_blank">
-                    Ver
-                  </a>
-                </td>
-                <td
-                  className={`py-2 px-4 border-b text-blue-600 underline cursor-pointer ${
-                    theme.palette.mode === "dark"
-                      ? "border-b-indigo-950"
-                      : "border-b-gray-300"
-                  }`}
-                >
-                  <a href={lp.imagen} target="_blank">
-                    Ver
-                  </a>
-                </td>
-                <td
-                  className={`py-2 px-4 border-b ${
-                    theme.palette.mode === "dark"
-                      ? "border-b-indigo-950"
-                      : "border-b-gray-300"
-                  }`}
-                >
-                  {lp.status}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      checked={isSelected(lp.id)}
+                      onChange={() => toggleSelect(lp.id)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <img
+                      src={lp.imagen}
+                      alt={lp.titulo}
+                      style={{
+                        width: 60,
+                        height: 40,
+                        objectFit: "contain",
+                        borderRadius: 6,
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>{lp.id}</TableCell>
+                  <TableCell>{lp.categoria}</TableCell>
+                  <TableCell>{lp.titulo}</TableCell>
+                  <TableCell>{lp.fechaCreacion}</TableCell>
+                  <TableCell>{lp.fechaExpiracion}</TableCell>
+                  <TableCell>
+                    <Typography
+                      component="a"
+                      href={lp.terminos}
+                      target="_blank"
+                      sx={{
+                        color: "primary.main",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Ver
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography
+                      component="a"
+                      href={lp.imagen}
+                      target="_blank"
+                      sx={{
+                        color: "primary.main",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Ver
+                    </Typography>
+                  </TableCell>
+                  <TableCell>{lp.status}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       {/* Confirmación de eliminación */}
       <ConfirmDialog
@@ -266,7 +236,9 @@ const LandingPage: React.FC = () => {
             `¿Estás seguro de que deseas eliminar la landing page '${selectedLandingPages[0].titulo}'?`
           ) : (
             <div>
-              <p>¿Estás seguro de que deseas eliminar estas landing pages?</p>
+              <p>
+                ¿Estás seguro de que deseas eliminar estas landing pages?
+              </p>
               <ul>
                 {selectedLandingPages.map((lp) => (
                   <li key={lp.id}>• {lp.titulo}</li>
@@ -279,7 +251,7 @@ const LandingPage: React.FC = () => {
         onConfirm={handleDelete}
         onCancel={() => setIsConfirmOpen(false)}
       />
-    </div>
+    </Box>
   );
 };
 

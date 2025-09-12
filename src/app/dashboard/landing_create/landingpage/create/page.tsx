@@ -14,11 +14,11 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import { IconButton as MuiIconButton } from "@mui/material";
-import { motion } from "framer-motion";
 import { toast, Toaster } from "react-hot-toast";
 import { ExpandMore, ExpandLess, Home, Delete } from "@mui/icons-material";
 import SectionHeader from "@/components/ui/SectionHeader";
+
+    /*temp*/import { addLandingPage } from "@/app/lib/landingStore";
 
 export default function LandingPageCreateForm() {
 
@@ -31,12 +31,15 @@ export default function LandingPageCreateForm() {
     const [title, setTitle] = useState("");
     const [headerText, setHeaderText] = useState("");
     const [headerImage, setHeaderImage] = useState<File | null>(null);
-      const fileInputRef = useRef<HTMLInputElement>(null);//temp
+      /*temp*/const fileInputRef = useRef<HTMLInputElement>(null);
     const [sections, setSections] = useState([{ content: "" }]);
     const [publish, setPublish] = useState(false);
+    const [allowIndex, setAllowIndex] = useState(true);
     const [metaTitle, setMetaTitle] = useState("");
     const [metaDescription, setMetaDescription] = useState("");
+    const [seoPreview, setSeoPreview] = useState<string | null>(null);
 
+    // handlers
     const handleAddSection = () => setSections([...sections, { content: "" }]);
 
     const handleSectionChange = (index: number, value: string) => {
@@ -53,15 +56,33 @@ export default function LandingPageCreateForm() {
       setHeaderImage(null);
       if(fileInputRef.current) fileInputRef.current.value = "";
     }
+
+    const handleSeoImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        setSeoPreview(URL.createObjectURL(file));
+      }
+    };
     
     const handleRemoveSection = (index: number) => {
         setSections(sections.filter((_, i) => i !== index));
     }
 
     const handleSubmit = () => {
-      // Aquí la llamada a la API..
+      const nuevaLanding = {
+        id: Date.now(),
+        categoria: "General",
+        titulo: title,
+        fechaCreacion: new Date().toLocaleDateString(),
+        fechaExpiracion: "—",
+        terminos: "/terminos/demo",
+        imagen: headerImage ? URL.createObjectURL(headerImage) : "",
+        status: publish ? "Activo" : "Inactivo",
+      };
+  
+      addLandingPage(nuevaLanding);
+  
       toast.success("Landing Page creada!");
-      console.log({ title, headerText, headerImage, sections, publish, metaTitle, metaDescription });
     };
 
     const renderCollapseButton = (isOpen: boolean, toggle: () => void) => (
@@ -193,20 +214,103 @@ export default function LandingPageCreateForm() {
           <Collapse in={openSEO}>
             <Divider />
             <Stack spacing={2} sx={{ p: 3 }}>
-              <TextField label="Meta título" value={metaTitle} onChange={e => setMetaTitle(e.target.value)} fullWidth />
-              <TextField label="Meta descripción" value={metaDescription} onChange={e => setMetaDescription(e.target.value)} multiline rows={3} fullWidth />
-              <FormControlLabel
-                label="Publicar"
-                control={<Switch checked={publish} onChange={e => setPublish(e.target.checked)} />}
+              {/* Slug */}
+              <TextField
+                label="Slug (URL personalizada)"
+                placeholder="zapatos-artesanales"
+                fullWidth
               />
+
+              {/* Meta Title */}
+              <TextField
+                label="Meta título"
+                value={metaTitle}
+                onChange={(e) => setMetaTitle(e.target.value)}
+                helperText={`${metaTitle.length}/60 caracteres`}
+                fullWidth
+              />
+
+              {/* Meta Description */}
+              <TextField
+                label="Meta descripción"
+                value={metaDescription}
+                onChange={(e) => setMetaDescription(e.target.value)}
+                helperText={`${metaDescription.length}/160 caracteres`}
+                multiline
+                rows={3}
+                fullWidth
+              />
+
+            {/* Imagen para redes sociales */}
+            <Button variant="contained" component="label">
+              Subir imagen para compartir
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={handleSeoImageUpload}
+              />
+            </Button>
+
+              {/* Switch o Select para robots */}
+              <FormControlLabel
+                label="Permitir indexación en Google"
+                control={
+                  <Switch
+                    checked={allowIndex}
+                    onChange={(e) => setAllowIndex(e.target.checked)}
+                  />
+                }
+              />
+
+            {/* Opcional: vista previa */}
+            <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, maxWidth: 500 }}>
+              <Typography variant="subtitle2" color="textSecondary">
+                Vista previa (Google / redes)
+              </Typography>
+                        
+              {seoPreview && (
+                <img
+                  src={seoPreview}
+                  alt="SEO Preview"
+                  style={{ width: "100%", maxHeight: 200, objectFit: "cover", borderRadius: 6, marginBottom: 8 }}
+                />
+              )}
+            
+              <Typography variant="h6">{metaTitle || "Título de ejemplo"}</Typography>
+              <Typography variant="body2">
+                {metaDescription || "Descripción de ejemplo..."}
+              </Typography>
+              <Typography variant="caption" color="primary">
+                tudominio.com/slug
+              </Typography>
+            </div>
+
             </Stack>
           </Collapse>
         </Card>
 
+
         {/* Acciones */}
-        <Stack direction="row" justifyContent="flex-end" spacing={2}>
-          <Button variant="contained" onClick={handleSubmit}>Crear Landing Page</Button>
+        <Stack direction="row" justifyContent="flex-end" spacing={2} alignItems="center" sx={{ mt: 2 }}>
+          {/* Switch Publicar */}
+          <FormControlLabel
+            control={
+              <Switch
+                checked={publish}
+                onChange={(e) => setPublish(e.target.checked)}
+                color="primary"
+              />
+            }
+            label="Publicar"
+          />
+        
+          {/* Botón principal */}
+          <Button variant="contained" onClick={handleSubmit}>
+            Crear Landing Page
+          </Button>
         </Stack>
+
       </div>
     );
 }   
