@@ -31,7 +31,7 @@ const AdminOverviewPage: React.FC = () => {
     <Box sx={{ px: { xs: 2, md: 4 }, py: 4, width: '100%' }}>
 
       <SectionHeader
-        icon={<Dashboard fontSize="large" />}
+        icon={<Dashboard fontSize="medium" />}
         title="Resumen General"
       />
     

@@ -63,7 +63,7 @@ const CategoriaPage: React.FC = () => {
     <div className="p-6">
       {/* Encabezado */}
       <SectionHeader 
-        icon={<Category fontSize="large" />} 
+        icon={<Category fontSize="medium" />} 
         title="Categorías de Landing Page" 
       />
 
