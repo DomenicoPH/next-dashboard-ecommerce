@@ -55,7 +55,19 @@ const EditCategoriaModal: React.FC<EditCategoriaModalProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog 
+      open={isOpen} 
+      onClose={onClose} 
+      fullWidth 
+      maxWidth="sm"
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: 4
+          }
+        }    
+      }}
+    >
       <DialogTitle sx={{ textAlign: "center" }}>
         Editar categoría
       </DialogTitle>
