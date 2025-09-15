@@ -18,6 +18,7 @@ import {
   Typography,
   Box,
   Divider,
+  Switch
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
@@ -64,6 +65,10 @@ const LandingPage: React.FC = () => {
     setIsConfirmOpen(false);
     setSelected([]);
   };
+
+  const handleToggleStatus = (id: number, checked: boolean) => {
+    setLandingPages((prev) => prev.map((lp) => lp.id === id ? { ...lp, status: checked ? "Activo" : "Inactivo" } : lp ))
+  }
 
   React.useEffect(() => {
     setLandingPages(getLandingPages());
@@ -205,6 +210,7 @@ const LandingPage: React.FC = () => {
                       Ver
                     </Typography>
                   </TableCell>
+
                   <TableCell>
                     <Typography
                       component="a"
@@ -219,7 +225,15 @@ const LandingPage: React.FC = () => {
                       Ver
                     </Typography>
                   </TableCell>
-                  <TableCell>{lp.status}</TableCell>
+
+                  <TableCell>
+                    <Switch
+                      checked={lp.status === "Activo"}
+                      onChange={(e) => handleToggleStatus(lp.id, e.target.checked)}
+                      color="primary"
+                    />
+                  </TableCell>
+
                 </TableRow>
               ))}
             </TableBody>
