@@ -24,21 +24,9 @@ import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
-/*temp*/import { getLandingPages } from "@/app/lib/landingStore";
+/*temp*/import { getLandingPages, LandingPage } from "@/app/lib/landingStore";
 
-// interfaz para LandingPage
-interface LandingPage {
-  id: number;
-  categoria: string;
-  titulo: string;
-  fechaCreacion: string;
-  fechaExpiracion: string;
-  terminos: string; // enlace
-  imagen: string; // enlace
-  status: string;
-}
-
-const LandingPage: React.FC = () => {
+const LandingPageTable: React.FC = () => {
 
   const boxShadow = '0 8px 24px rgba(0,0,0,0.1)'
 
@@ -192,14 +180,14 @@ const LandingPage: React.FC = () => {
                     />
                   </TableCell>
                   <TableCell>{lp.id}</TableCell>
-                  <TableCell>{lp.categoria}</TableCell>
+                  {/* <TableCell>{lp.categoria}</TableCell> */}
                   <TableCell>{lp.titulo}</TableCell>
-                  <TableCell>{lp.fechaCreacion}</TableCell>
-                  <TableCell>{lp.fechaExpiracion}</TableCell>
+                  <TableCell>{lp.creationDate}</TableCell>
+                  <TableCell>{lp.expirationDate}</TableCell>
                   <TableCell>
                     <Typography
                       component="a"
-                      href={lp.terminos}
+                      href={lp.termsUrl}
                       target="_blank"
                       sx={{
                         color: "primary.main",
@@ -269,4 +257,4 @@ const LandingPage: React.FC = () => {
   );
 };
 
-export default LandingPage;
+export default LandingPageTable;
