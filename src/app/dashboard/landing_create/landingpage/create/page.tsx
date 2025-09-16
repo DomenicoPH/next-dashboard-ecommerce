@@ -22,7 +22,7 @@ import { toast, Toaster } from "react-hot-toast";
 import { ExpandMore, ExpandLess, Home, Delete } from "@mui/icons-material";
 import SectionHeader from "@/components/ui/SectionHeader";
 
-/*temp*/ import { addLandingPage } from "@/app/lib/landingStore";
+/*temp*/ import { addLandingPage, LandingPage, ContentField, FormField } from "@/app/lib/landingStore";
 
 export default function LandingPageCreateForm() {
   const boxShadow = "0 8px 24px rgba(0,0,0,0.1)";
@@ -32,6 +32,7 @@ export default function LandingPageCreateForm() {
   const [openContent, setOpenContent] = useState(true);
   const [openForm, setOpenForm] = useState(true);
   const [openSEO, setOpenSEO] = useState(true);
+  const [openTerms, setOpenTerms] = useState(true);
 
   // Estado principal
   const [title, setTitle] = useState("");
@@ -41,17 +42,19 @@ export default function LandingPageCreateForm() {
   const [headerImage, setHeaderImage] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [formFields, setFormFields] = useState([
+  const [formFields, setFormFields] = useState<FormField[]>([
     { label: "Nombre completo", type: "text", required: true },
     { label: "Teléfono celular", type: "tel", required: true },
   ]);
   const [formButtonText, setFormButtonText] = useState("Enviar");
 
-  const [contentFields, setContentFields] = useState([
-    { label: "Texto superior", value: "" },
-    { label: "Precio", value: "" },
-    { label: "Texto inferior", value: "" },
+  const [contentFields, setContentFields] = useState<ContentField[]>([
+    { label: "Texto superior", value: "", variant: "subtitle" },
+    { label: "Precio", value: "", variant: "highlight" },
+    { label: "Texto inferior", value: "", variant: "subtitle" },
   ]);
+
+  const [termsUrl, setTermsUrl] = useState("");
 
   // SEO
   const [allowIndex, setAllowIndex] = useState(true);
@@ -100,14 +103,21 @@ export default function LandingPageCreateForm() {
   };
 
   // Content
-  const handleContentFieldChange = (index: number, value: string) => {
+  const handleContentFieldChange = (
+    index: number,
+    key: keyof ContentField,
+    value: string
+  ) => {
     const updated = [...contentFields];
-    updated[index].value = value;
+    updated[index] = {
+      ...updated[index],
+      [key]: key === "variant" ? (value as ContentField["variant"]) : value,
+    };
     setContentFields(updated);
   };
 
   const handleAddContentField = () => {
-    setContentFields([...contentFields, { label: "", value: "" }]);
+    setContentFields([...contentFields, { label: "", value: "", variant: "subtitle" }]);
   };
 
   const handleRemoveContentField = (index: number) => {
@@ -116,15 +126,21 @@ export default function LandingPageCreateForm() {
 
   // Submit
   const handleSubmit = () => {
-    const nuevaLanding = {
+    const nuevaLanding: LandingPage = {
       id: Date.now(),
-      categoria: "General",
       titulo: title,
-      fechaCreacion: new Date().toLocaleDateString(),
-      fechaExpiracion: expirationDate || "—",
-      terminos: "/terminos/demo",
-      imagen: headerImage ? URL.createObjectURL(headerImage) : "",
+      expirationDate,
+      creationDate: new Date().toLocaleDateString("es-PE"),
       status: publish ? "Activo" : "Inactivo",
+      imagen: headerImage ? URL.createObjectURL(headerImage) : "",
+      publish,
+      metaTitle,
+      metaDescription,
+      allowIndex,
+      contentFields,
+      formFields,
+      formButtonText,
+      termsUrl,
     };
 
     addLandingPage(nuevaLanding);
@@ -201,15 +217,28 @@ export default function LandingPageCreateForm() {
 
           {/* Columna derecha - Contenido + Form */}
           <Grid size={{xs: 12, md: 6}}>
-            <Typography variant="h4" gutterBottom>
+            <Typography variant="h3" color="primary" fontWeight={700} textAlign={"center"} gutterBottom>
               {title || "Título de la Landing"}
             </Typography>
 
             {contentFields.map((field, i) => (
               <Typography
                 key={i}
-                variant={i === 1 ? "h3" : "subtitle2"} // ejemplo: el segundo lo muestro grande
-                color={i === 1 ? "primary" : "textSecondary"}
+                sx={{ textAlign: "center" }}
+                variant={
+                  field.variant === "title" ? "h4" :
+                  field.variant === "highlight" ? "h3" :
+                  "subtitle2"
+                }
+                color={
+                  field.variant === "highlight" ? "primary" : 
+                  field.variant === "title" ? "primary" : 
+                  "textSecondary"}
+                fontWeight={
+                  field.variant === "highlight" ? 700 :
+                  field.variant === "subtitle" ? 500 :
+                  400
+                }
                 gutterBottom
               >
                 {field.value || field.label}
@@ -303,7 +332,7 @@ export default function LandingPageCreateForm() {
                   alt="Preview"
                   style={{
                     maxWidth: "100%",
-                    maxHeight: 300,
+                    maxHeight: 100,
                     borderRadius: 8,
                   }}
                 />
@@ -339,9 +368,18 @@ export default function LandingPageCreateForm() {
                 <TextField
                   label={field.label || `Campo ${i + 1}`}
                   value={field.value}
-                  onChange={(e) => handleContentFieldChange(i, e.target.value)}
+                  onChange={(e) => handleContentFieldChange(i, "value", e.target.value)}
                   fullWidth
                 />
+                <Select
+                  value={field.variant}
+                  onChange={(e) => handleContentFieldChange(i, "variant", e.target.value)}
+                  sx={{ minWidth: 160 }}
+                >
+                  <MenuItem value="title">Título grande</MenuItem>
+                  <MenuItem value="subtitle">Texto secundario</MenuItem>
+                  <MenuItem value="highlight">Precio destacado</MenuItem>
+                </Select>
                 <IconButton onClick={() => handleRemoveContentField(i)}>
                   <Delete />
                 </IconButton>
@@ -424,6 +462,29 @@ export default function LandingPageCreateForm() {
               label="Texto del botón"
               value={formButtonText}
               onChange={(e) => setFormButtonText(e.target.value)}
+            />
+          </Stack>
+        </Collapse>
+      </Card>
+
+      {/* Términos y condiciones */}
+      <Card sx={{ mb: 3, borderRadius: 4, boxShadow }}>
+        <CardHeader
+          title="Términos y Condiciones"
+          action={renderCollapseButton(
+            openTerms,
+            () => setOpenTerms(!openTerms)
+          )}
+        />
+        <Collapse in={openTerms}>
+          <Divider />
+          <Stack spacing={2} sx={{ p: 3 }}>
+            <TextField
+              label="Enlace al PDF de Términos y Condiciones"
+              value={termsUrl}
+              onChange={(e) => setTermsUrl(e.target.value)}
+              placeholder="https://misarchivos.com/terminos.pdf"
+              fullWidth
             />
           </Stack>
         </Collapse>
