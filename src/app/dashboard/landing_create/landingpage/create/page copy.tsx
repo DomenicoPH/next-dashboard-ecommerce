@@ -14,7 +14,6 @@ import {
   IconButton,
   Typography,
   Paper,
-  Grid,
 } from "@mui/material";
 import { toast, Toaster } from "react-hot-toast";
 import { ExpandMore, ExpandLess, Home, Delete } from "@mui/icons-material";
@@ -25,37 +24,31 @@ import SectionHeader from "@/components/ui/SectionHeader";
 export default function LandingPageCreateForm() {
   const boxShadow = "0 8px 24px rgba(0,0,0,0.1)";
 
-  // Secciones abiertas
   const [openDetails, setOpenDetails] = useState(true);
   const [openContent, setOpenContent] = useState(true);
-  const [openForm, setOpenForm] = useState(true);
   const [openSEO, setOpenSEO] = useState(true);
 
-  // Estado principal
   const [title, setTitle] = useState("");
-  const [subtitleTop, setSubtitleTop] = useState("Desde");
-  const [price, setPrice] = useState("S/.100");
-  const [subtitleBottom, setSubtitleBottom] = useState("por la compra de...");
+  const [headerText, setHeaderText] = useState("");
   const [headerImage, setHeaderImage] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [formFields, setFormFields] = useState([
-    { label: "Nombre completo", type: "text", required: true },
-    { label: "Teléfono celular", type: "tel", required: true },
-  ]);
-  const [formButtonText, setFormButtonText] = useState("Enviar");
-
-  // SEO
+  /*temp*/ const fileInputRef = useRef<HTMLInputElement>(null);
+  const [sections, setSections] = useState([{ content: "" }]);
+  const [publish, setPublish] = useState(false);
   const [allowIndex, setAllowIndex] = useState(true);
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [seoPreview, setSeoPreview] = useState<string | null>(null);
   const [expirationDate, setExpirationDate] = useState("");
 
-  // Publicación
-  const [publish, setPublish] = useState(false);
+  // handlers
+  const handleAddSection = () => setSections([...sections, { content: "" }]);
 
-  // Handlers
+  const handleSectionChange = (index: number, value: string) => {
+    const newSections = [...sections];
+    newSections[index].content = value;
+    setSections(newSections);
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) setHeaderImage(e.target.files[0]);
   };
@@ -72,22 +65,8 @@ export default function LandingPageCreateForm() {
     }
   };
 
-  const handleAddFormField = () => {
-    setFormFields([...formFields, { label: "", type: "text", required: false }]);
-  };
-
-  const handleFormFieldChange = (
-    index: number,
-    key: "label" | "type" | "required",
-    value: string | boolean
-  ) => {
-    const updated = [...formFields];
-    (updated[index] as any)[key] = value;
-    setFormFields(updated);
-  };
-
-  const handleRemoveFormField = (index: number) => {
-    setFormFields(formFields.filter((_, i) => i !== index));
+  const handleRemoveSection = (index: number) => {
+    setSections(sections.filter((_, i) => i !== index));
   };
 
   const handleSubmit = () => {
@@ -114,7 +93,7 @@ export default function LandingPageCreateForm() {
   );
 
   return (
-    <div className="p-5 max-w-6xl mx-auto">
+    <div className="p-5 max-w-4xl mx-auto">
       {/* Encabezado */}
       <SectionHeader
         icon={<Home fontSize="medium" />}
@@ -130,92 +109,52 @@ export default function LandingPageCreateForm() {
           p: 4,
           mb: 4,
           borderRadius: 4,
+          backgroundColor: "primary",
         }}
       >
-        <Typography
-          variant="h6"
-          gutterBottom
-          sx={{ opacity: 0.5, paddingBottom: 4, fontStyle: "italic" }}
-        >
+        <Typography variant="h6" gutterBottom sx={{ opacity: 0.5, paddingBottom: 4, fontStyle: "italic" }}>
           Vista previa
         </Typography>
 
-        <Grid container spacing={4}>
-          {/* Columna izquierda - Imagen */}
-          <Grid item xs={12} md={6}>
-            {headerImage ? (
-              <img
-                src={URL.createObjectURL(headerImage)}
-                alt="Landing"
-                style={{
-                  width: "100%",
-                  maxHeight: 350,
-                  borderRadius: 24,
-                  objectFit: "cover",
-                }}
-              />
-            ) : (
-              <Paper
-                sx={{
-                  width: "100%",
-                  height: 300,
-                  borderRadius: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  bgcolor: "grey.100",
-                }}
-              >
-                <Typography variant="body2" color="textSecondary">
-                  Imagen de la landing
-                </Typography>
-              </Paper>
-            )}
-          </Grid>
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: 20 }}>
+          {headerImage && (
+            <img
+              src={URL.createObjectURL(headerImage)}
+              alt="Header"
+              style={{ maxWidth: "100%", borderRadius: 8, marginBottom: 16 }}
+            />
+          )}
+          <Typography variant="h4" gutterBottom>
+            {title || "Título de la Landing"}
+          </Typography>
+          <Typography variant="subtitle1" color="textSecondary">
+            {headerText || "Texto introductorio de la landing..."}
+          </Typography>
+        </div>
 
-          {/* Columna derecha - Contenido + Form */}
-          <Grid item xs={12} md={6}>
-            <Typography variant="h4" gutterBottom>
-              {title || "Título de la Landing"}
-            </Typography>
-
-            <Typography variant="subtitle2" color="textSecondary">
-              {subtitleTop}
-            </Typography>
-            <Typography variant="h3" color="primary" gutterBottom>
-              {price}
-            </Typography>
-            <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-              {subtitleBottom}
-            </Typography>
-
-            {/* Formulario */}
-            <Paper sx={{ p: 3, mt: 2, borderRadius: 2 }}>
-              <Stack spacing={2}>
-                {formFields.map((field, i) => (
-                  <TextField
-                    key={i}
-                    label={field.label || `Campo ${i + 1}`}
-                    type={field.type}
-                    required={field.required}
-                    fullWidth
-                  />
-                ))}
-
-                <Button variant="contained" color="primary">
-                  {formButtonText}
-                </Button>
-              </Stack>
+        {/* Secciones dinámicas */}
+        <Stack spacing={3} sx={{ mt: 3 }}>
+          {sections.map((s, i) => (
+            <Paper
+              key={i}
+              sx={{ p: 2, borderRadius: 3, backgroundColor: "background.paper" }}
+            >
+              <Typography variant="body1">
+                {s.content || `Sección ${i + 1} (vacía)`}
+              </Typography>
             </Paper>
-          </Grid>
-        </Grid>
+          ))}
+        </Stack>
 
         {/* Meta info */}
         <Divider sx={{ my: 3 }} />
         <Typography variant="caption" color="textSecondary">
           <b>Slug:</b>{" "}
           tudominio.com/
-          {metaTitle ? metaTitle.toLowerCase().replace(/\s+/g, "-") : "slug"}
+          {metaTitle
+            ? metaTitle.toLowerCase().replace(/\s+/g, "-")
+            : "slug"}
         </Typography>
         <br />
         <Typography variant="caption" color="textSecondary">
@@ -243,6 +182,12 @@ export default function LandingPageCreateForm() {
               label="Título de la Landing Page"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Texto de encabezado"
+              value={headerText}
+              onChange={(e) => setHeaderText(e.target.value)}
               fullWidth
             />
             <TextField
@@ -297,7 +242,7 @@ export default function LandingPageCreateForm() {
       {/* Contenido */}
       <Card sx={{ mb: 3, borderRadius: 4, boxShadow }}>
         <CardHeader
-          title="Contenido"
+          title="Secciones"
           action={renderCollapseButton(
             openContent,
             () => setOpenContent(!openContent)
@@ -306,41 +251,7 @@ export default function LandingPageCreateForm() {
         <Collapse in={openContent}>
           <Divider />
           <Stack spacing={2} sx={{ p: 3 }}>
-            <TextField
-              label="Texto superior"
-              value={subtitleTop}
-              onChange={(e) => setSubtitleTop(e.target.value)}
-              fullWidth
-            />
-            <TextField
-              label="Precio"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              fullWidth
-            />
-            <TextField
-              label="Texto inferior"
-              value={subtitleBottom}
-              onChange={(e) => setSubtitleBottom(e.target.value)}
-              fullWidth
-            />
-          </Stack>
-        </Collapse>
-      </Card>
-
-      {/* Formulario */}
-      <Card sx={{ mb: 3, borderRadius: 4, boxShadow }}>
-        <CardHeader
-          title="Formulario"
-          action={renderCollapseButton(
-            openForm,
-            () => setOpenForm(!openForm)
-          )}
-        />
-        <Collapse in={openForm}>
-          <Divider />
-          <Stack spacing={2} sx={{ p: 3 }}>
-            {formFields.map((field, i) => (
+            {sections.map((section, i) => (
               <Stack
                 key={i}
                 direction="row"
@@ -348,43 +259,32 @@ export default function LandingPageCreateForm() {
                 alignItems="flex-start"
               >
                 <TextField
-                  label="Etiqueta"
-                  value={field.label}
-                  onChange={(e) =>
-                    handleFormFieldChange(i, "label", e.target.value)
-                  }
+                  label={`Sección ${i + 1}`}
+                  value={section.content}
+                  onChange={(e) => handleSectionChange(i, e.target.value)}
+                  multiline
+                  rows={4}
+                  fullWidth
                 />
-                <TextField
-                  label="Tipo"
-                  value={field.type}
-                  onChange={(e) =>
-                    handleFormFieldChange(i, "type", e.target.value)
-                  }
-                />
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={field.required}
-                      onChange={(e) =>
-                        handleFormFieldChange(i, "required", e.target.checked)
-                      }
-                    />
-                  }
-                  label="Requerido"
-                />
-                <IconButton onClick={() => handleRemoveFormField(i)}>
+                <IconButton
+                  onClick={() => handleRemoveSection(i)}
+                  sx={{
+                    mt: 1,
+                    color: "primary.main",
+                    transition: "color 0.2s ease",
+                    "&:hover": {
+                      color: "error.main",
+                    },
+                  }}
+                >
                   <Delete />
                 </IconButton>
               </Stack>
             ))}
-            <Button variant="outlined" onClick={handleAddFormField}>
-              Agregar campo
+
+            <Button variant="outlined" onClick={handleAddSection}>
+              Agregar sección
             </Button>
-            <TextField
-              label="Texto del botón"
-              value={formButtonText}
-              onChange={(e) => setFormButtonText(e.target.value)}
-            />
           </Stack>
         </Collapse>
       </Card>
@@ -398,6 +298,14 @@ export default function LandingPageCreateForm() {
         <Collapse in={openSEO}>
           <Divider />
           <Stack spacing={2} sx={{ p: 3 }}>
+            {/* Slug */}
+            <TextField
+              label="Slug (URL personalizada)"
+              placeholder="zapatos-artesanales"
+              fullWidth
+            />
+
+            {/* Meta Title */}
             <TextField
               label="Meta título"
               value={metaTitle}
@@ -406,6 +314,7 @@ export default function LandingPageCreateForm() {
               fullWidth
             />
 
+            {/* Meta Description */}
             <TextField
               label="Meta descripción"
               value={metaDescription}
@@ -416,6 +325,7 @@ export default function LandingPageCreateForm() {
               fullWidth
             />
 
+            {/* Imagen para redes sociales */}
             <Button variant="contained" component="label">
               Subir imagen para compartir
               <input
@@ -426,6 +336,7 @@ export default function LandingPageCreateForm() {
               />
             </Button>
 
+            {/* Switch o Select para robots */}
             <FormControlLabel
               label="Permitir indexación en Google"
               control={
@@ -436,6 +347,7 @@ export default function LandingPageCreateForm() {
               }
             />
 
+            {/* Opcional: vista previa */}
             <div
               style={{
                 border: "1px solid #ddd",
@@ -484,6 +396,7 @@ export default function LandingPageCreateForm() {
         alignItems="center"
         sx={{ mt: 2 }}
       >
+        {/* Switch Publicar */}
         <FormControlLabel
           control={
             <Switch
@@ -495,6 +408,7 @@ export default function LandingPageCreateForm() {
           label="Publicar"
         />
 
+        {/* Botón principal */}
         <Button variant="contained" onClick={handleSubmit}>
           Crear Landing Page
         </Button>
