@@ -15,6 +15,8 @@ import {
   Typography,
   Paper,
   Grid,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { toast, Toaster } from "react-hot-toast";
 import { ExpandMore, ExpandLess, Home, Delete } from "@mui/icons-material";
@@ -45,6 +47,12 @@ export default function LandingPageCreateForm() {
   ]);
   const [formButtonText, setFormButtonText] = useState("Enviar");
 
+  const [contentFields, setContentFields] = useState([
+    { label: "Texto superior", value: "" },
+    { label: "Precio", value: "" },
+    { label: "Texto inferior", value: "" },
+  ]);
+
   // SEO
   const [allowIndex, setAllowIndex] = useState(true);
   const [metaTitle, setMetaTitle] = useState("");
@@ -72,6 +80,7 @@ export default function LandingPageCreateForm() {
     }
   };
 
+  // Form
   const handleAddFormField = () => {
     setFormFields([...formFields, { label: "", type: "text", required: false }]);
   };
@@ -90,6 +99,22 @@ export default function LandingPageCreateForm() {
     setFormFields(formFields.filter((_, i) => i !== index));
   };
 
+  // Content
+  const handleContentFieldChange = (index: number, value: string) => {
+    const updated = [...contentFields];
+    updated[index].value = value;
+    setContentFields(updated);
+  };
+
+  const handleAddContentField = () => {
+    setContentFields([...contentFields, { label: "", value: "" }]);
+  };
+
+  const handleRemoveContentField = (index: number) => {
+    setContentFields(contentFields.filter((_, i) => i !== index));
+  }
+
+  // Submit
   const handleSubmit = () => {
     const nuevaLanding = {
       id: Date.now(),
@@ -142,14 +167,14 @@ export default function LandingPageCreateForm() {
 
         <Grid container spacing={4}>
           {/* Columna izquierda - Imagen */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{xs: 12, md: 6}}>
             {headerImage ? (
               <img
                 src={URL.createObjectURL(headerImage)}
                 alt="Landing"
                 style={{
-                  width: "100%",
-                  maxHeight: 350,
+                  width: 450,
+                  maxHeight: 450,
                   borderRadius: 24,
                   objectFit: "cover",
                 }}
@@ -157,9 +182,10 @@ export default function LandingPageCreateForm() {
             ) : (
               <Paper
                 sx={{
-                  width: "100%",
-                  height: 300,
-                  borderRadius: 2,
+                  width: 450,
+                  maxHeight: 450,
+                  height: 450,
+                  borderRadius: 24,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -174,31 +200,33 @@ export default function LandingPageCreateForm() {
           </Grid>
 
           {/* Columna derecha - Contenido + Form */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{xs: 12, md: 6}}>
             <Typography variant="h4" gutterBottom>
               {title || "Título de la Landing"}
             </Typography>
 
-            <Typography variant="subtitle2" color="textSecondary">
-              {subtitleTop}
-            </Typography>
-            <Typography variant="h3" color="primary" gutterBottom>
-              {price}
-            </Typography>
-            <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-              {subtitleBottom}
-            </Typography>
+            {contentFields.map((field, i) => (
+              <Typography
+                key={i}
+                variant={i === 1 ? "h3" : "subtitle2"} // ejemplo: el segundo lo muestro grande
+                color={i === 1 ? "primary" : "textSecondary"}
+                gutterBottom
+              >
+                {field.value || field.label}
+              </Typography>
+            ))}
 
-            {/* Formulario */}
+            {/* Formulario (preview): usa placeholder = label definido por admin */}
             <Paper sx={{ p: 3, mt: 2, borderRadius: 2 }}>
               <Stack spacing={2}>
                 {formFields.map((field, i) => (
                   <TextField
                     key={i}
-                    label={field.label || `Campo ${i + 1}`}
+                    placeholder={field.label || `Campo ${i + 1}`}
                     type={field.type}
                     required={field.required}
                     fullWidth
+                    variant="outlined"
                   />
                 ))}
 
@@ -306,24 +334,24 @@ export default function LandingPageCreateForm() {
         <Collapse in={openContent}>
           <Divider />
           <Stack spacing={2} sx={{ p: 3 }}>
-            <TextField
-              label="Texto superior"
-              value={subtitleTop}
-              onChange={(e) => setSubtitleTop(e.target.value)}
-              fullWidth
-            />
-            <TextField
-              label="Precio"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              fullWidth
-            />
-            <TextField
-              label="Texto inferior"
-              value={subtitleBottom}
-              onChange={(e) => setSubtitleBottom(e.target.value)}
-              fullWidth
-            />
+            {contentFields.map((field, i) => (
+              <Stack key={i} direction="row" spacing={1} alignItems="flex-start">
+                <TextField
+                  label={field.label || `Campo ${i + 1}`}
+                  value={field.value}
+                  onChange={(e) => handleContentFieldChange(i, e.target.value)}
+                  fullWidth
+                />
+                <IconButton onClick={() => handleRemoveContentField(i)}>
+                  <Delete />
+                </IconButton>
+              </Stack>
+            ))}
+
+            <Button variant="outlined" onClick={handleAddContentField}>
+              Agregar campo
+            </Button>
+
           </Stack>
         </Collapse>
       </Card>
@@ -347,20 +375,32 @@ export default function LandingPageCreateForm() {
                 spacing={1}
                 alignItems="flex-start"
               >
+                {/* Etiqueta: placeholder */}
                 <TextField
                   label="Etiqueta"
                   value={field.label}
                   onChange={(e) =>
                     handleFormFieldChange(i, "label", e.target.value)
                   }
+                  sx={{ minWidth: 220 }}
                 />
-                <TextField
-                  label="Tipo"
+
+                {/* Tipo: tipo de input */}
+                <Select
                   value={field.type}
                   onChange={(e) =>
-                    handleFormFieldChange(i, "type", e.target.value)
+                    handleFormFieldChange(i, "type", e.target.value as string)
                   }
-                />
+                  displayEmpty
+                  sx={{ minWidth: 160 }}
+                >
+                  <MenuItem value="text">Texto</MenuItem>
+                  <MenuItem value="tel">Teléfono</MenuItem>
+                  <MenuItem value="email">Correo electrónico</MenuItem>
+                  <MenuItem value="number">Número</MenuItem>
+                  <MenuItem value="password">Contraseña</MenuItem>
+                </Select>
+
                 <FormControlLabel
                   control={
                     <Switch
