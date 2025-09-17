@@ -15,6 +15,7 @@ export interface LandingPage {
   contentFields: ContentField[];
   formFields: FormField[];
   formButtonText: string;
+  categoriaId: number;
 }
 
 export interface ContentField {

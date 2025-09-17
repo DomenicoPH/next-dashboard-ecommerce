@@ -23,9 +23,14 @@ import { ExpandMore, ExpandLess, Home, Delete } from "@mui/icons-material";
 import SectionHeader from "@/components/ui/SectionHeader";
 
 /*temp*/ import { addLandingPage, LandingPage, ContentField, FormField } from "@/app/lib/landingStore";
+/*temp*/ import { getCategorias } from "@/app/lib/categoriaStore";
 
 export default function LandingPageCreateForm() {
   const boxShadow = "0 8px 24px rgba(0,0,0,0.1)";
+
+  // Categorias
+  const categorias = getCategorias();
+  const [categoriaId, setCategoriaId] = useState<number | null>(null);
 
   // Secciones abiertas
   const [openDetails, setOpenDetails] = useState(true);
@@ -36,9 +41,6 @@ export default function LandingPageCreateForm() {
 
   // Estado principal
   const [title, setTitle] = useState("");
-  const [subtitleTop, setSubtitleTop] = useState("Desde");
-  const [price, setPrice] = useState("S/.100");
-  const [subtitleBottom, setSubtitleBottom] = useState("por la compra de...");
   const [headerImage, setHeaderImage] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -126,6 +128,10 @@ export default function LandingPageCreateForm() {
 
   // Submit
   const handleSubmit = () => {
+    if(categoriaId === null){
+      toast.error('Debes seleccionar una categoría');
+      return;
+    }
     const nuevaLanding: LandingPage = {
       id: Date.now(),
       titulo: title,
@@ -134,13 +140,14 @@ export default function LandingPageCreateForm() {
       status: publish ? "Activo" : "Inactivo",
       imagen: headerImage ? URL.createObjectURL(headerImage) : "",
       publish,
+      termsUrl,
       metaTitle,
       metaDescription,
       allowIndex,
       contentFields,
       formFields,
       formButtonText,
-      termsUrl,
+      categoriaId,
     };
 
     addLandingPage(nuevaLanding);
@@ -284,6 +291,10 @@ export default function LandingPageCreateForm() {
         </Typography>
       </Paper>
 
+
+      {/* ********** Formulario *********** */}
+
+
       {/* Detalles */}
       <Card sx={{ mb: 3, borderRadius: 4, boxShadow }}>
         <CardHeader
@@ -310,6 +321,19 @@ export default function LandingPageCreateForm() {
               onChange={(e) => setExpirationDate(e.target.value)}
               fullWidth
             />
+            <Select
+              value={categoriaId ?? ""}
+              onChange={(e) => setCategoriaId(Number(e.target.value))}
+              displayEmpty
+              fullWidth
+            >
+              <MenuItem value="">Seleccione una categoría</MenuItem>
+              {categorias.map((cat) => (
+                <MenuItem key={cat.id} value={cat.id}>
+                  {cat.titulo}
+                </MenuItem>
+              ))}
+            </Select>
 
             {/* Input de imagen */}
             <Button variant="contained" component="label">

@@ -11,15 +11,18 @@ import {
   FormControlLabel,
   Switch,
 } from "@mui/material";
+import { Categoria } from "@/app/lib/categoriaStore";
 
 interface CreateCategoriaModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onCreate: (newCategoria: Categoria) => void
 }
 
 const CreateCategoriaModal: React.FC<CreateCategoriaModalProps> = ({
   isOpen,
   onClose,
+  onCreate
 }) => {
   const [titulo, setTitulo] = useState("");
   const [activo, setActivo] = useState(true);
@@ -33,10 +36,17 @@ const CreateCategoriaModal: React.FC<CreateCategoriaModalProps> = ({
   }, [isOpen]);
 
   const handleCreate = () => {
-    // hacer POST request aqui...
-    console.log("Nueva categoría:", { titulo, status: activo ? "Activo" : "Inactivo" });
+    const newCategoria: Categoria = {
+      id: Date.now(),
+      titulo,
+      fecha: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+      status: activo ? "Activo" : "Inactivo",
+    };
+
+    onCreate(newCategoria);
     onClose();
   };
+
 
   return (
     <Dialog 

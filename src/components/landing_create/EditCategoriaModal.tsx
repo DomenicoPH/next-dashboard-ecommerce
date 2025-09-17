@@ -11,19 +11,13 @@ import {
   FormControlLabel,
   Switch,
 } from "@mui/material";
-
-interface Categoria {
-  id: number;
-  titulo: string;
-  fecha: string;
-  status: string;
-}
+import { Categoria } from "@/app/lib/categoriaStore";
 
 interface EditCategoriaModalProps {
   isOpen: boolean;
-  categoria: Categoria | null;   // la categoría a editar
+  categoria: Categoria | null;
   onClose: () => void;
-  onSave: (updatedCategoria: Categoria) => void; // callback al guardar
+  onSave: (updatedCategoria: Categoria) => void;
 }
 
 const EditCategoriaModal: React.FC<EditCategoriaModalProps> = ({
@@ -35,7 +29,6 @@ const EditCategoriaModal: React.FC<EditCategoriaModalProps> = ({
   const [titulo, setTitulo] = useState("");
   const [activo, setActivo] = useState(true);
 
-  // Inicializar valores cuando cambia la categoría
   useEffect(() => {
     if (categoria) {
       setTitulo(categoria.titulo);
@@ -45,11 +38,15 @@ const EditCategoriaModal: React.FC<EditCategoriaModalProps> = ({
 
   const handleSave = () => {
     if (!categoria) return;
-    const updated = {
+
+    const newStatus: Categoria["status"] = activo ? "Activo" : "Inactivo";
+
+    const updated: Categoria = {
       ...categoria,
       titulo,
-      status: activo ? "Activo" : "Inactivo",
+      status: newStatus,
     };
+
     onSave(updated);
     onClose();
   };
