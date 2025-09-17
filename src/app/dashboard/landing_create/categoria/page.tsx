@@ -23,24 +23,11 @@ import CreateCategoriaModal from "@/components/landing_create/CreateCategoriaMod
 import EditCategoriaModal from "@/components/landing_create/EditCategoriaModal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
-interface Categoria {
-  id: number;
-  titulo: string;
-  fecha: string;
-  status: string;
-}
-
-// temp data
-const initialCategorias: Categoria[] = [
-  { id: 1, titulo: "Día de la madre", fecha: "04/05/2025", status: "Activo" },
-  { id: 2, titulo: "Día del padre", fecha: "03/06/2025", status: "Inactivo" },
-  { id: 3, titulo: "Fiestas patrias", fecha: "01/07/2025", status: "Inactivo" },
-  { id: 4, titulo: "Navidad 2025", fecha: "01/12/2025", status: "Activo" },
-];
+import { getCategorias, addCategoria, updateCategoria, Categoria } from "@/app/lib/categoriaStore";
 
 const CategoriaPage: React.FC = () => {
   const theme = useTheme();
-  const [categorias, setCategorias] = useState(initialCategorias);
+  const [categorias, setCategorias] = useState<Categoria[]>(getCategorias());
   const [selected, setSelected] = useState<number[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -57,7 +44,11 @@ const CategoriaPage: React.FC = () => {
   const selectedCategorias = categorias.filter(cat => selected.includes(cat.id));
 
   const handleDelete = () => {
-    setCategorias(categorias.filter(cat => !selected.includes(cat.id)));
+    selected.forEach(id => {
+      const idx = categorias.findIndex(c => c.id === id);
+      if (idx !== -1) categorias.splice(idx, 1);
+    });
+    setCategorias([...getCategorias()]);
     setSelected([]);
     setIsConfirmOpen(false);
   };
@@ -71,8 +62,16 @@ const CategoriaPage: React.FC = () => {
   };
 
   const handleSaveCategoria = (updated: Categoria) => {
-    setCategorias(categorias.map(cat => cat.id === updated.id ? updated : cat));
+    updateCategoria(updated);
+    setCategorias([...getCategorias()]);
     setIsEditModalOpen(false);
+  };
+
+
+  const handleCreateCategoria = (newCategoria: Categoria) => {
+    addCategoria(newCategoria);
+    setCategorias([...getCategorias()]);
+    setIsCreateModalOpen(false);
   };
 
   return (
@@ -144,6 +143,7 @@ const CategoriaPage: React.FC = () => {
       <CreateCategoriaModal 
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
+        onCreate={handleCreateCategoria}
       />
 
       <EditCategoriaModal 
