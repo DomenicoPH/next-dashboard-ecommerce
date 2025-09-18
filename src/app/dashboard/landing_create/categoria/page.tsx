@@ -1,10 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SectionHeader from "@/components/ui/SectionHeader"; 
 import { Category, AddCircle, Delete, Edit } from "@mui/icons-material";
 import {
   Card,
-  CardHeader,
   CardContent,
   IconButton,
   Checkbox,
@@ -15,7 +14,6 @@ import {
   TableBody,
   Toolbar,
   Tooltip,
-  Typography,
   Box,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -23,16 +21,31 @@ import CreateCategoriaModal from "@/components/landing_create/CreateCategoriaMod
 import EditCategoriaModal from "@/components/landing_create/EditCategoriaModal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
-import { getCategorias, addCategoria, updateCategoria, Categoria } from "@/app/lib/categoriaStore";
+import { 
+  getCategorias, 
+  addCategoria, 
+  updateCategoria, 
+  deleteCategorias, 
+  Categoria 
+} from "@/app/lib/categoriaStore";
 
 const CategoriaPage: React.FC = () => {
   const theme = useTheme();
-  const [categorias, setCategorias] = useState<Categoria[]>(getCategorias());
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [categoriaToEdit, setCategoriaToEdit] = useState<Categoria | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+
+  // Cargar categorías al montar
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      const data = await getCategorias();
+      setCategorias(data);
+    };
+    fetchCategorias();
+  }, []);
 
   const toggleSelect = (id: number) => {
     setSelected((prev) =>
@@ -43,12 +56,10 @@ const CategoriaPage: React.FC = () => {
   const isSelected = (id: number) => selected.includes(id);
   const selectedCategorias = categorias.filter(cat => selected.includes(cat.id));
 
-  const handleDelete = () => {
-    selected.forEach(id => {
-      const idx = categorias.findIndex(c => c.id === id);
-      if (idx !== -1) categorias.splice(idx, 1);
-    });
-    setCategorias([...getCategorias()]);
+  const handleDelete = async () => {
+    await deleteCategorias(selected);
+    const updated = await getCategorias();
+    setCategorias(updated);
     setSelected([]);
     setIsConfirmOpen(false);
   };
@@ -61,28 +72,36 @@ const CategoriaPage: React.FC = () => {
     }
   };
 
-  const handleSaveCategoria = (updated: Categoria) => {
-    updateCategoria(updated);
-    setCategorias([...getCategorias()]);
+  const handleSaveCategoria = async (updated: Categoria) => {
+    await updateCategoria(updated);
+    const refreshed = await getCategorias();
+    setCategorias(refreshed);
     setIsEditModalOpen(false);
   };
 
-
-  const handleCreateCategoria = (newCategoria: Categoria) => {
-    addCategoria(newCategoria);
-    setCategorias([...getCategorias()]);
+  const handleCreateCategoria = async (newCategoria: Categoria) => {
+    await addCategoria(newCategoria);
+    const refreshed = await getCategorias();
+    setCategorias(refreshed);
     setIsCreateModalOpen(false);
   };
 
   return (
-    <Box className="p-6 max-w-4xl mx-auto">
+    <Box className="p-6 max-w-7xl mx-auto">
       <SectionHeader 
         icon={<Category fontSize="medium" />} 
         title="Categorías de Landing Page" 
       />
 
       <Card sx={{ borderRadius: 4, boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
-        <Toolbar sx={{ display: "flex", justifyContent: "flex-end", gap: 2, borderBottom: `1px solid ${theme.palette.mode === "dark" ? "#1e1b4b" : "#d1d5db"}` }}>
+        <Toolbar 
+          sx={{ 
+            display: "flex", 
+            justifyContent: "flex-end", 
+            gap: 2, 
+            borderBottom: `1px solid ${theme.palette.mode === "dark" ? "#1e1b4b" : "#d1d5db"}` 
+          }}
+        >
           {selected.length === 1 && (
             <Tooltip title="Editar">
               <IconButton color="primary" size="large" onClick={handleEditClick}>

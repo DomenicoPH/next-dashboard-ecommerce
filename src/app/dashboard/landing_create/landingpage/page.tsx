@@ -1,10 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { AddCircle, Home, Delete, Edit } from "@mui/icons-material";
 import {
   Card,
-  CardHeader,
   CardContent,
   IconButton,
   Checkbox,
@@ -24,17 +23,34 @@ import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
-/*temp*/import { getLandingPages, LandingPage } from "@/app/lib/landingStore";
+import { getLandingPages, LandingPage } from "@/app/lib/landingStore";
+import { getCategorias, Categoria } from "@/app/lib/categoriaStore";
 
 const LandingPageTable: React.FC = () => {
-
-  const boxShadow = '0 8px 24px rgba(0,0,0,0.1)'
-
+  const boxShadow = '0 8px 24px rgba(0,0,0,0.1)';
   const router = useRouter();
   const theme = useTheme();
+
+  const [landingPages, setLandingPages] = useState<LandingPage[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  /*temp*/const [landingPages, setLandingPages] = useState(getLandingPages());
+
+  // Cargar datos al montar
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const [lps, cats] = await Promise.all([getLandingPages(), getCategorias()]);
+        if (!mounted) return;
+        setLandingPages(lps);
+        setCategorias(cats);
+      } catch (err) {
+        console.error("Error cargando landing pages / categorias:", err);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
 
   const toggleSelect = (id: number) => {
     setSelected((prev) =>
@@ -43,185 +59,111 @@ const LandingPageTable: React.FC = () => {
   };
 
   const isSelected = (id: number) => selected.includes(id);
-
-  const selectedLandingPages = landingPages.filter((lp) =>
-    selected.includes(lp.id)
-  );
+  const selectedLandingPages = landingPages.filter((lp) => selected.includes(lp.id));
 
   const handleDelete = () => {
+    // Aquí idealmente llamas al endpoint / store de borrado y luego recargas la lista.
+    // Placeholder:
     console.log("Eliminando landing pages:", selectedLandingPages);
+    // ejemplo si tuvieras deleteLandingPages(ids): await deleteLandingPages(selected);
     setIsConfirmOpen(false);
     setSelected([]);
   };
 
   const handleToggleStatus = (id: number, checked: boolean) => {
-    setLandingPages((prev) => prev.map((lp) => lp.id === id ? { ...lp, status: checked ? "Activo" : "Inactivo" } : lp ))
-  }
-
-  React.useEffect(() => {
-    setLandingPages(getLandingPages());
-  }, []);
+    setLandingPages((prev) =>
+      prev.map((lp) => (lp.id === id ? { ...lp, status: checked ? "Activo" : "Inactivo" } : lp))
+    );
+    // Si conectas con backend: aquí harías PATCH/PUT para actualizar status.
+  };
 
   return (
-    <Box className="p-6 max-w-6xl mx-auto">
-      {/* Encabezado */}
-      <SectionHeader
-        icon={<Home fontSize="medium" />}
-        title="Landing Pages"
-      />
+    <Box className="p-6 max-w-7xl mx-auto">
+      <SectionHeader icon={<Home fontSize="medium" />} title="Landing Pages" />
 
-      {/* Card principal */}
       <Card sx={{ borderRadius: 4, boxShadow }}>
-        {/* Barra de acciones */}
-        <Toolbar
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: 2,
-            borderBottom: `1px solid ${
-              theme.palette.mode === "dark" ? "#1e1b4b" : "#d1d5db"
-            }`,
-          }}
-        >
+        <Toolbar sx={{ display: "flex", justifyContent: "flex-end", gap: 2, borderBottom: `1px solid ${theme.palette.mode === "dark" ? "#1e1b4b" : "#d1d5db"}` }}>
           {selected.length === 1 && (
             <Tooltip title="Editar">
-              <IconButton
-                color="primary"
-                size="large"
-                onClick={() => console.log("Editar")}
-              >
+              <IconButton color="primary" size="large" onClick={() => console.log("Editar")}>
                 <Edit sx={{ fontSize: 28 }} />
               </IconButton>
             </Tooltip>
           )}
           {selected.length >= 1 && (
             <Tooltip title="Eliminar">
-              <IconButton
-                color="error"
-                size="large"
-                onClick={() => setIsConfirmOpen(true)}
-              >
+              <IconButton color="error" size="large" onClick={() => setIsConfirmOpen(true)}>
                 <Delete sx={{ fontSize: 28 }} />
               </IconButton>
             </Tooltip>
           )}
           <Tooltip title="Crear Landing Page">
-            <IconButton
-              color="primary"
-              size="large"
-              onClick={() =>
-                router.push("/dashboard/landing_create/landingpage/create")
-              }
-            >
+            <IconButton color="primary" size="large" onClick={() => router.push("/dashboard/landing_create/landingpage/create")}>
               <AddCircle sx={{ fontSize: 40 }} />
             </IconButton>
           </Tooltip>
         </Toolbar>
 
-        {/* Contenido tabla */}
         <CardContent>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell padding="checkbox">
                   <Checkbox
-                    indeterminate={
-                      selected.length > 0 &&
-                      selected.length < landingPages.length
-                    }
-                    checked={selected.length === landingPages.length}
-                    onChange={(e) =>
-                      setSelected(
-                        e.target.checked
-                          ? landingPages.map((lp) => lp.id)
-                          : []
-                      )
-                    }
+                    indeterminate={selected.length > 0 && selected.length < landingPages.length}
+                    checked={landingPages.length > 0 && selected.length === landingPages.length}
+                    onChange={(e) => setSelected(e.target.checked ? landingPages.map((lp) => lp.id) : [])}
                   />
                 </TableCell>
-                <TableCell>Imagen</TableCell>
+                <TableCell>Preview</TableCell>
                 <TableCell>ID</TableCell>
                 <TableCell>Categoría</TableCell>
                 <TableCell>Título</TableCell>
                 <TableCell>Fecha creación</TableCell>
                 <TableCell>Fecha expiración</TableCell>
                 <TableCell>Términos</TableCell>
-                <TableCell>Imagen</TableCell>
+                <TableCell>Link Imagen</TableCell>
                 <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
               {landingPages.map((lp) => (
-                <TableRow
-                  key={lp.id}
-                  hover
-                  selected={isSelected(lp.id)}
-                  sx={{
-                    cursor: "pointer",
-                  }}
-                >
+                <TableRow key={lp.id} hover selected={isSelected(lp.id)} sx={{ cursor: "pointer" }}>
                   <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={isSelected(lp.id)}
-                      onChange={() => toggleSelect(lp.id)}
-                    />
+                    <Checkbox checked={isSelected(lp.id)} onChange={() => toggleSelect(lp.id)} />
                   </TableCell>
+
                   <TableCell>
-                    <img
-                      src={lp.imagen}
-                      alt={lp.titulo}
-                      style={{
-                        width: 60,
-                        height: 40,
-                        objectFit: "contain",
-                        borderRadius: 6,
-                      }}
-                    />
+                    <img src={lp.imagen} alt={lp.titulo} style={{ width: 60, height: 40, objectFit: "contain", borderRadius: 6 }} />
                   </TableCell>
+
                   <TableCell>{lp.id}</TableCell>
-                  {/* <TableCell>{lp.categoria}</TableCell> */}
+                  <TableCell>{categorias.find((cat) => cat.id === lp.categoriaId)?.titulo || "Sin categoría"}</TableCell>
                   <TableCell>{lp.titulo}</TableCell>
-                  <TableCell>{lp.creationDate}</TableCell>
-                  <TableCell>{lp.expirationDate}</TableCell>
+
+                  <TableCell>{lp.creationDate ? new Date(lp.creationDate).toLocaleDateString() : "-"}</TableCell>
+                  <TableCell>{lp.expirationDate ? new Date(lp.expirationDate).toLocaleDateString() : "-"}</TableCell>
+
                   <TableCell>
-                    <Typography
-                      component="a"
-                      href={lp.termsUrl}
-                      target="_blank"
-                      sx={{
-                        color: "primary.main",
-                        textDecoration: "underline",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Ver
-                    </Typography>
+                    {lp.termsUrl ? (
+                      <Typography component="a" href={lp.termsUrl} target="_blank" sx={{ color: "primary.main", textDecoration: "underline" }}>
+                        Ver
+                      </Typography>
+                    ) : "-"}
                   </TableCell>
 
                   <TableCell>
-                    <Typography
-                      component="a"
-                      href={lp.imagen}
-                      target="_blank"
-                      sx={{
-                        color: "primary.main",
-                        textDecoration: "underline",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Ver
-                    </Typography>
+                    {lp.imagen ? (
+                      <Typography component="a" href={lp.imagen} target="_blank" sx={{ color: "primary.main", textDecoration: "underline" }}>
+                        Ver
+                      </Typography>
+                    ) : "-"}
                   </TableCell>
 
                   <TableCell>
-                    <Switch
-                      checked={lp.status === "Activo"}
-                      onChange={(e) => handleToggleStatus(lp.id, e.target.checked)}
-                      color="primary"
-                    />
+                    <Switch checked={lp.status === "Activo"} onChange={(e) => handleToggleStatus(lp.id, e.target.checked)} color="primary" />
                   </TableCell>
-
                 </TableRow>
               ))}
             </TableBody>
@@ -229,7 +171,6 @@ const LandingPageTable: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Confirmación de eliminación */}
       <ConfirmDialog
         open={isConfirmOpen}
         title="¿Eliminar Landing Pages?"
@@ -238,14 +179,8 @@ const LandingPageTable: React.FC = () => {
             `¿Estás seguro de que deseas eliminar la landing page '${selectedLandingPages[0].titulo}'?`
           ) : (
             <div>
-              <p>
-                ¿Estás seguro de que deseas eliminar estas landing pages?
-              </p>
-              <ul>
-                {selectedLandingPages.map((lp) => (
-                  <li key={lp.id}>• {lp.titulo}</li>
-                ))}
-              </ul>
+              <p>¿Estás seguro de que deseas eliminar estas landing pages?</p>
+              <ul>{selectedLandingPages.map((lp) => <li key={lp.id}>• {lp.titulo}</li>)}</ul>
             </div>
           )
         }
