@@ -16,7 +16,6 @@ import {
   Tooltip,
   Typography,
   Box,
-  Divider,
   Switch
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -27,7 +26,7 @@ import { getLandingPages, LandingPage, deleteLandingPages } from "@/app/lib/land
 import { getCategorias, Categoria } from "@/app/lib/categoriaStore";
 
 const LandingPageTable: React.FC = () => {
-  const boxShadow = '0 8px 24px rgba(0,0,0,0.1)';
+  const boxShadow = "0 8px 24px rgba(0,0,0,0.1)";
   const router = useRouter();
   const theme = useTheme();
 
@@ -49,7 +48,9 @@ const LandingPageTable: React.FC = () => {
         console.error("Error cargando landing pages / categorias:", err);
       }
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const toggleSelect = (id: number) => {
@@ -63,13 +64,8 @@ const LandingPageTable: React.FC = () => {
 
   const handleDelete = async () => {
     try {
-      // 1. Eliminar del store / backend
       await deleteLandingPages(selected);
-
-      // 2. Refrescar estado local
       setLandingPages((prev) => prev.filter((lp) => !selected.includes(lp.id)));
-
-      // 3. Reset selección y cerrar diálogo
       setIsConfirmOpen(false);
       setSelected([]);
     } catch (err) {
@@ -77,12 +73,20 @@ const LandingPageTable: React.FC = () => {
     }
   };
 
-
   const handleToggleStatus = (id: number, checked: boolean) => {
     setLandingPages((prev) =>
-      prev.map((lp) => (lp.id === id ? { ...lp, status: checked ? "Activo" : "Inactivo" } : lp))
+      prev.map((lp) =>
+        lp.id === id ? { ...lp, status: checked ? "Activo" : "Inactivo" } : lp
+      )
     );
-    // Si conectas con backend: aquí harías PATCH/PUT para actualizar status.
+    // Futuro: aquí harías PATCH/PUT al backend.
+  };
+
+  const handleEdit = () => {
+    if (selected.length === 1) {
+      const id = selected[0];
+      router.push(`/dashboard/landing_create/landingpage/${id}/edit`);
+    }
   };
 
   return (
@@ -90,23 +94,42 @@ const LandingPageTable: React.FC = () => {
       <SectionHeader icon={<Home fontSize="medium" />} title="Landing Pages" />
 
       <Card sx={{ borderRadius: 4, boxShadow }}>
-        <Toolbar sx={{ display: "flex", justifyContent: "flex-end", gap: 2, borderBottom: `1px solid ${theme.palette.mode === "dark" ? "#1e1b4b" : "#d1d5db"}` }}>
+        <Toolbar
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 2,
+            borderBottom: `1px solid ${
+              theme.palette.mode === "dark" ? "#1e1b4b" : "#d1d5db"
+            }`
+          }}
+        >
           {selected.length === 1 && (
             <Tooltip title="Editar">
-              <IconButton color="primary" size="large" onClick={() => console.log("Editar")}>
+              <IconButton color="primary" size="large" onClick={handleEdit}>
                 <Edit sx={{ fontSize: 28 }} />
               </IconButton>
             </Tooltip>
           )}
           {selected.length >= 1 && (
             <Tooltip title="Eliminar">
-              <IconButton color="error" size="large" onClick={() => setIsConfirmOpen(true)}>
+              <IconButton
+                color="error"
+                size="large"
+                onClick={() => setIsConfirmOpen(true)}
+              >
                 <Delete sx={{ fontSize: 28 }} />
               </IconButton>
             </Tooltip>
           )}
           <Tooltip title="Crear Landing Page">
-            <IconButton color="primary" size="large" onClick={() => router.push("/dashboard/landing_create/landingpage/create")}>
+            <IconButton
+              color="primary"
+              size="large"
+              onClick={() =>
+                router.push("/dashboard/landing_create/landingpage/create")
+              }
+            >
               <AddCircle sx={{ fontSize: 40 }} />
             </IconButton>
           </Tooltip>
@@ -118,9 +141,18 @@ const LandingPageTable: React.FC = () => {
               <TableRow>
                 <TableCell padding="checkbox">
                   <Checkbox
-                    indeterminate={selected.length > 0 && selected.length < landingPages.length}
-                    checked={landingPages.length > 0 && selected.length === landingPages.length}
-                    onChange={(e) => setSelected(e.target.checked ? landingPages.map((lp) => lp.id) : [])}
+                    indeterminate={
+                      selected.length > 0 && selected.length < landingPages.length
+                    }
+                    checked={
+                      landingPages.length > 0 &&
+                      selected.length === landingPages.length
+                    }
+                    onChange={(e) =>
+                      setSelected(
+                        e.target.checked ? landingPages.map((lp) => lp.id) : []
+                      )
+                    }
                   />
                 </TableCell>
                 <TableCell>Preview</TableCell>
@@ -137,40 +169,94 @@ const LandingPageTable: React.FC = () => {
 
             <TableBody>
               {landingPages.map((lp) => (
-                <TableRow key={lp.id} hover selected={isSelected(lp.id)} sx={{ cursor: "pointer" }}>
+                <TableRow
+                  key={lp.id}
+                  hover
+                  selected={isSelected(lp.id)}
+                  sx={{ cursor: "pointer" }}
+                >
                   <TableCell padding="checkbox">
-                    <Checkbox checked={isSelected(lp.id)} onChange={() => toggleSelect(lp.id)} />
+                    <Checkbox
+                      checked={isSelected(lp.id)}
+                      onChange={() => toggleSelect(lp.id)}
+                    />
                   </TableCell>
 
                   <TableCell>
-                    <img src={lp.imagen} alt={lp.titulo} style={{ width: 60, height: 40, objectFit: "contain", borderRadius: 6 }} />
+                    <img
+                      src={lp.imagen}
+                      alt={lp.titulo}
+                      style={{
+                        width: 60,
+                        height: 40,
+                        objectFit: "contain",
+                        borderRadius: 6
+                      }}
+                    />
                   </TableCell>
 
                   <TableCell>{lp.id}</TableCell>
-                  <TableCell>{categorias.find((cat) => cat.id === lp.categoriaId)?.titulo || "Sin categoría"}</TableCell>
+                  <TableCell>
+                    {categorias.find((cat) => cat.id === lp.categoriaId)?.titulo ||
+                      "Sin categoría"}
+                  </TableCell>
                   <TableCell>{lp.titulo}</TableCell>
 
-                  <TableCell>{lp.creationDate ? new Date(lp.creationDate).toLocaleDateString() : "-"}</TableCell>
-                  <TableCell>{lp.expirationDate ? new Date(lp.expirationDate).toLocaleDateString() : "-"}</TableCell>
+                  <TableCell>
+                    {lp.creationDate
+                      ? new Date(lp.creationDate).toLocaleDateString()
+                      : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {lp.expirationDate
+                      ? new Date(lp.expirationDate).toLocaleDateString()
+                      : "-"}
+                  </TableCell>
 
                   <TableCell>
                     {lp.termsUrl ? (
-                      <Typography component="a" href={lp.termsUrl} target="_blank" sx={{ color: "primary.main", textDecoration: "underline" }}>
+                      <Typography
+                        component="a"
+                        href={lp.termsUrl}
+                        target="_blank"
+                        sx={{
+                          color: "primary.main",
+                          textDecoration: "underline"
+                        }}
+                      >
                         Ver
                       </Typography>
-                    ) : "-"}
+                    ) : (
+                      "-"
+                    )}
                   </TableCell>
 
                   <TableCell>
                     {lp.imagen ? (
-                      <Typography component="a" href={lp.imagen} target="_blank" sx={{ color: "primary.main", textDecoration: "underline" }}>
+                      <Typography
+                        component="a"
+                        href={lp.imagen}
+                        target="_blank"
+                        sx={{
+                          color: "primary.main",
+                          textDecoration: "underline"
+                        }}
+                      >
                         Ver
                       </Typography>
-                    ) : "-"}
+                    ) : (
+                      "-"
+                    )}
                   </TableCell>
 
                   <TableCell>
-                    <Switch checked={lp.status === "Activo"} onChange={(e) => handleToggleStatus(lp.id, e.target.checked)} color="primary" />
+                    <Switch
+                      checked={lp.status === "Activo"}
+                      onChange={(e) =>
+                        handleToggleStatus(lp.id, e.target.checked)
+                      }
+                      color="primary"
+                    />
                   </TableCell>
                 </TableRow>
               ))}
@@ -188,7 +274,11 @@ const LandingPageTable: React.FC = () => {
           ) : (
             <div>
               <p>¿Estás seguro de que deseas eliminar estas landing pages?</p>
-              <ul>{selectedLandingPages.map((lp) => <li key={lp.id}>• {lp.titulo}</li>)}</ul>
+              <ul>
+                {selectedLandingPages.map((lp) => (
+                  <li key={lp.id}>• {lp.titulo}</li>
+                ))}
+              </ul>
             </div>
           )
         }

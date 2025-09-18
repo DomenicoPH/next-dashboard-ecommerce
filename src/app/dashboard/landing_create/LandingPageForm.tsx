@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -14,107 +14,143 @@ import {
   IconButton,
   Typography,
   Paper,
-  Grid,
   Select,
   MenuItem,
 } from "@mui/material";
-import { toast, Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { ExpandMore, ExpandLess, Home, Delete } from "@mui/icons-material";
 import SectionHeader from "@/components/ui/SectionHeader";
+import { LandingPage, ContentField, FormField } from "@/app/lib/landingStore";
+import { Categoria } from "@/app/lib/categoriaStore";
 
-/*temp*/ import { addLandingPage, LandingPage, ContentField, FormField } from "@/app/lib/landingStore";
-/*temp*/ import { getCategorias, Categoria } from "@/app/lib/categoriaStore";
+interface Props {
+    initialData?: LandingPage | null;
+    categorias: Categoria[];
+    onSubmit: (lp: LandingPage) => Promise<void>;
+    onSuccess?: () => void;
+}
 
-export default function LandingPageCreateForm() {
+export default function LandingPageForm({
+    initialData = null,
+    categorias,
+    onSubmit,
+    onSuccess,
+}: Props) {
+    const boxShadow = "0 8px 24px rgba(0,0,0,0.1)";
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const boxShadow = "0 8px 24px rgba(0,0,0,0.1)";
+    // Refs
+    const detallesRef = useRef<HTMLDivElement>(null);
+    const contenidoRef = useRef<HTMLDivElement>(null);
+    const formularioRef = useRef<HTMLDivElement>(null);
+    const termsRef = useRef<HTMLDivElement>(null);
+    const seoRef = useRef<HTMLDivElement>(null);
 
-  // Categorias
-  //const categorias = getCategorias();
-  const [categoriaId, setCategoriaId] = useState<number | null>(null);
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
-
-  useEffect(() => {
-    const fetchCategorias = async () => {
-      const data = await getCategorias();
-      setCategorias(data);
+    const scrollToRef = (ref: React.RefObject<HTMLDivElement | null>) => {
+      ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     };
-    fetchCategorias();
-  }, []);
 
-  // Secciones abiertas
+  // ----------------------
+  // Estados principales
+  // ----------------------
+  const [title, setTitle] = useState(initialData?.titulo ?? "");
+  const [headerImage, setHeaderImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState(initialData?.imagen ?? "");
+
+  const [formFields, setFormFields] = useState<FormField[]>(
+    initialData?.formFields ?? [
+      { label: "Nombre completo", type: "text", required: true },
+      { label: "Teléfono celular", type: "tel", required: true },
+    ]
+  );
+  const [formButtonText, setFormButtonText] = useState(
+    initialData?.formButtonText ?? "Enviar"
+  );
+
+  const [contentFields, setContentFields] = useState<ContentField[]>(
+    initialData?.contentFields ?? [
+      { label: "Texto superior", value: "", variant: "subtitle" },
+      { label: "Precio", value: "", variant: "highlight" },
+      { label: "Texto inferior", value: "", variant: "subtitle" },
+    ]
+  );
+
+  const [termsUrl, setTermsUrl] = useState(initialData?.termsUrl ?? "");
+  const [allowIndex, setAllowIndex] = useState(initialData?.allowIndex ?? true);
+  const [metaTitle, setMetaTitle] = useState(initialData?.metaTitle ?? "");
+  const [metaDescription, setMetaDescription] = useState(
+    initialData?.metaDescription ?? ""
+  );
+  const [expirationDate, setExpirationDate] = useState(
+    initialData?.expirationDate ?? ""
+  );
+  const [publish, setPublish] = useState(initialData?.publish ?? false);
+  const [categoriaId, setCategoriaId] = useState<number | null>(
+    initialData?.categoriaId ?? null
+  );
+
+  // ----------------------
+  // UI (colapsables)
+  // ----------------------
   const [openDetails, setOpenDetails] = useState(true);
   const [openContent, setOpenContent] = useState(true);
   const [openForm, setOpenForm] = useState(true);
   const [openSEO, setOpenSEO] = useState(true);
   const [openTerms, setOpenTerms] = useState(true);
 
-  // Estado principal
-  const [title, setTitle] = useState("");
-  const [headerImage, setHeaderImage] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.titulo);
+      setImagePreview(initialData.imagen ?? "");
+      setFormFields(initialData.formFields ?? []);
+      setFormButtonText(initialData.formButtonText ?? "Enviar");
+      setContentFields(initialData.contentFields ?? []);
+      setTermsUrl(initialData.termsUrl ?? "");
+      setAllowIndex(initialData.allowIndex ?? true);
+      setMetaTitle(initialData.metaTitle ?? "");
+      setMetaDescription(initialData.metaDescription ?? "");
+      setExpirationDate(initialData.expirationDate ?? "");
+      setPublish(initialData.publish ?? false);
+      setCategoriaId(initialData.categoriaId ?? null);
+    }
+  }, [initialData]);
 
-  const [formFields, setFormFields] = useState<FormField[]>([
-    { label: "Nombre completo", type: "text", required: true },
-    { label: "Teléfono celular", type: "tel", required: true },
-  ]);
-  const [formButtonText, setFormButtonText] = useState("Enviar");
-
-  const [contentFields, setContentFields] = useState<ContentField[]>([
-    { label: "Texto superior", value: "", variant: "subtitle" },
-    { label: "Precio", value: "", variant: "highlight" },
-    { label: "Texto inferior", value: "", variant: "subtitle" },
-  ]);
-
-  const [termsUrl, setTermsUrl] = useState("");
-
-  // SEO
-  const [allowIndex, setAllowIndex] = useState(true);
-  const [metaTitle, setMetaTitle] = useState("");
-  const [metaDescription, setMetaDescription] = useState("");
-  const [seoPreview, setSeoPreview] = useState<string | null>(null);
-  const [expirationDate, setExpirationDate] = useState("");
-
-  // Publicación
-  const [publish, setPublish] = useState(false);
-
+  // ----------------------
   // Handlers
+  // ----------------------
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) setHeaderImage(e.target.files[0]);
+    const file = e.target.files?.[0];
+    if (file) {
+      setHeaderImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
   const handleRemoveImage = () => {
     setHeaderImage(null);
+    setImagePreview("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleSeoImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSeoPreview(URL.createObjectURL(file));
-    }
-  };
-
-  // Form
-  const handleAddFormField = () => {
-    setFormFields([...formFields, { label: "", type: "text", required: false }]);
-  };
+  const handleAddFormField = () =>
+    setFormFields([
+      ...formFields,
+      { label: "", type: "text", required: false },
+    ]);
 
   const handleFormFieldChange = (
     index: number,
     key: "label" | "type" | "required",
-    value: string | boolean
+    value: any
   ) => {
     const updated = [...formFields];
     (updated[index] as any)[key] = value;
     setFormFields(updated);
   };
 
-  const handleRemoveFormField = (index: number) => {
-    setFormFields(formFields.filter((_, i) => i !== index));
-  };
+  const handleRemoveFormField = (index: number) =>
+    setFormFields((f) => f.filter((_, i) => i !== index));
 
-  // Content
   const handleContentFieldChange = (
     index: number,
     key: keyof ContentField,
@@ -123,33 +159,74 @@ export default function LandingPageCreateForm() {
     const updated = [...contentFields];
     updated[index] = {
       ...updated[index],
-      [key]: key === "variant" ? (value as ContentField["variant"]) : value,
+      [key]:
+        key === "variant" ? (value as ContentField["variant"]) : value,
     };
     setContentFields(updated);
   };
 
-  const handleAddContentField = () => {
-    setContentFields([...contentFields, { label: "", value: "", variant: "subtitle" }]);
-  };
+  const handleAddContentField = () =>
+    setContentFields([
+      ...contentFields,
+      { label: "", value: "", variant: "subtitle" },
+    ]);
 
-  const handleRemoveContentField = (index: number) => {
-    setContentFields(contentFields.filter((_, i) => i !== index));
-  }
+  const handleRemoveContentField = (index: number) =>
+    setContentFields((c) => c.filter((_, i) => i !== index));
 
-  // Submit
   const handleSubmit = async () => {
-    if (categoriaId === null) {
-      toast.error("Debes seleccionar una categoría");
+
+    // validaciones básicas..
+    if (!title.trim()) {
+      toast.error("Debes ingresar un título");
+      scrollToRef(detallesRef);
       return;
     }
 
-    const nuevaLanding: LandingPage = {
-      id: Date.now(),
+    if (!expirationDate) {
+      toast.error("Debes seleccionar una fecha de expiración");
+      scrollToRef(detallesRef);
+      return;
+    }
+
+    if (categoriaId === null) {
+      toast.error("Debes seleccionar una categoría");
+      scrollToRef(detallesRef);
+      return;
+    }
+
+    if (!imagePreview) {
+      toast.error("Debes subir una imagen para la landing");
+      scrollToRef(detallesRef);
+      return;
+    }
+
+    if (contentFields.some((c) => !c.value.trim())) {
+      toast.error("Debes completar todos los campos de contenido");
+      scrollToRef(contenidoRef);
+      return;
+    }
+
+    if (formFields.some((f) => !f.label.trim())) {
+      toast.error("Todos los campos del formulario deben tener etiqueta");
+      scrollToRef(formularioRef);
+      return;
+    }
+
+    if (!metaTitle.trim() || !metaDescription.trim()) {
+      toast.error("Debes completar los campos SEO");
+      scrollToRef(seoRef);
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const lp: LandingPage = {
+      id: initialData?.id ?? Date.now(),
       titulo: title,
       expirationDate,
-      creationDate: new Date().toISOString(),
+      creationDate: initialData?.creationDate ?? now,
       status: publish ? "Activo" : "Inactivo",
-      imagen: headerImage ? URL.createObjectURL(headerImage) : "",
+      imagen: imagePreview || "",
       publish,
       termsUrl,
       metaTitle,
@@ -162,12 +239,12 @@ export default function LandingPageCreateForm() {
     };
 
     try {
-      await addLandingPage(nuevaLanding); // aquí será POST al backend
-      toast.success("Landing Page creada!");
-      // Opcional: reset form
+      await onSubmit(lp);
+      toast.success(initialData ? "Landing actualizada" : "Landing creada");
+      if (onSuccess) onSuccess();
     } catch (err) {
-      toast.error("Error al crear la Landing");
       console.error(err);
+      toast.error("Error al guardar la landing");
     }
   };
 
@@ -177,25 +254,18 @@ export default function LandingPageCreateForm() {
     </IconButton>
   );
 
+  // ----------------------
+  // Render
+  // ----------------------
   return (
     <div className="p-5 max-w-6xl mx-auto">
-      {/* Encabezado */}
       <SectionHeader
         icon={<Home fontSize="medium" />}
-        title="Creación de Landing Page"
+        title={initialData ? "Editar Landing Page" : "Creación de Landing Page"}
       />
 
-      <Toaster position="top-center" />
-
-      {/* Vista previa en tiempo real */}
-      <Paper
-        elevation={3}
-        sx={{
-          p: 4,
-          mb: 4,
-          borderRadius: 4,
-        }}
-      >
+      {/* Vista previa */}
+      <Paper elevation={3} sx={{ p: 4, mb: 4, borderRadius: 4 }}>
         <Typography
           variant="h6"
           gutterBottom
@@ -204,12 +274,11 @@ export default function LandingPageCreateForm() {
           Vista previa
         </Typography>
 
-        <Grid container spacing={4}>
-          {/* Columna izquierda - Imagen */}
-          <Grid size={{xs: 12, md: 6}}>
-            {headerImage ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            {imagePreview ? (
               <img
-                src={URL.createObjectURL(headerImage)}
+                src={imagePreview}
                 alt="Landing"
                 style={{
                   width: 450,
@@ -236,11 +305,15 @@ export default function LandingPageCreateForm() {
                 </Typography>
               </Paper>
             )}
-          </Grid>
-
-          {/* Columna derecha - Contenido + Form */}
-          <Grid size={{xs: 12, md: 6}}>
-            <Typography variant="h3" color="primary" fontWeight={700} textAlign={"center"} gutterBottom>
+          </div>
+          <div>
+            <Typography
+              variant="h3"
+              color="primary"
+              fontWeight={700}
+              textAlign={"center"}
+              gutterBottom
+            >
               {title || "Título de la Landing"}
             </Typography>
 
@@ -249,18 +322,11 @@ export default function LandingPageCreateForm() {
                 key={i}
                 sx={{ textAlign: "center" }}
                 variant={
-                  field.variant === "title" ? "h4" :
-                  field.variant === "highlight" ? "h3" :
-                  "subtitle2"
-                }
-                color={
-                  field.variant === "highlight" ? "primary" : 
-                  field.variant === "title" ? "primary" : 
-                  "textSecondary"}
-                fontWeight={
-                  field.variant === "highlight" ? 700 :
-                  field.variant === "subtitle" ? 500 :
-                  400
+                  field.variant === "title"
+                    ? "h4"
+                    : field.variant === "highlight"
+                    ? "h3"
+                    : "subtitle2"
                 }
                 gutterBottom
               >
@@ -268,7 +334,6 @@ export default function LandingPageCreateForm() {
               </Typography>
             ))}
 
-            {/* Formulario (preview): usa placeholder = label definido por admin */}
             <Paper sx={{ p: 3, mt: 2, borderRadius: 2 }}>
               <Stack spacing={2}>
                 {formFields.map((field, i) => (
@@ -278,46 +343,21 @@ export default function LandingPageCreateForm() {
                     type={field.type}
                     required={field.required}
                     fullWidth
-                    variant="outlined"
                   />
                 ))}
-
-                <Button variant="contained" color="primary">
-                  {formButtonText}
-                </Button>
+                <Button variant="contained">{formButtonText}</Button>
               </Stack>
             </Paper>
-          </Grid>
-        </Grid>
-
-        {/* Meta info */}
-        <Divider sx={{ my: 3 }} />
-        <Typography variant="caption" color="textSecondary">
-          <b>Slug:</b>{" "}
-          tudominio.com/
-          {metaTitle ? metaTitle.toLowerCase().replace(/\s+/g, "-") : "slug"}
-        </Typography>
-        <br />
-        <Typography variant="caption" color="textSecondary">
-          <b>Meta título:</b> {metaTitle || "Sin título"}
-        </Typography>
-        <br />
-        <Typography variant="caption" color="textSecondary">
-          <b>Meta descripción:</b> {metaDescription || "Sin descripción"}
-        </Typography>
+          </div>
+        </div>
       </Paper>
 
-
-      {/* ********** Formulario *********** */}
-
-
-      {/* Detalles */}
-      <Card sx={{ mb: 3, borderRadius: 4, boxShadow }}>
+      {/* ---- Detalles ---- */}
+      <Card id='detalles' ref={detallesRef} sx={{ mb: 3, borderRadius: 4, boxShadow }}>
         <CardHeader
           title="Detalles"
-          action={renderCollapseButton(
-            openDetails,
-            () => setOpenDetails(!openDetails)
+          action={renderCollapseButton(openDetails, () =>
+            setOpenDetails(!openDetails)
           )}
         />
         <Collapse in={openDetails}>
@@ -351,7 +391,6 @@ export default function LandingPageCreateForm() {
               ))}
             </Select>
 
-            {/* Input de imagen */}
             <Button variant="contained" component="label">
               Subir imagen
               <input
@@ -362,13 +401,11 @@ export default function LandingPageCreateForm() {
                 ref={fileInputRef}
               />
             </Button>
-
-            {/* Preview de imagen */}
-            {headerImage && (
-              <div className="mt-2">
+            {imagePreview && (
+              <div>
                 <Typography variant="body2">Vista previa:</Typography>
                 <img
-                  src={URL.createObjectURL(headerImage)}
+                  src={imagePreview}
                   alt="Preview"
                   style={{
                     maxWidth: "100%",
@@ -391,29 +428,37 @@ export default function LandingPageCreateForm() {
         </Collapse>
       </Card>
 
-      {/* Contenido */}
-      <Card sx={{ mb: 3, borderRadius: 4, boxShadow }}>
+      {/* ---- Contenido ---- */}
+      <Card id='contenido' ref={contenidoRef} sx={{ mb: 3, borderRadius: 4, boxShadow }}>
         <CardHeader
           title="Contenido"
-          action={renderCollapseButton(
-            openContent,
-            () => setOpenContent(!openContent)
+          action={renderCollapseButton(openContent, () =>
+            setOpenContent(!openContent)
           )}
         />
         <Collapse in={openContent}>
           <Divider />
           <Stack spacing={2} sx={{ p: 3 }}>
             {contentFields.map((field, i) => (
-              <Stack key={i} direction="row" spacing={1} alignItems="flex-start">
+              <Stack
+                key={i}
+                direction="row"
+                spacing={1}
+                alignItems="flex-start"
+              >
                 <TextField
                   label={field.label || `Campo ${i + 1}`}
                   value={field.value}
-                  onChange={(e) => handleContentFieldChange(i, "value", e.target.value)}
+                  onChange={(e) =>
+                    handleContentFieldChange(i, "value", e.target.value)
+                  }
                   fullWidth
                 />
                 <Select
                   value={field.variant}
-                  onChange={(e) => handleContentFieldChange(i, "variant", e.target.value)}
+                  onChange={(e) =>
+                    handleContentFieldChange(i, "variant", e.target.value)
+                  }
                   sx={{ minWidth: 160 }}
                 >
                   <MenuItem value="title">Título grande</MenuItem>
@@ -425,35 +470,26 @@ export default function LandingPageCreateForm() {
                 </IconButton>
               </Stack>
             ))}
-
             <Button variant="outlined" onClick={handleAddContentField}>
               Agregar campo
             </Button>
-
           </Stack>
         </Collapse>
       </Card>
 
-      {/* Formulario */}
-      <Card sx={{ mb: 3, borderRadius: 4, boxShadow }}>
+      {/* ---- Formulario ---- */}
+      <Card id='formulario' ref={formularioRef} sx={{ mb: 3, borderRadius: 4, boxShadow }}>
         <CardHeader
           title="Formulario"
-          action={renderCollapseButton(
-            openForm,
-            () => setOpenForm(!openForm)
+          action={renderCollapseButton(openForm, () =>
+            setOpenForm(!openForm)
           )}
         />
         <Collapse in={openForm}>
           <Divider />
           <Stack spacing={2} sx={{ p: 3 }}>
             {formFields.map((field, i) => (
-              <Stack
-                key={i}
-                direction="row"
-                spacing={1}
-                alignItems="flex-start"
-              >
-                {/* Etiqueta: placeholder */}
+              <Stack key={i} direction="row" spacing={1} alignItems="flex-start">
                 <TextField
                   label="Etiqueta"
                   value={field.label}
@@ -462,14 +498,11 @@ export default function LandingPageCreateForm() {
                   }
                   sx={{ minWidth: 220 }}
                 />
-
-                {/* Tipo: tipo de input */}
                 <Select
                   value={field.type}
                   onChange={(e) =>
                     handleFormFieldChange(i, "type", e.target.value as string)
                   }
-                  displayEmpty
                   sx={{ minWidth: 160 }}
                 >
                   <MenuItem value="text">Texto</MenuItem>
@@ -478,7 +511,6 @@ export default function LandingPageCreateForm() {
                   <MenuItem value="number">Número</MenuItem>
                   <MenuItem value="password">Contraseña</MenuItem>
                 </Select>
-
                 <FormControlLabel
                   control={
                     <Switch
@@ -507,13 +539,12 @@ export default function LandingPageCreateForm() {
         </Collapse>
       </Card>
 
-      {/* Términos y condiciones */}
-      <Card sx={{ mb: 3, borderRadius: 4, boxShadow }}>
+      {/* ---- Términos ---- */}
+      <Card id='terms' ref={termsRef} sx={{ mb: 3, borderRadius: 4, boxShadow }}>
         <CardHeader
           title="Términos y Condiciones"
-          action={renderCollapseButton(
-            openTerms,
-            () => setOpenTerms(!openTerms)
+          action={renderCollapseButton(openTerms, () =>
+            setOpenTerms(!openTerms)
           )}
         />
         <Collapse in={openTerms}>
@@ -530,8 +561,8 @@ export default function LandingPageCreateForm() {
         </Collapse>
       </Card>
 
-      {/* SEO / Meta */}
-      <Card sx={{ mb: 3, borderRadius: 4, boxShadow }}>
+      {/* ---- SEO ---- */}
+      <Card id='seo' ref={seoRef} sx={{ mb: 3, borderRadius: 4, boxShadow }}>
         <CardHeader
           title="SEO / Meta"
           action={renderCollapseButton(openSEO, () => setOpenSEO(!openSEO))}
@@ -546,7 +577,6 @@ export default function LandingPageCreateForm() {
               helperText={`${metaTitle.length}/60 caracteres`}
               fullWidth
             />
-
             <TextField
               label="Meta descripción"
               value={metaDescription}
@@ -556,17 +586,6 @@ export default function LandingPageCreateForm() {
               rows={3}
               fullWidth
             />
-
-            <Button variant="contained" component="label">
-              Subir imagen para compartir
-              <input
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleSeoImageUpload}
-              />
-            </Button>
-
             <FormControlLabel
               label="Permitir indexación en Google"
               control={
@@ -576,48 +595,11 @@ export default function LandingPageCreateForm() {
                 />
               }
             />
-
-            <div
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: 8,
-                padding: 12,
-                maxWidth: 500,
-              }}
-            >
-              <Typography variant="subtitle2" color="textSecondary">
-                Vista previa (Google / redes)
-              </Typography>
-
-              {seoPreview && (
-                <img
-                  src={seoPreview}
-                  alt="SEO Preview"
-                  style={{
-                    width: "100%",
-                    maxHeight: 200,
-                    objectFit: "cover",
-                    borderRadius: 6,
-                    marginBottom: 8,
-                  }}
-                />
-              )}
-
-              <Typography variant="h6">
-                {metaTitle || "Título de ejemplo"}
-              </Typography>
-              <Typography variant="body2">
-                {metaDescription || "Descripción de ejemplo..."}
-              </Typography>
-              <Typography variant="caption" color="primary">
-                tudominio.com/slug
-              </Typography>
-            </div>
           </Stack>
         </Collapse>
       </Card>
 
-      {/* Acciones */}
+      {/* ---- Acciones ---- */}
       <Stack
         direction="row"
         justifyContent="flex-end"
@@ -635,9 +617,8 @@ export default function LandingPageCreateForm() {
           }
           label="Publicar"
         />
-
         <Button variant="contained" onClick={handleSubmit}>
-          Crear Landing Page
+          {initialData ? "Guardar cambios" : "Crear Landing Page"}
         </Button>
       </Stack>
     </div>
