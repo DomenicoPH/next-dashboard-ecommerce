@@ -252,7 +252,7 @@ const LandingPageTable: React.FC = () => {
                   <TableCell>
                     <Typography
                       sx={{
-                        fontWeight: 600,
+                        fontWeight: 400,
                         color: lp.status === "Activo" ? "green" : "red"
                       }}
                     >
