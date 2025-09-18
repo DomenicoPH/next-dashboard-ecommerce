@@ -32,29 +32,45 @@ export interface FormField {
 
 type VariantType = "title" | "subtitle" | "highlight";
 
-// TEMPORAL: data en memoria hasta conectar al backend
-let landingPages: LandingPage[] = [];
+// ---------------------------
+// Helpers localStorage
+// ---------------------------
+const STORAGE_KEY = "landingPages";
+
+const load = (): LandingPage[] => {
+  if (typeof window === "undefined") return [];
+  const saved = localStorage.getItem(STORAGE_KEY);
+  return saved ? JSON.parse(saved) : [];
+};
+
+const save = (pages: LandingPage[]) => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(pages));
+  }
+};
 
 // ---------------------------
 // Métodos preparados a backend
 // ---------------------------
 
 export const getLandingPages = async (): Promise<LandingPage[]> => {
-  // Futuro: `return fetch('/api/landing-pages').then(r => r.json())`
-  return landingPages;
+  return load();
 };
 
 export const addLandingPage = async (lp: LandingPage): Promise<void> => {
-  landingPages.push(lp);
-  // Futuro: POST -> fetch('/api/landing-pages', { method:'POST', body: JSON.stringify(lp) })
+  const pages = load();
+  pages.push(lp);
+  save(pages);
 };
 
 export const updateLandingPage = async (lp: LandingPage): Promise<void> => {
-  landingPages = landingPages.map(page => page.id === lp.id ? lp : page);
-  // Futuro: PUT -> fetch(`/api/landing-pages/${lp.id}`, { method:'PUT', body: JSON.stringify(lp) })
+  let pages = load();
+  pages = pages.map((p) => (p.id === lp.id ? lp : p));
+  save(pages);
 };
 
 export const deleteLandingPages = async (ids: number[]): Promise<void> => {
-  landingPages = landingPages.filter(page => !ids.includes(page.id));
-  // Futuro: DELETE -> fetch('/api/landing-pages', { method:'DELETE', body: JSON.stringify(ids) })
+  let pages = load();
+  pages = pages.filter((p) => !ids.includes(p.id));
+  save(pages);
 };
