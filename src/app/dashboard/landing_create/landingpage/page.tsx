@@ -250,14 +250,16 @@ const LandingPageTable: React.FC = () => {
                   </TableCell>
 
                   <TableCell>
-                    <Switch
-                      checked={lp.status === "Activo"}
-                      onChange={(e) =>
-                        handleToggleStatus(lp.id, e.target.checked)
-                      }
-                      color="primary"
-                    />
+                    <Typography
+                      sx={{
+                        fontWeight: 600,
+                        color: lp.status === "Activo" ? "green" : "red"
+                      }}
+                    >
+                      {lp.status}
+                    </Typography>
                   </TableCell>
+
                 </TableRow>
               ))}
             </TableBody>

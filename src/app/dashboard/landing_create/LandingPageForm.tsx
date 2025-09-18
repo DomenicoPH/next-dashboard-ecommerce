@@ -50,103 +50,112 @@ export default function LandingPageForm({
       ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     };
 
-  // ----------------------
-  // Estados principales
-  // ----------------------
-  const [title, setTitle] = useState(initialData?.titulo ?? "");
-  const [headerImage, setHeaderImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState(initialData?.imagen ?? "");
+    // Estados principales
+    const [title, setTitle] = useState(initialData?.titulo ?? "");
+    const [headerImage, setHeaderImage] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState(initialData?.imagen ?? "");
 
-  const [formFields, setFormFields] = useState<FormField[]>(
-    initialData?.formFields ?? [
-      { label: "Nombre completo", type: "text", required: true },
-      { label: "Teléfono celular", type: "tel", required: true },
-    ]
-  );
-  const [formButtonText, setFormButtonText] = useState(
-    initialData?.formButtonText ?? "Enviar"
-  );
+    const [formFields, setFormFields] = useState<FormField[]>(
+      initialData?.formFields ?? [
+        { label: "Nombre completo", type: "text", required: true },
+        { label: "Teléfono celular", type: "tel", required: true },
+      ]
+    );
+    const [formButtonText, setFormButtonText] = useState(
+      initialData?.formButtonText ?? "Enviar"
+    );
 
-  const [contentFields, setContentFields] = useState<ContentField[]>(
-    initialData?.contentFields ?? [
-      { label: "Texto superior", value: "", variant: "subtitle" },
-      { label: "Precio", value: "", variant: "highlight" },
-      { label: "Texto inferior", value: "", variant: "subtitle" },
-    ]
-  );
+    const [contentFields, setContentFields] = useState<ContentField[]>(
+      initialData?.contentFields ?? [
+        { label: "Texto superior", value: "", variant: "subtitle" },
+        { label: "Precio", value: "", variant: "highlight" },
+        { label: "Texto inferior", value: "", variant: "subtitle" },
+      ]
+    );
 
-  const [termsUrl, setTermsUrl] = useState(initialData?.termsUrl ?? "");
-  const [allowIndex, setAllowIndex] = useState(initialData?.allowIndex ?? true);
-  const [metaTitle, setMetaTitle] = useState(initialData?.metaTitle ?? "");
-  const [metaDescription, setMetaDescription] = useState(
-    initialData?.metaDescription ?? ""
-  );
-  const [expirationDate, setExpirationDate] = useState(
-    initialData?.expirationDate ?? ""
-  );
-  const [publish, setPublish] = useState(initialData?.publish ?? false);
-  const [categoriaId, setCategoriaId] = useState<number | null>(
-    initialData?.categoriaId ?? null
-  );
+    const [termsUrl, setTermsUrl] = useState(initialData?.termsUrl ?? "");
+    const [allowIndex, setAllowIndex] = useState(initialData?.allowIndex ?? true);
+    const [metaTitle, setMetaTitle] = useState(initialData?.metaTitle ?? "");
+    const [metaDescription, setMetaDescription] = useState(
+      initialData?.metaDescription ?? ""
+    );
+    const [expirationDate, setExpirationDate] = useState(
+      initialData?.expirationDate ?? ""
+    );
+    const [publish, setPublish] = useState(initialData?.publish ?? false);
+    const [categoriaId, setCategoriaId] = useState<number | null>(
+      initialData?.categoriaId ?? null
+    );
 
-  // ----------------------
-  // UI (colapsables)
-  // ----------------------
-  const [openDetails, setOpenDetails] = useState(true);
-  const [openContent, setOpenContent] = useState(true);
-  const [openForm, setOpenForm] = useState(true);
-  const [openSEO, setOpenSEO] = useState(true);
-  const [openTerms, setOpenTerms] = useState(true);
+    // UI (colapsables)
+    const [openDetails, setOpenDetails] = useState(true);
+    const [openContent, setOpenContent] = useState(true);
+    const [openForm, setOpenForm] = useState(true);
+    const [openSEO, setOpenSEO] = useState(true);
+    const [openTerms, setOpenTerms] = useState(true);
 
-  useEffect(() => {
-    if (initialData) {
-      setTitle(initialData.titulo);
-      setImagePreview(initialData.imagen ?? "");
-      setFormFields(initialData.formFields ?? []);
-      setFormButtonText(initialData.formButtonText ?? "Enviar");
-      setContentFields(initialData.contentFields ?? []);
-      setTermsUrl(initialData.termsUrl ?? "");
-      setAllowIndex(initialData.allowIndex ?? true);
-      setMetaTitle(initialData.metaTitle ?? "");
-      setMetaDescription(initialData.metaDescription ?? "");
-      setExpirationDate(initialData.expirationDate ?? "");
-      setPublish(initialData.publish ?? false);
-      setCategoriaId(initialData.categoriaId ?? null);
-    }
-  }, [initialData]);
+    useEffect(() => {
+      if (initialData) {
+        setTitle(initialData.titulo);
+        setImagePreview(initialData.imagen ?? "");
+        setFormFields(initialData.formFields ?? []);
+        setFormButtonText(initialData.formButtonText ?? "Enviar");
+        setContentFields(initialData.contentFields ?? []);
+        setTermsUrl(initialData.termsUrl ?? "");
+        setAllowIndex(initialData.allowIndex ?? true);
+        setMetaTitle(initialData.metaTitle ?? "");
+        setMetaDescription(initialData.metaDescription ?? "");
+        setExpirationDate(initialData.expirationDate ?? "");
+        setPublish(initialData.publish ?? false);
+        setCategoriaId(initialData.categoriaId ?? null);
+      }
+    }, [initialData]);
 
-  // ----------------------
-  // Handlers
-  // ----------------------
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setHeaderImage(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
+    // Handlers
+    /*
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        setHeaderImage(file);
+        setImagePreview(URL.createObjectURL(file));
+      }
+    };
+    */
 
-  const handleRemoveImage = () => {
-    setHeaderImage(null);
-    setImagePreview("");
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
+    // handleImageUpload (temp: base64)
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              setHeaderImage(file);
+              setImagePreview(reader.result as string); //guarda base64 en imagePreview
+            };
+            reader.readAsDataURL(file); //convierte a base64
+        }
+    };
 
-  const handleAddFormField = () =>
-    setFormFields([
-      ...formFields,
-      { label: "", type: "text", required: false },
-    ]);
+    const handleRemoveImage = () => {
+        setHeaderImage(null);
+        setImagePreview("");
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
 
-  const handleFormFieldChange = (
-    index: number,
-    key: "label" | "type" | "required",
-    value: any
-  ) => {
-    const updated = [...formFields];
-    (updated[index] as any)[key] = value;
-    setFormFields(updated);
-  };
+    const handleAddFormField = () =>
+        setFormFields([
+          ...formFields,
+          { label: "", type: "text", required: false },
+        ]);
+
+    const handleFormFieldChange = (
+      index: number,
+      key: "label" | "type" | "required",
+      value: any
+    ) => {
+      const updated = [...formFields];
+      (updated[index] as any)[key] = value;
+      setFormFields(updated);
+    };
 
   const handleRemoveFormField = (index: number) =>
     setFormFields((f) => f.filter((_, i) => i !== index));
