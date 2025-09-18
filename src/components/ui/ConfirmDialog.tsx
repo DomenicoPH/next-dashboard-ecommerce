@@ -7,7 +7,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Button
+  Button,
+  Box
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
@@ -53,6 +54,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       <DialogContent>
         <DialogContentText 
           id="confirm-dialog-description"
+          component={Box}
           sx={{ fontSize: 14, color: theme.palette.text.secondary }}
         >
           {message}

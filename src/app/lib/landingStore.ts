@@ -1,4 +1,4 @@
-// TEMPORAL: eliminar cuando tengamos la conexión con el back..
+// landingStore.ts
 
 export interface LandingPage {
   id: number;
@@ -32,12 +32,29 @@ export interface FormField {
 
 type VariantType = "title" | "subtitle" | "highlight";
 
+// TEMPORAL: data en memoria hasta conectar al backend
 let landingPages: LandingPage[] = [];
 
-export const getLandingPages = () => landingPages;
+// ---------------------------
+// Métodos preparados a backend
+// ---------------------------
 
-export const addLandingPage = (lp: LandingPage) => {
-  landingPages.push(lp);
+export const getLandingPages = async (): Promise<LandingPage[]> => {
+  // Futuro: `return fetch('/api/landing-pages').then(r => r.json())`
+  return landingPages;
 };
 
-// TEMPORAL: eliminar cuando tengamos la conexión con el back..
+export const addLandingPage = async (lp: LandingPage): Promise<void> => {
+  landingPages.push(lp);
+  // Futuro: POST -> fetch('/api/landing-pages', { method:'POST', body: JSON.stringify(lp) })
+};
+
+export const updateLandingPage = async (lp: LandingPage): Promise<void> => {
+  landingPages = landingPages.map(page => page.id === lp.id ? lp : page);
+  // Futuro: PUT -> fetch(`/api/landing-pages/${lp.id}`, { method:'PUT', body: JSON.stringify(lp) })
+};
+
+export const deleteLandingPages = async (ids: number[]): Promise<void> => {
+  landingPages = landingPages.filter(page => !ids.includes(page.id));
+  // Futuro: DELETE -> fetch('/api/landing-pages', { method:'DELETE', body: JSON.stringify(ids) })
+};

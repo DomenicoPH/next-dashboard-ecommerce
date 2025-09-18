@@ -10,12 +10,18 @@ let categorias: Categoria[] = [
   { id: 2, titulo: "Nuevos productos", fecha: "2025-09-05", status: "Activo" },
 ];
 
-export const getCategorias = () => categorias;
+export const getCategorias = async (): Promise<Categoria[]> => {
+  return categorias;
+};
 
-export const addCategoria = (c: Categoria) => {
+export const addCategoria = async (c: Categoria): Promise<void> => {
   categorias.push(c);
 };
 
-export const updateCategoria = (c: Categoria) => {
+export const updateCategoria = async (c: Categoria): Promise<void> => {
   categorias = categorias.map(cat => cat.id === c.id ? c : cat);
+};
+
+export const deleteCategorias = async (ids: number[]): Promise<void> => {
+  categorias = categorias.filter(cat => !ids.includes(cat.id));
 };

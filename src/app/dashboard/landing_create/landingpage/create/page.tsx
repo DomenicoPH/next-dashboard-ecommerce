@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -23,14 +23,24 @@ import { ExpandMore, ExpandLess, Home, Delete } from "@mui/icons-material";
 import SectionHeader from "@/components/ui/SectionHeader";
 
 /*temp*/ import { addLandingPage, LandingPage, ContentField, FormField } from "@/app/lib/landingStore";
-/*temp*/ import { getCategorias } from "@/app/lib/categoriaStore";
+/*temp*/ import { getCategorias, Categoria } from "@/app/lib/categoriaStore";
 
 export default function LandingPageCreateForm() {
+
   const boxShadow = "0 8px 24px rgba(0,0,0,0.1)";
 
   // Categorias
-  const categorias = getCategorias();
+  //const categorias = getCategorias();
   const [categoriaId, setCategoriaId] = useState<number | null>(null);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      const data = await getCategorias();
+      setCategorias(data);
+    };
+    fetchCategorias();
+  }, []);
 
   // Secciones abiertas
   const [openDetails, setOpenDetails] = useState(true);
@@ -127,16 +137,17 @@ export default function LandingPageCreateForm() {
   }
 
   // Submit
-  const handleSubmit = () => {
-    if(categoriaId === null){
-      toast.error('Debes seleccionar una categoría');
+  const handleSubmit = async () => {
+    if (categoriaId === null) {
+      toast.error("Debes seleccionar una categoría");
       return;
     }
+
     const nuevaLanding: LandingPage = {
       id: Date.now(),
       titulo: title,
       expirationDate,
-      creationDate: new Date().toLocaleDateString("es-PE"),
+      creationDate: new Date().toISOString(),
       status: publish ? "Activo" : "Inactivo",
       imagen: headerImage ? URL.createObjectURL(headerImage) : "",
       publish,
@@ -150,9 +161,14 @@ export default function LandingPageCreateForm() {
       categoriaId,
     };
 
-    addLandingPage(nuevaLanding);
-
-    toast.success("Landing Page creada!");
+    try {
+      await addLandingPage(nuevaLanding); // aquí será POST al backend
+      toast.success("Landing Page creada!");
+      // Opcional: reset form
+    } catch (err) {
+      toast.error("Error al crear la Landing");
+      console.error(err);
+    }
   };
 
   const renderCollapseButton = (isOpen: boolean, toggle: () => void) => (
