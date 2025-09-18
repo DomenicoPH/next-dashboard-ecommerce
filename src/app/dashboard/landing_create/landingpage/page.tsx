@@ -23,7 +23,7 @@ import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
-import { getLandingPages, LandingPage } from "@/app/lib/landingStore";
+import { getLandingPages, LandingPage, deleteLandingPages } from "@/app/lib/landingStore";
 import { getCategorias, Categoria } from "@/app/lib/categoriaStore";
 
 const LandingPageTable: React.FC = () => {
@@ -61,14 +61,22 @@ const LandingPageTable: React.FC = () => {
   const isSelected = (id: number) => selected.includes(id);
   const selectedLandingPages = landingPages.filter((lp) => selected.includes(lp.id));
 
-  const handleDelete = () => {
-    // Aquí idealmente llamas al endpoint / store de borrado y luego recargas la lista.
-    // Placeholder:
-    console.log("Eliminando landing pages:", selectedLandingPages);
-    // ejemplo si tuvieras deleteLandingPages(ids): await deleteLandingPages(selected);
-    setIsConfirmOpen(false);
-    setSelected([]);
+  const handleDelete = async () => {
+    try {
+      // 1. Eliminar del store / backend
+      await deleteLandingPages(selected);
+
+      // 2. Refrescar estado local
+      setLandingPages((prev) => prev.filter((lp) => !selected.includes(lp.id)));
+
+      // 3. Reset selección y cerrar diálogo
+      setIsConfirmOpen(false);
+      setSelected([]);
+    } catch (err) {
+      console.error("Error eliminando landing pages:", err);
+    }
   };
+
 
   const handleToggleStatus = (id: number, checked: boolean) => {
     setLandingPages((prev) =>
