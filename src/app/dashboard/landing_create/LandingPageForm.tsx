@@ -16,6 +16,7 @@ import {
   Paper,
   Select,
   MenuItem,
+  Checkbox,
 } from "@mui/material";
 import { toast } from "react-hot-toast";
 import { ExpandMore, ExpandLess, Home, Delete } from "@mui/icons-material";
@@ -263,9 +264,7 @@ export default function LandingPageForm({
     </IconButton>
   );
 
-  // ----------------------
-  // Render
-  // ----------------------
+
   return (
     <div className="p-5 max-w-6xl mx-auto">
       <SectionHeader
@@ -327,20 +326,27 @@ export default function LandingPageForm({
             </Typography>
 
             {contentFields.map((field, i) => (
-              <Typography
-                key={i}
-                sx={{ textAlign: "center" }}
-                variant={
-                  field.variant === "title"
-                    ? "h4"
-                    : field.variant === "highlight"
-                    ? "h3"
-                    : "subtitle2"
-                }
-                gutterBottom
-              >
-                {field.value || field.label}
-              </Typography>
+                <Typography
+                  key={i}
+                  sx={{ textAlign: "center" }}
+                  variant={
+                    field.variant === "title" ? "h4" :
+                    field.variant === "highlight" ? "h3" :
+                    "subtitle2"
+                  }
+                  color={
+                    field.variant === "highlight" ? "primary" : 
+                    field.variant === "title" ? "primary" : 
+                    "textSecondary"}
+                  fontWeight={
+                    field.variant === "highlight" ? 700 :
+                    field.variant === "subtitle" ? 500 :
+                    400
+                  }
+                  gutterBottom
+                >
+                  {field.value || field.label}
+                </Typography>
             ))}
 
             <Paper sx={{ p: 3, mt: 2, borderRadius: 2 }}>
@@ -354,7 +360,26 @@ export default function LandingPageForm({
                     fullWidth
                   />
                 ))}
+
+                <FormControlLabel
+                  control={<Checkbox disabled checked />}
+                  label={
+                    <Typography variant="body2">
+                      Acepto los{" "}
+                      <a
+                        href={termsUrl || "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: "underline" }}
+                      >
+                        términos y condiciones
+                      </a>
+                    </Typography>
+                  }
+                />
+
                 <Button variant="contained">{formButtonText}</Button>
+
               </Stack>
             </Paper>
           </div>
@@ -604,6 +629,37 @@ export default function LandingPageForm({
                 />
               }
             />
+
+            {/* Preview SEO estilo Google */}
+            <Paper sx={{ p: 2, mt: 4, border: "1px solid #ddd", borderRadius: 2, maxWidth: 400 }}>
+              <Typography variant="caption" color="textSecondary">
+                Vista previa en Google
+              </Typography>
+              <Typography variant="h6" color="primary" sx={{ fontWeight: 500 }}>
+                {metaTitle || "Título SEO de la landing"}
+              </Typography>
+              <Typography variant="body2" color="success.main">
+                www.depilzone.com/landing/{title ? title.toLowerCase().replace(/\s+/g, "-") : "slug"}
+              </Typography>
+              <Stack direction="row" spacing={2} alignItems="flex-start" sx={{ mt: 1 }}>
+                {imagePreview && (
+                  <img
+                    src={imagePreview}
+                    alt="SEO Preview"
+                    style={{
+                      width: 80,
+                      height: 80,
+                      borderRadius: 8,
+                      objectFit: "cover",
+                    }}
+                  />
+                )}
+                <Typography variant="body2" color="textSecondary">
+                  {metaDescription || "Aquí aparecerá la meta descripción (máx 160 caracteres)."}
+                </Typography>
+              </Stack>
+            </Paper>
+
           </Stack>
         </Collapse>
       </Card>
