@@ -1,5 +1,3 @@
-// landingStore.ts
-
 export interface LandingPage {
   id: number;
   titulo: string;
@@ -32,9 +30,7 @@ export interface FormField {
 
 type VariantType = "title" | "subtitle" | "highlight";
 
-// ---------------------------
 // Helpers localStorage
-// ---------------------------
 const STORAGE_KEY = "landingPages";
 
 const load = (): LandingPage[] => {
@@ -49,10 +45,7 @@ const save = (pages: LandingPage[]) => {
   }
 };
 
-// ---------------------------
 // Métodos preparados a backend
-// ---------------------------
-
 export const getLandingPages = async (): Promise<LandingPage[]> => {
   return load();
 };
