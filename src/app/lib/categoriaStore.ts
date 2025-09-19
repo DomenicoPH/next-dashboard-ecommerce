@@ -1,5 +1,3 @@
-// categoriaStore.ts
-
 export interface Categoria {
   id: number;
   titulo: string;
@@ -9,9 +7,7 @@ export interface Categoria {
 
 const STORAGE_KEY = "categorias";
 
-// ---------------------------
 // Helpers localStorage
-// ---------------------------
 const load = (): Categoria[] => {
   if (typeof window === "undefined") return [];
   const saved = localStorage.getItem(STORAGE_KEY);
@@ -29,10 +25,7 @@ const save = (cats: Categoria[]) => {
   }
 };
 
-// ---------------------------
 // Métodos preparados a backend
-// ---------------------------
-
 export const getCategorias = async (): Promise<Categoria[]> => {
   return load();
 };
