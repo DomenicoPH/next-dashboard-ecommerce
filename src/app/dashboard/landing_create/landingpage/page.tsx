@@ -16,13 +16,19 @@ import {
   Tooltip,
   Typography,
   Box,
-  Switch
+  Switch,
+  Chip
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
-import { getLandingPages, LandingPage, deleteLandingPages } from "@/app/lib/landingStore";
+import {
+  getLandingPages,
+  LandingPage,
+  deleteLandingPages,
+  updateLandingPage,
+} from "@/app/lib/landingStore";
 import { getCategorias, Categoria } from "@/app/lib/categoriaStore";
 
 const LandingPageTable: React.FC = () => {
@@ -73,13 +79,28 @@ const LandingPageTable: React.FC = () => {
     }
   };
 
-  const handleToggleStatus = (id: number, checked: boolean) => {
+  const handleToggleStatus = async (id: number, checked: boolean) => {
     setLandingPages((prev) =>
       prev.map((lp) =>
         lp.id === id ? { ...lp, status: checked ? "Activo" : "Inactivo" } : lp
       )
     );
-    // Futuro: aquí harías PATCH/PUT al backend.
+    // Guardar en localStorage
+    const updated = landingPages.find((lp) => lp.id === id);
+    if (updated) {
+      await updateLandingPage({ ...updated, status: checked ? "Activo" : "Inactivo" });
+    }
+  };
+
+  const handleTogglePublish = async (id: number, checked: boolean) => {
+    setLandingPages((prev) =>
+      prev.map((lp) => (lp.id === id ? { ...lp, publish: checked } : lp))
+    );
+    // Guardar en localStorage
+    const updated = landingPages.find((lp) => lp.id === id);
+    if (updated) {
+      await updateLandingPage({ ...updated, publish: checked });
+    }
   };
 
   const handleEdit = () => {
@@ -101,7 +122,7 @@ const LandingPageTable: React.FC = () => {
             gap: 2,
             borderBottom: `1px solid ${
               theme.palette.mode === "dark" ? "#1e1b4b" : "#d1d5db"
-            }`
+            }`,
           }}
         >
           {selected.length === 1 && (
@@ -159,11 +180,13 @@ const LandingPageTable: React.FC = () => {
                 <TableCell>ID</TableCell>
                 <TableCell>Categoría</TableCell>
                 <TableCell>Título</TableCell>
+                <TableCell>Slug</TableCell>
+                <TableCell>UTM</TableCell>
                 <TableCell>Fecha creación</TableCell>
                 <TableCell>Fecha expiración</TableCell>
                 <TableCell>Términos</TableCell>
-                <TableCell>Link Imagen</TableCell>
                 <TableCell>Status</TableCell>
+                <TableCell>Publicado</TableCell>
               </TableRow>
             </TableHead>
 
@@ -190,7 +213,7 @@ const LandingPageTable: React.FC = () => {
                         width: 60,
                         height: 40,
                         objectFit: "contain",
-                        borderRadius: 6
+                        borderRadius: 6,
                       }}
                     />
                   </TableCell>
@@ -201,6 +224,31 @@ const LandingPageTable: React.FC = () => {
                       "Sin categoría"}
                   </TableCell>
                   <TableCell>{lp.titulo}</TableCell>
+                  <TableCell>
+                    <Typography
+                      component="a"
+                      href={`/landing/${lp.slug}`}
+                      target="_blank"
+                      sx={{
+                        color: "primary.main",
+                        textDecoration: "underline",
+                      }}
+                    >
+                      {lp.slug}
+                    </Typography>
+                  </TableCell>
+
+                  <TableCell>
+                    {lp.utmRules && lp.utmRules.length > 0 ? (
+                      <Chip
+                        label={`${lp.utmRules.length} reglas`}
+                        color="primary"
+                        size="small"
+                      />
+                    ) : (
+                      <Chip label="N/A" size="small" />
+                    )}
+                  </TableCell>
 
                   <TableCell>
                     {lp.creationDate
@@ -221,7 +269,7 @@ const LandingPageTable: React.FC = () => {
                         target="_blank"
                         sx={{
                           color: "primary.main",
-                          textDecoration: "underline"
+                          textDecoration: "underline",
                         }}
                       >
                         Ver
@@ -232,34 +280,24 @@ const LandingPageTable: React.FC = () => {
                   </TableCell>
 
                   <TableCell>
-                    {lp.imagen ? (
-                      <Typography
-                        component="a"
-                        href={lp.imagen}
-                        target="_blank"
-                        sx={{
-                          color: "primary.main",
-                          textDecoration: "underline"
-                        }}
-                      >
-                        Ver
-                      </Typography>
-                    ) : (
-                      "-"
-                    )}
+                    <Switch
+                      checked={lp.status === "Activo"}
+                      onChange={(e) =>
+                        handleToggleStatus(lp.id, e.target.checked)
+                      }
+                      color="success"
+                    />
                   </TableCell>
 
                   <TableCell>
-                    <Typography
-                      sx={{
-                        fontWeight: 400,
-                        color: lp.status === "Activo" ? "green" : "red"
-                      }}
-                    >
-                      {lp.status}
-                    </Typography>
+                    <Switch
+                      checked={lp.publish}
+                      onChange={(e) =>
+                        handleTogglePublish(lp.id, e.target.checked)
+                      }
+                      color="primary"
+                    />
                   </TableCell>
-
                 </TableRow>
               ))}
             </TableBody>

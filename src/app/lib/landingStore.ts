@@ -14,6 +14,8 @@ export interface LandingPage {
   formFields: FormField[];
   formButtonText: string;
   categoriaId: number;
+  slug: string;
+  utmRules?: UTMRule[];
 }
 
 export interface ContentField {
@@ -26,6 +28,11 @@ export interface FormField {
   label: string;
   type: string;
   required: boolean;
+}
+
+export interface UTMRule {
+  key: string;
+  value: string;
 }
 
 type VariantType = "title" | "subtitle" | "highlight";

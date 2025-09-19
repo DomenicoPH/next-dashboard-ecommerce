@@ -21,7 +21,7 @@ import {
 import { toast } from "react-hot-toast";
 import { ExpandMore, ExpandLess, Home, Delete } from "@mui/icons-material";
 import SectionHeader from "@/components/ui/SectionHeader";
-import { LandingPage, ContentField, FormField } from "@/app/lib/landingStore";
+import { LandingPage, ContentField, FormField, UTMRule } from "@/app/lib/landingStore";
 import { Categoria } from "@/app/lib/categoriaStore";
 
 interface Props {
@@ -30,6 +30,14 @@ interface Props {
     onSubmit: (lp: LandingPage) => Promise<void>;
     onSuccess?: () => void;
 }
+
+const generateSlug = (s: string) =>
+  s
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9\-]/g, "")
+    .replace(/\-+/g, "-");
 
 export default function LandingPageForm({
     initialData = null,
@@ -46,6 +54,7 @@ export default function LandingPageForm({
     const formularioRef = useRef<HTMLDivElement>(null);
     const termsRef = useRef<HTMLDivElement>(null);
     const seoRef = useRef<HTMLDivElement>(null);
+    const utmRef = useRef<HTMLDivElement>(null);
 
     const scrollToRef = (ref: React.RefObject<HTMLDivElement | null>) => {
       ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -87,6 +96,14 @@ export default function LandingPageForm({
     const [categoriaId, setCategoriaId] = useState<number | null>(
       initialData?.categoriaId ?? null
     );
+    const [slug, setSlug] = useState(
+      initialData?.slug ?? (initialData?.titulo ? generateSlug(initialData.titulo) : "")
+    );
+    const [slugTouched, setSlugTouched] = useState<boolean>(!!initialData?.slug);
+
+    const [utmRules, setUtmRules] = useState<UTMRule[]>(
+      initialData?.utmRules ? [...initialData.utmRules] : []
+    );
 
     // UI (colapsables)
     const [openDetails, setOpenDetails] = useState(true);
@@ -94,6 +111,7 @@ export default function LandingPageForm({
     const [openForm, setOpenForm] = useState(true);
     const [openSEO, setOpenSEO] = useState(true);
     const [openTerms, setOpenTerms] = useState(true);
+    const [openUTM, setOpenUTM] = useState(true);
 
     useEffect(() => {
       if (initialData) {
@@ -109,10 +127,19 @@ export default function LandingPageForm({
         setExpirationDate(initialData.expirationDate ?? "");
         setPublish(initialData.publish ?? false);
         setCategoriaId(initialData.categoriaId ?? null);
+        setSlug(initialData.slug ?? generateSlug(initialData.titulo ?? ""));
+        setUtmRules(initialData.utmRules ? [...initialData.utmRules] : []);
       }
     }, [initialData]);
 
     // Handlers
+
+    useEffect(() => {
+      if (!slugTouched) {
+        setSlug(generateSlug(title));
+      }
+    }, [title, slugTouched]);
+
     /*
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -184,6 +211,24 @@ export default function LandingPageForm({
   const handleRemoveContentField = (index: number) =>
     setContentFields((c) => c.filter((_, i) => i !== index));
 
+  // UTM rules handlers
+  const handleAddUtmRule = () =>
+    setUtmRules((u) => [...u, { key: "", value: "" }]);
+
+  const handleUtmRuleChange = (
+    index: number,
+    key: keyof UTMRule,
+    val: string
+  ) => {
+    const updated = [...utmRules];
+    (updated[index] as any)[key] = val;
+    setUtmRules(updated);
+  };
+
+  const handleRemoveUtmRule = (index: number) =>
+    setUtmRules((u) => u.filter((_, i) => i !== index));
+
+
   const handleSubmit = async () => {
 
     // validaciones básicas..
@@ -229,6 +274,8 @@ export default function LandingPageForm({
       return;
     }
 
+    const finalSlug = slug?.trim() || generateSlug(title);
+
     const now = new Date().toISOString();
     const lp: LandingPage = {
       id: initialData?.id ?? Date.now(),
@@ -246,6 +293,8 @@ export default function LandingPageForm({
       formFields,
       formButtonText,
       categoriaId,
+      slug: finalSlug,
+      utmRules: utmRules.filter( (r) => r.key && r.key.trim() !== ""),
     };
 
     try {
@@ -591,6 +640,31 @@ export default function LandingPageForm({
               placeholder="https://misarchivos.com/terminos.pdf"
               fullWidth
             />
+          </Stack>
+        </Collapse>
+      </Card>
+
+      {/* ---- UTM Rules ---- */}
+      <Card id="utm" ref={utmRef} sx={{ mb: 3, borderRadius: 4, boxShadow }}>
+        <CardHeader title="Asignación UTM" action={renderCollapseButton(openUTM, () => setOpenUTM(!openUTM))} />
+        <Collapse in={openUTM}>
+          <Divider />
+          <Stack spacing={2} sx={{ p: 3 }}>
+            <Typography variant="body2" color="textSecondary">
+              Define reglas opcionales que asocian parámetros UTM a esta landing (ej: <code>utm_campaign=zap_nike</code>).
+            </Typography>
+            {utmRules.map((r, i) => (
+              <Stack key={i} direction="row" spacing={1} alignItems="center">
+                <TextField label="Parámetro (key)" value={r.key} onChange={(e) => handleUtmRuleChange(i, "key", e.target.value)} sx={{ minWidth: 220 }} />
+                <TextField label="Valor esperado" value={r.value} onChange={(e) => handleUtmRuleChange(i, "value", e.target.value)} sx={{ minWidth: 240 }} />
+                <IconButton onClick={() => handleRemoveUtmRule(i)}>
+                  <Delete />
+                </IconButton>
+              </Stack>
+            ))}
+            <Button variant="outlined" onClick={handleAddUtmRule}>
+              Agregar regla UTM
+            </Button>
           </Stack>
         </Collapse>
       </Card>
