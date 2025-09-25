@@ -23,7 +23,7 @@ interface AdsListProps {
   onRefresh: () => void;
 }
 
-const API = "https://nestjs-eccommercex-819245f6bb7d.herokuapp.com/api/v1";
+const API = `${process.env.NEXT_PUBLIC_API_URL}/api/v1`;
 const token = localStorage.getItem('token');
 
 const AdsList: React.FC<AdsListProps> = ({ ads, onPreview, onRefresh }) => {

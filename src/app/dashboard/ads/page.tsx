@@ -17,7 +17,7 @@ import PrimaryButton from '@/components/ui/PrimaryButton';
 import AddIcon from '@mui/icons-material/Add';
 import AdsPageSkeleton from "@/components/ads/AdsPageSkeleton";
 
-const API = "https://nestjs-eccommercex-819245f6bb7d.herokuapp.com/api/v1";
+const API = `${process.env.NEXT_PUBLIC_API_URL}/api/v1`;
 const token = localStorage.getItem('token');
 
 const AdsPage = () => {
