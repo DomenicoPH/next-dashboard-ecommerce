@@ -20,7 +20,7 @@ import VistaCarruselPreview from "@/components/ads/CarrouselPreview";
 import { Category } from "@/interfaces/Ads";
 
 // Constantes
-const API = "https://nestjs-eccommercex-819245f6bb7d.herokuapp.com/api/v1";
+const API = `${process.env.NEXT_PUBLIC_API_URL}/api/v1`;
 
 interface CreateAdModalProps {
   open: boolean;
