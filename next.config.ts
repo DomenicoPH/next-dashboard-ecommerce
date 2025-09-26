@@ -16,11 +16,17 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'nestjs-eccommercex-819245f6bb7d.herokuapp.com',
         pathname: '/**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'depilzone-ecommerce-backend.ambitiousisland-19a5adf8.westus2.azurecontainerapps.io',
+        pathname: '/**',
+      },
     ],
     domains: [
       'depilzoneblob.blob.core.windows.net',
-      'nestjs-eccommercex-819245f6bb7d.herokuapp.com'
+      'nestjs-eccommercex-819245f6bb7d.herokuapp.com',
+      'depilzone-ecommerce-backend.ambitiousisland-19a5adf8.westus2.azurecontainerapps.io'
     ],
   },
 };
